@@ -1,0 +1,49 @@
+/*      MAIN ELEMENTS    */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+    font-family: "Segoe UI", "Roboto", "Nunito", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body.dark {
+    background: black;
+    color: white;
+}
+
+input,
+button {
+    color: inherit;
+}
+
+.root {
+    width: 100%;
+    height: 100%;
+}
+
+/*      SCROLLBAR    */
+
+/* Width */
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 5rem;
+    background: rgba(150, 150, 150, 0.2);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 150, 0.35);
+}
