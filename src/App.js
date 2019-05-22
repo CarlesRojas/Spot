@@ -7,10 +7,25 @@ const spotifyAPI = new SpotifyWebApi();
 export default class App extends Component {
     constructor() {
         super();
+
+        // Get hash parameters (for oauth autentication)
+        const params = this.getHashParams();
+        const token = params.access_token;
+
+        if (token) spotifyAPI.setAccessToken(token);
+
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight,
-            isPortrait: window.innerWidth <= window.innerHeight
+            isPortrait: window.innerWidth <= window.innerHeight,
+            loggedIn: token ? true : false,
+            nowPlaying: { name: "", albumArt: "" }
+        };
+
+        // State of the window
+        window.state = {
+            isMobile: false,
+            isMobileLandscape: false
         };
 
         // Loaded data
@@ -22,28 +37,9 @@ export default class App extends Component {
             }
         };
 
-        // State of the window
-        window.state = {
-            isMobile: false,
-            isMobileLandscape: false
-        };
-
-        this.updateDeviceType();
-
         // Subscribe to events
         window.addEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.sub("onWindowResize", this.handleWindowResize);
-
-        // Get hash parameters (for oauth autentication)
-        const params = this.getHashParams();
-        const token = params.access_token;
-
-        if (token) spotifyAPI.setAccessToken(token);
-
-        this.state = {
-            loggedIn: token ? true : false,
-            nowPlaying: { name: "Not Checked", albumArt: "" }
-        };
 
         // Set the dark mode
         //document.body.classList.add("dark");
@@ -80,12 +76,7 @@ export default class App extends Component {
 
     getNowPlaying = () => {
         spotifyAPI.getMyCurrentPlaybackState().then(response => {
-            this.setState({
-                nowPlaying: {
-                    name: response.item.name,
-                    albumArt: response.item.album.images[0].url
-                }
-            });
+            if (response) this.setState({ nowPlaying: { name: response.item.name, albumArt: response.item.album.images[0].url } });
         });
     };
 
@@ -94,30 +85,35 @@ export default class App extends Component {
 
         // In mobile
         if (window.state.isMobile) {
-            return (
-                <a href="http://localhost:8888">
-                    <button>Login With Spotify</button>
-                </a>
-            );
-        }
-
-        // In desktop mode, show the list to the side and sections to the right
-        else {
-            return (
-                <div className="App">
-                    <a href="http://localhost:8888/login"> Login to Spotify </a>
-                    <div>Now Playing: {this.state.nowPlaying.name}</div>
-                    <div>
-                        <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }} />
+            // Not logged in
+            if (!this.state.loggedIn) {
+                return (
+                    <div className="app_splashscreen">
+                        <a ref={elem => (this.loginWithSpotifyButton = elem)} href="http://localhost:8888/login">
+                            {" "}
+                        </a>
                     </div>
-                    {this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>Check Now Playing</button>}
-                </div>
-            );
+                );
+            } else {
+                return (
+                    <div className="app_wrapper">
+                        <div>Now Playing: {this.state.nowPlaying.name}</div>
+                        <div>
+                            <img src={this.state.nowPlaying.albumArt} alt="" style={{ height: 150 }} />
+                        </div>
+                        {this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>Check Now Playing</button>}
+                    </div>
+                );
+            }
         }
+        return <div className="app_desktop" />;
     }
 
     // Load files
-    componentDidMount() {}
+    componentDidMount() {
+        // Not logged in go to spotify login page
+        if (!this.state.loggedIn && this.loginWithSpotifyButton) this.loginWithSpotifyButton.click();
+    }
 
     // Stop listening to events
     componentWillUnmount() {
