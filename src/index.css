@@ -1,13 +1,22 @@
 /*      MAIN ELEMENTS    */
-
-body {
+* {
     margin: 0;
     padding: 0;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
     background: white;
     color: black;
     font-family: "Segoe UI", "Roboto", "Nunito", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    height: 100%;
 }
 
 body.dark {
@@ -20,7 +29,7 @@ button {
     color: inherit;
 }
 
-.root {
+#root {
     width: 100%;
     height: 100%;
 }
