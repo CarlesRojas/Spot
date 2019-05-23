@@ -97,10 +97,10 @@ export default class App extends Component {
             } else {
                 return (
                     <div className="app_wrapper">
-                        <div>Now Playing: {this.state.nowPlaying.name}</div>
-                        <div>
-                            <img src={this.state.nowPlaying.albumArt} alt="" style={{ height: 150 }} />
+                        <div className="app_image_div">
+                            <img className="app_image" src={this.state.nowPlaying.albumArt} alt=""/>
                         </div>
+                        <div>{this.state.nowPlaying.name}</div>
                         {this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>Check Now Playing</button>}
                     </div>
                 );
