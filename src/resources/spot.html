@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                pointer-events: none;
+            }
+
+            html {
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                background: rgb(25, 25, 25);
+                color: white;
+                font-family: "Segoe UI", "Roboto", "Nunito", "Helvetica Neue", sans-serif;
+                width: 100%;
+                height: 100%;
+                text-align: center;
+            }
+
+            .cover_div {
+                clip-path: url(#clipped);
+            }
+
+            .cover_clip,
+            .name_div {
+                position: absolute;
+                width: 30rem;
+                height: 30rem;
+                top: 0;
+                left: 0;
+            }
+
+            .song {
+                position: absolute;
+                width: 30rem;
+                bottom: 2.5rem;
+                font-weight: bold;
+                font-size: 1.25rem;
+                text-shadow: black 0 0 0.25rem;
+            }
+
+            .artist {
+                position: absolute;
+                width: 30rem;
+                bottom: 1rem;
+                text-shadow: black 0 0 0.25rem;
+            }
+
+            .cover {
+                pointer-events: all;
+                position: absolute;
+                height: 30rem;
+                left: 0;
+                top: 0;
+            }
+
+            #time_gradient {
+                transition-timing-function: linear;
+                position: absolute;
+                width: 30rem;
+                height: 30rem;
+                top: 0;
+                opacity: 1;
+                background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
+                /*background-image: linear-gradient(to top, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);*/
+                clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
+            }
+
+            #title_gradient {
+                position: absolute;
+                width: 30rem;
+                height: 30rem;
+                top: 0;
+                opacity: 1;
+                background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 25%);
+            }
+
+            #swipe {
+                pointer-events: all;
+                position: absolute;
+                left: 0;
+                top: 40rem;
+                padding: 1rem;
+            }
+        </style>
+
+        <svg class="cover_clip">
+            <defs>
+                <clipPath id="clipped">
+                    <circle id="clip_circle_tl" cx="1rem" cy="1rem" r="1rem"></circle>
+                    <circle id="clip_circle_tr" cx="calc(30rem - 1rem)" cy="1rem" r="1rem"></circle>
+                    <circle id="clip_circle_bl" cx="1rem" cy="calc(30rem - 1rem)" r="1rem"></circle>
+                    <circle id="clip_circle_br" cx="calc(30rem - 1rem)" cy="calc(30rem - 1rem)" r="1rem"></circle>
+                    <rect id="clip_rect_h" x="0" y="1rem" width="30rem" height="calc(30rem - 2rem)"></rect>
+                    <rect id="clip_rect_v" x="1rem" y="0" width="calc(30rem - 2rem)" height="30rem"></rect>
+                </clipPath>
+            </defs>
+        </svg>
+
+        <div class="cover_div">
+            <img class="cover" src="https://i.imgur.com/XHGwFKE.jpg" onclick="handleClick()" />
+            <!--
+                <img class="cover" src="https://i.imgur.com/HRiSXC6.jpg" onclick="handleClick()" />
+                <img class="cover" src="https://i.imgur.com/OyvaAEz.jpg" onclick="handleClick()" />
+            -->
+            <div id="title_gradient"></div>
+            <div id="time_gradient"></div>
+            <div class="name_div">
+                <p class="song">Catch Me If You Can</p>
+                <p class="artist">Desert Belle</p>
+            </div>
+        </div>
+        <button id="swipe" onclick="handleSwipe()">Swipe</button>
+
+        <script type="text/javascript">
+            var gradient = document.getElementById("time_gradient");
+            var duration = 250000; // = 1 minute = 60 sec
+            var curr_time = 0;
+            var playing = false;
+            var open = true;
+            var moving = false;
+            var update_speed = 33;
+
+            // Round Clip
+            var clip_circle_tl = document.getElementById("clip_circle_tl");
+            var clip_circle_tr = document.getElementById("clip_circle_tr");
+            var clip_circle_bl = document.getElementById("clip_circle_bl");
+            var clip_circle_br = document.getElementById("clip_circle_br");
+            var clip_rect_h = document.getElementById("clip_rect_h");
+            var clip_rect_v = document.getElementById("clip_rect_v");
+            var max_height = 30.0; // rem
+            var min_height = 5.0; // rem
+            var radius = 1; // rem
+            var progress = 0.0; // rem
+
+            function handleClick() {
+                if (playing) pause();
+                else play();
+            }
+
+            function play() {
+                playing = true;
+
+                window.time_progress_interval = window.setInterval(function() {
+                    curr_time += update_speed;
+                    var percentage = (curr_time / duration) * 100;
+                    gradient.style.clipPath = "polygon(0% 0%, " + percentage + "% 0%, " + percentage + "% 100%, 0% 100%)";
+                    if (curr_time >= duration) {
+                        curr_time = 0;
+                        clearInterval(window.time_progress_interval);
+                    }
+                }, update_speed);
+            }
+
+            function pause() {
+                playing = false;
+                clearInterval(window.time_progress_interval);
+            }
+
+            function handleSwipe() {
+                if (open) closeCover();
+                else openCover();
+            }
+
+            function closeCover() {
+                if (moving) return;
+
+                progress = 0;
+                moving = true;
+                window.change_size_interval = window.setInterval(function() {
+                    progress += 5;
+
+                    // Vertical Rectangle
+                    clip_rect_v.setAttribute("y", progress + "rem");
+                    clip_rect_v.setAttribute("height", max_height - progress + "rem");
+
+                    // Horizontal Rectangle
+                    clip_rect_h.setAttribute("y", progress + radius + "rem");
+                    clip_rect_h.setAttribute("height", max_height - progress - 2 * radius + "rem");
+
+                    // Top Left & Right circle
+                    clip_circle_tl.setAttribute("cy", progress + radius + "rem");
+                    clip_circle_tr.setAttribute("cy", progress + radius + "rem");
+
+                    if (max_height - progress <= min_height) {
+                        clearInterval(window.change_size_interval);
+
+                        // Vertical Rectangle
+                        clip_rect_v.setAttribute("y", max_height - min_height + "rem");
+                        clip_rect_v.setAttribute("height", min_height + "rem");
+
+                        // Horizontal Rectangle
+                        clip_rect_h.setAttribute("y", max_height - min_height + radius + "rem");
+                        clip_rect_h.setAttribute("height", min_height - 2 * radius + "rem");
+
+                        // Top Left circle
+                        clip_circle_tl.setAttribute("cy", max_height - min_height + radius + "rem");
+                        clip_circle_tr.setAttribute("cy", max_height - min_height + radius + "rem");
+
+                        progress = 0;
+                        open = false;
+                        moving = false;
+                    }
+                }, update_speed);
+            }
+
+            function openCover() {
+                if (moving) return;
+
+                progress = 0;
+                moving = true;
+                window.change_size_interval = window.setInterval(function() {
+                    progress += 5;
+
+                    // Vertical Rectangle
+                    clip_rect_v.setAttribute("y", max_height - min_height - progress + "rem");
+                    clip_rect_v.setAttribute("height", min_height + progress + "rem");
+
+                    // Horizontal Rectangle
+                    clip_rect_h.setAttribute("y", max_height - min_height - progress + radius + "rem");
+                    clip_rect_h.setAttribute("height", min_height + progress - 2 * radius + "rem");
+
+                    // Top Left circle
+                    clip_circle_tl.setAttribute("cy", max_height - min_height - progress + radius + "rem");
+                    clip_circle_tr.setAttribute("cy", max_height - min_height - progress + radius + "rem");
+
+                    if (min_height + progress >= max_height) {
+                        clearInterval(window.change_size_interval);
+
+                        // Vertical Rectangle
+                        clip_rect_v.setAttribute("y", "0");
+                        clip_rect_v.setAttribute("height", max_height + "rem");
+
+                        clip_rect_h.setAttribute("y", radius + "rem");
+                        clip_rect_h.setAttribute("height", max_height - 2 * radius + "rem");
+
+                        // Top Left circle
+                        clip_circle_tl.setAttribute("cy", radius + "rem");
+                        clip_circle_tr.setAttribute("cy", radius + "rem");
+
+                        progress = 0;
+                        open = true;
+                        moving = false;
+                    }
+                }, update_speed);
+            }
+        </script>
+    </body>
+</html>
