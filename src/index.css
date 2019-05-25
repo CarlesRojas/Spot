@@ -19,11 +19,6 @@ body {
     height: 100%;
 }
 
-body.dark {
-    background: black;
-    color: white;
-}
-
 input,
 button {
     color: inherit;

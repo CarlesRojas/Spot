@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import "./App.css";
-
 import Script from "react-load-script";
+import "./App.css";
+import Cover from "./jsx/Cover";
 import SpotifyWebApi from "spotify-web-api-js";
-const spotifyAPI = new SpotifyWebApi();
+window.spotifyAPI = new SpotifyWebApi();
 
 export default class App extends Component {
     constructor() {
@@ -13,74 +13,81 @@ export default class App extends Component {
         const params = this.getHashParams();
 
         // State of the window
-        window.state = {
+        window.info = {
             isMobile: false,
-            isMobileLandscape: false,
-            access_token: params.access_token,
-            refresh_token: params.refresh_token,
-            token_duration: 1800000, // Milliseconds
+
+            accessToken: params.access_token,
+            refreshToken: params.refresh_token,
+            tokenExpireDateTime: new Date(Date.now() + 50 * 60 * 1000),
             deviceID: null
         };
 
-        if (window.state.access_token) spotifyAPI.setAccessToken(window.state.access_token);
+        // Get tokens and info from the cookie or set it if there was none
+        if (window.info.accessToken) {
+            window.spotifyAPI.setAccessToken(window.info.accessToken);
+
+            this.setCookie("spot_accessToken", window.info.accessToken, 5);
+            this.setCookie("spot_refreshToken", window.info.refreshToken, 5);
+            this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
+        } else {
+            var accessTokenCookie = this.getCookie("spot_accessToken");
+            var refreshTokenCookie = this.getCookie("spot_refreshToken");
+            var tokenExpireDateTimeCookie = new Date(Date.parse(this.getCookie("spot_tokenExpireDateTime")));
+
+            if (accessTokenCookie && refreshTokenCookie && tokenExpireDateTimeCookie) {
+                window.spotifyAPI.setAccessToken(accessTokenCookie);
+
+                window.info.accessToken = accessTokenCookie;
+                window.info.refreshToken = refreshTokenCookie;
+                window.info.tokenExpireDateTime = tokenExpireDateTimeCookie;
+            }
+        }
 
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight,
             isPortrait: window.innerWidth <= window.innerHeight,
-            loggedIn: window.state.access_token ? true : false,
-            nowPlaying: { name: "", albumArt: "" }
+            loggedIn: window.info.accessToken ? true : false,
+            playbackState: null
         };
-
-        // Loaded data
-        window.loadedData = {
-            userSettings: {
-                listSelected: "",
-                sortSelected: "name",
-                sortReversed: false
-            }
-        };
-
-        // Subscribe to events
-        window.addEventListener("resize", () => window.PubSub.emit("onWindowResize"));
-        window.PubSub.sub("onWindowResize", this.handleWindowResize);
 
         // Connects to Spotify Playback & creates a new Player
         window.onSpotifyWebPlaybackSDKReady = () => {
-            window.state.player = new window.Spotify.Player({
+            window.info.player = new window.Spotify.Player({
                 name: "Spot",
                 getOAuthToken: callback => {
-                    callback(window.state.access_token);
+                    callback(window.info.accessToken);
                 }
             });
 
             // Error handling
-            window.state.player.addListener("initialization_error", ({ message }) => {
+            window.info.player.addListener("initialization_error", ({ message }) => {
                 //console.error(message);
             });
-            window.state.player.addListener("authentication_error", ({ message }) => {
+            window.info.player.addListener("authentication_error", ({ message }) => {
                 //console.error(message);
             });
-            window.state.player.addListener("account_error", ({ message }) => {
+            window.info.player.addListener("account_error", ({ message }) => {
                 //console.error(message);
             });
-            window.state.player.addListener("playback_error", ({ message }) => {
+            window.info.player.addListener("playback_error", ({ message }) => {
                 //console.error(message);
             });
 
             // Playback status updates
-            window.state.player.addListener("player_state_changed", state => {
-                //console.log(state);
+            window.info.player.addListener("player_state_changed", state => {
+                this.handlePlaybackChange();
             });
 
             // Ready
-            window.state.player.addListener("ready", ({ device_id }) => {
-                window.state.deviceID = device_id;
+            window.info.player.addListener("ready", ({ device_id }) => {
+                window.info.deviceID = device_id;
 
                 // Start playing on Spot
-                spotifyAPI.transferMyPlayback([window.state.deviceID], { play: true }).then(
+                window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
                     response => {
                         console.log("Now Playing on Spot");
+                        this.handlePlaybackChange();
                     },
                     function(err) {
                         console.error(err);
@@ -89,16 +96,18 @@ export default class App extends Component {
             });
 
             // Not Ready
-            window.state.player.addListener("not_ready", ({ device_id }) => {
+            window.info.player.addListener("not_ready", ({ device_id }) => {
                 console.log("Device ID has gone offline", device_id);
             });
 
             // Connect to the player!
-            window.state.player.connect();
+            window.info.player.connect();
         };
 
-        // Set the dark mode
-        //document.body.classList.add("dark");
+        // Subscribe to events
+        window.addEventListener("resize", () => window.PubSub.emit("onWindowResize"));
+        window.PubSub.sub("onWindowResize", this.handleWindowResize);
+        window.PubSub.sub("onPausePlay", this.handlePausePlay);
     }
 
     // Handle a change in the size of the window
@@ -116,8 +125,7 @@ export default class App extends Component {
         const isPhone = (isPortrait && width <= 480) || (!isPortrait && width <= 850);
         const isTablet = !isPhone && ((isPortrait && width <= 851) || (!isPortrait && width <= 1024));
 
-        window.state.isMobile = isPortrait || isPhone || isTablet;
-        window.state.isMobileLandscape = (isPhone || isTablet) && !isPortrait;
+        window.info.isMobile = isPortrait || isPhone || isTablet;
     };
 
     // Obtains parameters from the hash of the URL
@@ -128,18 +136,6 @@ export default class App extends Component {
         var q = window.location.hash.substring(1);
         while ((e = r.exec(q))) hashParams[e[1]] = decodeURIComponent(e[2]);
         return hashParams;
-    };
-
-    // Obtains the current playback state for the user
-    getNowPlaying = () => {
-        spotifyAPI.getMyCurrentPlaybackState().then(
-            response => {
-                if (response) this.setState({ nowPlaying: { name: response.item.name, albumArt: response.item.album.images[0].url } });
-            },
-            function(err) {
-                console.error(err);
-            }
-        );
     };
 
     // Handles the load of the Spotify Web Playback Script
@@ -157,27 +153,78 @@ export default class App extends Component {
     refreshSpotifyToken = () => {
         fetch("http://localhost:8888/refresh_token", {
             method: "POST",
-            body: JSON.stringify({ refresh_token: window.state.refresh_token }),
+            body: JSON.stringify({ refresh_token: window.info.refreshToken }),
             headers: { "Content-Type": "application/json" }
         })
             .then(res => res.json())
-            .then(function(data) {
-                window.state.access_token = data.access_token;
-                spotifyAPI.setAccessToken(window.state.access_token);
+            .then(data => {
+                window.info.accessToken = data.access_token;
+                window.info.tokenExpireDateTime = new Date(Date.now() + 50 * 60 * 1000);
+                this.setCookie("spot_accessToken", window.info.accessToken, 5);
+                this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
+                window.spotifyAPI.setAccessToken(window.info.accessToken);
             })
             .catch(error => console.log(error));
 
+        window.refreshTokenInterval = window.setInterval(() => {
+            if (Date.now() > window.info.tokenExpireDateTime) {
+                window.clearInterval(window.refreshTokenInterval);
+                this.refreshSpotifyToken();
+            }
+        }, 2 * 60 * 1000);
+    };
+
+    // Obtains the current playback state for the user
+    handlePlaybackChange = () => {
         window.setTimeout(() => {
-            this.refreshSpotifyToken();
-        }, window.state.token_duration);
+            window.spotifyAPI.getMyCurrentPlaybackState().then(
+                response => {
+                    if (response) this.setState({ playbackState: response, isPlaying: response.is_playing });
+                },
+                function(err) {
+                    console.error(err);
+                }
+            );
+        }, 200);
+    };
+
+    // Pause or Play the current song
+    handlePausePlay = () => {
+        const { isPlaying } = this.state;
+
+        if (isPlaying) {
+            this.setState({ isPlaying: false });
+            window.spotifyAPI.pause().then(
+                response => {
+                    this.handlePlaybackChange();
+                },
+                function(err) {
+                    console.error(err);
+                }
+            );
+        } else {
+            this.setState({ isPlaying: true });
+            window.spotifyAPI.play().then(
+                response => {
+                    this.handlePlaybackChange();
+                },
+                function(err) {
+                    console.error(err);
+                }
+            );
+        }
     };
 
     // Renders the component
     render() {
+        const { width, playbackState, isPlaying } = this.state;
         this.updateDeviceType();
 
+        var cover = null;
+        if (playbackState) cover = <Cover width={width} isPlaying={isPlaying} song={playbackState.item.name} albumCover={playbackState.item.album.images[0].url} artist={playbackState.item.album.artists[0].name} />;
+
         // In mobile
-        if (window.state.isMobile) {
+        if (window.info.isMobile) {
             // Not logged in
             if (!this.state.loggedIn) {
                 return <div className="app_splashscreen" />;
@@ -186,11 +233,8 @@ export default class App extends Component {
                     <React.Fragment>
                         <Script url="https://sdk.scdn.co/spotify-player.js" onLoad={this.handleSpotifyPlaybackScriptLoad} />
                         <div className="app_wrapper">
-                            <div className="app_image_div">
-                                <img className="app_image" src={this.state.nowPlaying.albumArt} alt="" />
-                            </div>
-                            <div>{this.state.nowPlaying.name}</div>
-                            {this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>Check Now Playing</button>}
+                            <div className="app_sectionsWrapper" />
+                            <div className="app_coverWrapper"> {cover} </div>
                         </div>
                     </React.Fragment>
                 );
@@ -215,10 +259,12 @@ export default class App extends Component {
             window.location.assign("http://localhost:8888/login");
             console.log("not logged");
         } else {
-            window.setTimeout(() => {
-                this.refreshSpotifyToken();
-            }, window.state.token_duration);
-
+            window.refreshTokenInterval = window.setInterval(() => {
+                if (Date.now() > window.info.tokenExpireDateTime) {
+                    window.clearInterval(window.refreshTokenInterval);
+                    this.refreshSpotifyToken();
+                }
+            }, 2 * 60 * 1000);
             console.log("logged");
         }
     }
@@ -227,5 +273,31 @@ export default class App extends Component {
     componentWillUnmount() {
         window.removeEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.unsub("onWindowResize", this.handleWindowResize);
+        window.PubSub.unsub("onPausePlay", this.handlePausePlay);
     }
+
+    // Set a cookie
+    setCookie = (name, value, cookieDurationInDays) => {
+        var d = new Date();
+        d.setTime(d.getTime() + cookieDurationInDays * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    };
+
+    // Get a cookie
+    getCookie = name => {
+        var formatedName = name + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var splitedCookies = decodedCookie.split(";");
+        for (var i = 0; i < splitedCookies.length; i++) {
+            var currentCookie = splitedCookies[i];
+            while (currentCookie.charAt(0) === " ") {
+                currentCookie = currentCookie.substring(1);
+            }
+            if (currentCookie.indexOf(formatedName) === 0) {
+                return currentCookie.substring(formatedName.length, currentCookie.length);
+            }
+        }
+        return "";
+    };
 }

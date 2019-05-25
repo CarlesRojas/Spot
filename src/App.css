@@ -5,18 +5,18 @@
 .app_wrapper {
     height: 100%;
     width: 100%;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
 }
 
-.app_image_div {
-    width: 95%;
-    padding: 2.5%;
-}
-
-.app_image {
-    height: 100%;
+.app_sectionsWrapper {
+    flex-grow: 1;
     width: 100%;
-    border-radius: 5%;
+    background-color: rgb(183, 255, 193);
+}
+
+.app_coverWrapper {
+    width: 100%;
 }
 
 .app_desktop {

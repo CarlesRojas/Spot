@@ -26,5 +26,5 @@ export default class EventsPubSub {
 /*  EVENTS:
 
     onWindowResize:             Called when the window is resized               ()
-
+    onPausePlay:                Called when the user clicks pause/play          ()
 */
