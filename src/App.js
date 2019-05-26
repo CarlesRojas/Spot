@@ -39,7 +39,7 @@ export default class App extends Component {
             var refreshTokenCookie = this.getCookie("spot_refreshToken");
             var tokenExpireDateTimeCookie = new Date(Date.parse(this.getCookie("spot_tokenExpireDateTime")));
 
-            if (accessTokenCookie && refreshTokenCookie && tokenExpireDateTimeCookie) {
+            if (accessTokenCookie && refreshTokenCookie && tokenExpireDateTimeCookie && tokenExpireDateTimeCookie > Date.now()) {
                 window.spotifyAPI.setAccessToken(accessTokenCookie);
 
                 window.info.accessToken = accessTokenCookie;
@@ -48,12 +48,23 @@ export default class App extends Component {
             }
         }
 
+        // Set the state for the app
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight,
             isPortrait: window.innerWidth <= window.innerHeight,
             loggedIn: window.info.accessToken ? true : false,
-            playbackState: null
+            playbackState: {
+                playing: false,
+                repeat: false,
+                repeatOne: false,
+                shuffle: false,
+                songID: null,
+                albumID: null,
+                artistID: null,
+                playlistID: null,
+                exisits: false
+            }
         };
 
         // Connects to Spotify Playback & creates a new Player
@@ -89,13 +100,14 @@ export default class App extends Component {
                 window.info.deviceID = device_id;
 
                 // Start playing on Spot
-                window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
+                window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
                     response => {
                         console.log("Now Playing on Spot");
                         this.handlePlaybackChange();
                     },
                     function(err) {
-                        console.error(err);
+                        if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                        else console.error(err);
                     }
                 );
             });
@@ -196,10 +208,40 @@ export default class App extends Component {
         window.setTimeout(() => {
             window.spotifyAPI.getMyCurrentPlaybackState().then(
                 response => {
-                    if (response) this.setState({ playbackState: response, isPlaying: response.is_playing });
+                    if (response) {
+                        const { playbackState } = this.state;
+                        const artistID = response.item.artists.length ? response.item.artists[0] : null;
+
+                        var newPlaybackState = {};
+                        newPlaybackState["playing"] = response.is_playing;
+                        newPlaybackState["repeat"] = false;
+                        newPlaybackState["repeatOne"] = false;
+                        newPlaybackState["shuffle"] = response.shuffle_state;
+                        newPlaybackState["songID"] = response.item.id;
+                        newPlaybackState["albumID"] = playbackState.albumID === response.item.album.id ? playbackState.albumID : null;
+                        newPlaybackState["artistID"] = playbackState.artistID === artistID ? playbackState.artistID : null;
+                        newPlaybackState["playlistID"] = null; // CARLES <- Update for playlists
+                        newPlaybackState["exisits"] = true;
+
+                        this.setState({ playbackState: newPlaybackState });
+                    }
                 },
                 function(err) {
-                    console.error(err);
+                    if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                    else {
+                        var newPlaybackState = {};
+                        newPlaybackState["playing"] = false;
+                        newPlaybackState["repeat"] = false;
+                        newPlaybackState["repeatOne"] = false;
+                        newPlaybackState["shuffle"] = false;
+                        newPlaybackState["songID"] = null;
+                        newPlaybackState["albumID"] = null;
+                        newPlaybackState["artistID"] = null;
+                        newPlaybackState["playlistID"] = null;
+                        newPlaybackState["exisits"] = false;
+
+                        this.setState({ playbackState: newPlaybackState });
+                    }
                 }
             );
         }, 200);
@@ -207,26 +249,37 @@ export default class App extends Component {
 
     // Pause or Play the current song
     handlePausePlay = () => {
-        const { isPlaying } = this.state;
+        const { playing } = this.state.playbackState;
 
-        if (isPlaying) {
-            this.setState({ isPlaying: false });
+        if (playing) {
+            const { playbackState } = this.state;
+
+            var newPlaybackState = JSON.parse(JSON.stringify(playbackState));
+            newPlaybackState.playing = false;
+            this.setState({ playbackState: newPlaybackState });
+
+            // CARLES <- Possible timeout so an incoming playback state can'c change this twice causing the flicker bug
             window.spotifyAPI.pause().then(
                 response => {
                     this.handlePlaybackChange();
                 },
                 function(err) {
-                    console.error(err);
+                    if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 }
             );
         } else {
-            this.setState({ isPlaying: true });
+            const { playbackState } = this.state;
+
+            var newPlaybackState = JSON.parse(JSON.stringify(playbackState));
+            newPlaybackState.playing = true;
+            this.setState({ playbackState: newPlaybackState });
+
             window.spotifyAPI.play().then(
                 response => {
                     this.handlePlaybackChange();
                 },
                 function(err) {
-                    console.error(err);
+                    if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 }
             );
         }
@@ -239,11 +292,18 @@ export default class App extends Component {
         window.spotifyAPI.getMySavedTracks({ offset: offset, limit: limit }).then(
             response => {
                 const { items, next } = response;
-                for (let i = 0; i < items.length; i++) this.parseAndSaveSong(items[i]);
+
+                for (let i = 0; i < items.length; i++) this.parseAndSaveSavedTracks(items[i]);
+
                 if (next) this.getUserLibrary((offset += 50));
+                else {
+                    // Get artists images
+                    var artists = Object.keys(window.info.library.artists);
+                    this.getArtistsImages(artists, 0, 50);
+                }
             },
             function(err) {
-                console.error(err);
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
             }
         );
 
@@ -251,12 +311,12 @@ export default class App extends Component {
     };
 
     // Parse song info (To keep only what will be used)
-    parseAndSaveSong = song => {
+    parseAndSaveSavedTracks = song => {
         var dateAdded = new Date(song.added_at);
-        var song = song.track;
+        song = song.track;
         var songID = song.id;
         var albumID = song.album.id;
-        var artistID = song.artists[0].id;
+        var artistID = song.artists.length ? song.artists[0].id : "";
 
         // Add song
         if (!(songID in window.info.library.songs)) {
@@ -267,6 +327,7 @@ export default class App extends Component {
             songInfo["albumID"] = albumID;
             songInfo["artistID"] = artistID;
             songInfo["trackNumber"] = song.track_number;
+            songInfo["image"] = song.album.images.length ? song.album.images[0].url : "https://i.imgur.com/iajaWIN.png";
             window.info.library.songs[songID] = songInfo;
         }
 
@@ -279,18 +340,15 @@ export default class App extends Component {
 
         // Add the album otherwise
         else {
-            var albumInfo = {};
+            albumInfo = {};
             albumInfo["dateAdded"] = dateAdded;
             albumInfo["name"] = song.album.name;
-            albumInfo["image"] = song.album.images[0].url;
-            albumInfo["artistID"] = song.album.artists[0].id;
+            albumInfo["image"] = song.album.images.length ? song.album.images[0].url : "https://i.imgur.com/iajaWIN.png";
+            albumInfo["artistID"] = song.album.artists.length ? song.album.artists[0].id : "";
             albumInfo["songs"] = {};
             albumInfo["songs"][songID] = null;
             window.info.library.albums[albumID] = albumInfo;
         }
-
-        // List of artists ids to get info from
-        var artistList = [];
 
         // Add song & album to the artist if already in the library
         if (artistID in window.info.library.artists) {
@@ -302,9 +360,9 @@ export default class App extends Component {
 
         // Add the artist otherwise
         else {
-            var artistInfo = {};
+            artistInfo = {};
             artistInfo["dateAdded"] = dateAdded;
-            artistInfo["name"] = song.artists[0].name;
+            artistInfo["name"] = song.artists.length ? song.artists[0].name : "";
             artistInfo["image"] = null;
             artistInfo["albums"] = {};
             artistInfo["albums"][albumID] = null;
@@ -312,18 +370,30 @@ export default class App extends Component {
             artistInfo["songs"][songID] = null;
             window.info.library.artists[artistID] = artistInfo;
         }
-
-        // Get artists images
-        var artists = Object.keys(window.info.library.artists);
-        //this.getArtistsImages(artists, 0, 50);
     };
 
+    // Gets the images for the artists in the list
     getArtistsImages = (artists, offset, limit) => {
         var curr = artists.slice(offset, offset + limit);
 
-        // Save tha artist image CARLES
+        // Return in there is no more artists to get
+        if (curr.length <= 0) return;
 
-        this.getArtistsImages(artists, offset + limit, limit);
+        window.spotifyAPI.getArtists(curr).then(
+            response => {
+                for (let i = 0; i < response.artists.length; i++) {
+                    var artistID = response.artists[i].id;
+                    if (artistID in window.info.library.artists) {
+                        var url = response.artists[i]["images"].length ? response.artists[i]["images"][0].url : "https://i.imgur.com/PgCafqK.png";
+                        window.info.library.artists[artistID]["image"] = url;
+                    }
+                }
+                this.getArtistsImages(artists, offset + limit, limit);
+            },
+            function(err) {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+            }
+        );
     };
 
     //##############################################
@@ -332,20 +402,20 @@ export default class App extends Component {
 
     // Renders the component
     render() {
-        const { width, playbackState, isPlaying } = this.state;
+        const { width, playbackState } = this.state;
+        const { playing, songID, exisits } = playbackState;
         this.updateDeviceType();
 
+        // Get the current song info & Cover
         var cover = null;
-        if (playbackState)
-            cover = (
-                <Cover
-                    width={width}
-                    isPlaying={isPlaying}
-                    song={playbackState.item.name}
-                    albumCover={playbackState.item.album.images[0].url}
-                    artist={playbackState.item.album.artists[0].name}
-                />
-            );
+        var background = null;
+        if (exisits && songID && window.info.library.songs && songID in window.info.library.songs) {
+            const { name, artistID, image } = window.info.library.songs[songID];
+            const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
+
+            background = image;
+            cover = <Cover width={width} isPlaying={playing} song={name} albumCover={image} artist={artistName} />;
+        }
 
         // In mobile
         if (window.info.isMobile) {
@@ -356,6 +426,8 @@ export default class App extends Component {
                 return (
                     <React.Fragment>
                         <Script url="https://sdk.scdn.co/spotify-player.js" onLoad={this.handleSpotifyPlaybackScriptLoad} />
+                        <div className="app_background" style={{ backgroundImage: "url(" + background + ")" }} />
+                        <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
                             <div className="app_sectionsWrapper" />
                             <div className="app_coverWrapper"> {cover} </div>

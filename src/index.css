@@ -10,8 +10,8 @@ html {
 }
 
 body {
-    background: white;
-    color: black;
+    background: black;
+    color: white;
     font-family: "Segoe UI", "Roboto", "Nunito", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

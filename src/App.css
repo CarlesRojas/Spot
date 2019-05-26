@@ -2,6 +2,26 @@
     display: none;
 }
 
+.app_backgroundBlurred {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-size: auto 100%;
+    transform: scale(1);
+    filter: blur(10px) brightness(10%);
+}
+
+.app_background {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-size: auto 100%;
+    transform: scale(1);
+    filter: brightness(10%);
+}
+
 .app_wrapper {
     height: 100%;
     width: 100%;
@@ -12,11 +32,12 @@
 .app_sectionsWrapper {
     flex-grow: 1;
     width: 100%;
-    background-color: rgb(183, 255, 193);
+    background: none;
 }
 
 .app_coverWrapper {
     width: 100%;
+    background: none;
 }
 
 .app_desktop {
