@@ -252,12 +252,11 @@ export default class App extends Component {
 
     // Parse song info (To keep only what will be used)
     parseAndSaveSong = song => {
-        console.log(song);
-        debugger;
+        var dateAdded = new Date(song.added_at);
+        var song = song.track;
         var songID = song.id;
         var albumID = song.album.id;
         var artistID = song.artists[0].id;
-        var dateAdded = new Date(song.added_at);
 
         // Add song
         if (!(songID in window.info.library.songs)) {
@@ -316,7 +315,7 @@ export default class App extends Component {
 
         // Get artists images
         var artists = Object.keys(window.info.library.artists);
-        this.getArtistsImages(artists, 0, 50);
+        //this.getArtistsImages(artists, 0, 50);
     };
 
     getArtistsImages = (artists, offset, limit) => {
