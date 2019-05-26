@@ -15,11 +15,16 @@ export default class App extends Component {
         // State of the window
         window.info = {
             isMobile: false,
-
             accessToken: params.access_token,
             refreshToken: params.refresh_token,
-            tokenExpireDateTime: new Date(Date.now() + 50 * 60 * 1000),
-            deviceID: null
+            tokenExpireDateTime: new Date(Date.now() + 25 * 60 * 1000),
+            deviceID: null,
+            library: {
+                songs: {},
+                albums: {},
+                artists: {},
+                playlists: {}
+            }
         };
 
         // Get tokens and info from the cookie or set it if there was none
@@ -110,6 +115,10 @@ export default class App extends Component {
         window.PubSub.sub("onPausePlay", this.handlePausePlay);
     }
 
+    //##############################################
+    //       WINDOW & DEVICE CHANGES
+    //##############################################
+
     // Handle a change in the size of the window
     handleWindowResize = () => {
         this.setState({
@@ -128,6 +137,10 @@ export default class App extends Component {
         window.info.isMobile = isPortrait || isPhone || isTablet;
     };
 
+    //##############################################
+    //       OAUTH SETUP
+    //##############################################
+
     // Obtains parameters from the hash of the URL
     getHashParams = () => {
         var hashParams = {};
@@ -138,7 +151,7 @@ export default class App extends Component {
         return hashParams;
     };
 
-    // Handles the load of the Spotify Web Playback Script
+    // Handles the load of the Spotify Web Playback Script-
     handleSpotifyPlaybackScriptLoad = () => {
         return new Promise(resolve => {
             if (window.Spotify) {
@@ -159,7 +172,7 @@ export default class App extends Component {
             .then(res => res.json())
             .then(data => {
                 window.info.accessToken = data.access_token;
-                window.info.tokenExpireDateTime = new Date(Date.now() + 50 * 60 * 1000);
+                window.info.tokenExpireDateTime = new Date(Date.now() + 25 * 60 * 1000);
                 this.setCookie("spot_accessToken", window.info.accessToken, 5);
                 this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
                 window.spotifyAPI.setAccessToken(window.info.accessToken);
@@ -173,6 +186,10 @@ export default class App extends Component {
             }
         }, 2 * 60 * 1000);
     };
+
+    //##############################################
+    //       SPOTIFY API
+    //##############################################
 
     // Obtains the current playback state for the user
     handlePlaybackChange = () => {
@@ -215,13 +232,121 @@ export default class App extends Component {
         }
     };
 
+    // Get the user's library
+    getUserLibrary = offset => {
+        var limit = 50;
+
+        window.spotifyAPI.getMySavedTracks({ offset: offset, limit: limit }).then(
+            response => {
+                const { items, next } = response;
+                for (let i = 0; i < items.length; i++) this.parseAndSaveSong(items[i]);
+                if (next) this.getUserLibrary((offset += 50));
+            },
+            function(err) {
+                console.error(err);
+            }
+        );
+
+        // Get and Save album and artist info
+    };
+
+    // Parse song info (To keep only what will be used)
+    parseAndSaveSong = song => {
+        console.log(song);
+        debugger;
+        var songID = song.id;
+        var albumID = song.album.id;
+        var artistID = song.artists[0].id;
+        var dateAdded = new Date(song.added_at);
+
+        // Add song
+        if (!(songID in window.info.library.songs)) {
+            var songInfo = {};
+            songInfo["dateAdded"] = dateAdded;
+            songInfo["name"] = song.name;
+            songInfo["duration"] = song.duration_ms;
+            songInfo["albumID"] = albumID;
+            songInfo["artistID"] = artistID;
+            songInfo["trackNumber"] = song.track_number;
+            window.info.library.songs[songID] = songInfo;
+        }
+
+        // Add song to the album if already in the library
+        if (albumID in window.info.library.albums) {
+            var albumInfo = window.info.library.albums[albumID];
+            if (!(songID in albumInfo.songs)) albumInfo["songs"][songID] = null;
+            if (albumInfo.dateAdded < dateAdded) albumInfo["dateAdded"] = dateAdded;
+        }
+
+        // Add the album otherwise
+        else {
+            var albumInfo = {};
+            albumInfo["dateAdded"] = dateAdded;
+            albumInfo["name"] = song.album.name;
+            albumInfo["image"] = song.album.images[0].url;
+            albumInfo["artistID"] = song.album.artists[0].id;
+            albumInfo["songs"] = {};
+            albumInfo["songs"][songID] = null;
+            window.info.library.albums[albumID] = albumInfo;
+        }
+
+        // List of artists ids to get info from
+        var artistList = [];
+
+        // Add song & album to the artist if already in the library
+        if (artistID in window.info.library.artists) {
+            var artistInfo = window.info.library.artists[artistID];
+            if (!(songID in artistInfo.songs)) artistInfo["songs"][songID] = null;
+            if (!(albumID in artistInfo.albums)) artistInfo["albums"][albumID] = null;
+            if (artistInfo.dateAdded < dateAdded) artistInfo["dateAdded"] = dateAdded;
+        }
+
+        // Add the artist otherwise
+        else {
+            var artistInfo = {};
+            artistInfo["dateAdded"] = dateAdded;
+            artistInfo["name"] = song.artists[0].name;
+            artistInfo["image"] = null;
+            artistInfo["albums"] = {};
+            artistInfo["albums"][albumID] = null;
+            artistInfo["songs"] = {};
+            artistInfo["songs"][songID] = null;
+            window.info.library.artists[artistID] = artistInfo;
+        }
+
+        // Get artists images
+        var artists = Object.keys(window.info.library.artists);
+        this.getArtistsImages(artists, 0, 50);
+    };
+
+    getArtistsImages = (artists, offset, limit) => {
+        var curr = artists.slice(offset, offset + limit);
+
+        // Save tha artist image CARLES
+
+        this.getArtistsImages(artists, offset + limit, limit);
+    };
+
+    //##############################################
+    //       REACT CICLE METHODS
+    //##############################################
+
     // Renders the component
     render() {
         const { width, playbackState, isPlaying } = this.state;
         this.updateDeviceType();
 
         var cover = null;
-        if (playbackState) cover = <Cover width={width} isPlaying={isPlaying} song={playbackState.item.name} albumCover={playbackState.item.album.images[0].url} artist={playbackState.item.album.artists[0].name} />;
+        if (playbackState)
+            cover = (
+                <Cover
+                    width={width}
+                    isPlaying={isPlaying}
+                    song={playbackState.item.name}
+                    albumCover={playbackState.item.album.images[0].url}
+                    artist={playbackState.item.album.artists[0].name}
+                />
+            );
 
         // In mobile
         if (window.info.isMobile) {
@@ -259,12 +384,17 @@ export default class App extends Component {
             window.location.assign("http://localhost:8888/login");
             console.log("not logged");
         } else {
+            // Set up the refresh token behaviour
             window.refreshTokenInterval = window.setInterval(() => {
                 if (Date.now() > window.info.tokenExpireDateTime) {
                     window.clearInterval(window.refreshTokenInterval);
                     this.refreshSpotifyToken();
                 }
             }, 2 * 60 * 1000);
+
+            // Get the user library
+            this.getUserLibrary(0);
+
             console.log("logged");
         }
     }
@@ -275,6 +405,10 @@ export default class App extends Component {
         window.PubSub.unsub("onWindowResize", this.handleWindowResize);
         window.PubSub.unsub("onPausePlay", this.handlePausePlay);
     }
+
+    //##############################################
+    //       COOKIE HANDLE
+    //##############################################
 
     // Set a cookie
     setCookie = (name, value, cookieDurationInDays) => {
