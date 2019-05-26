@@ -27,4 +27,5 @@ export default class EventsPubSub {
 
     onWindowResize:             Called when the window is resized               ()
     onPausePlay:                Called when the user clicks pause/play          ()
+    onSectionChange:            Called when the section changes                 ({ name, index })
 */

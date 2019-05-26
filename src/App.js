@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Script from "react-load-script";
 import "./App.css";
 import Cover from "./jsx/Cover";
+import Library from "./jsx/Library";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
 
@@ -63,7 +64,7 @@ export default class App extends Component {
                 albumID: null,
                 artistID: null,
                 playlistID: null,
-                exisits: false
+                exists: false
             }
         };
 
@@ -97,19 +98,7 @@ export default class App extends Component {
 
             // Ready
             window.info.player.addListener("ready", ({ device_id }) => {
-                window.info.deviceID = device_id;
-
-                // Start playing on Spot
-                window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
-                    response => {
-                        console.log("Now Playing on Spot");
-                        this.handlePlaybackChange();
-                    },
-                    function(err) {
-                        if (err.status === 401) window.location.assign("http://localhost:8888/login");
-                        else console.error(err);
-                    }
-                );
+                this.transferPlayer(device_id);
             });
 
             // Not Ready
@@ -203,6 +192,24 @@ export default class App extends Component {
     //       SPOTIFY API
     //##############################################
 
+    // Transfer the spotify player to Spot in this device
+    transferPlayer = deviceID => {
+        window.info.deviceID = deviceID;
+
+        // Start playing on Spot
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
+            response => {
+                console.log("Now Playing on Spot");
+                this.handlePlaybackChange();
+            },
+            function(err) {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
+            }
+        );
+    };
+
     // Obtains the current playback state for the user
     handlePlaybackChange = () => {
         window.setTimeout(() => {
@@ -221,27 +228,28 @@ export default class App extends Component {
                         newPlaybackState["albumID"] = playbackState.albumID === response.item.album.id ? playbackState.albumID : null;
                         newPlaybackState["artistID"] = playbackState.artistID === artistID ? playbackState.artistID : null;
                         newPlaybackState["playlistID"] = null; // CARLES <- Update for playlists
-                        newPlaybackState["exisits"] = true;
+                        newPlaybackState["exists"] = true;
 
                         this.setState({ playbackState: newPlaybackState });
                     }
                 },
                 function(err) {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
-                    else {
-                        var newPlaybackState = {};
-                        newPlaybackState["playing"] = false;
-                        newPlaybackState["repeat"] = false;
-                        newPlaybackState["repeatOne"] = false;
-                        newPlaybackState["shuffle"] = false;
-                        newPlaybackState["songID"] = null;
-                        newPlaybackState["albumID"] = null;
-                        newPlaybackState["artistID"] = null;
-                        newPlaybackState["playlistID"] = null;
-                        newPlaybackState["exisits"] = false;
+                    else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                    else console.error(err);
 
-                        this.setState({ playbackState: newPlaybackState });
-                    }
+                    var newPlaybackState = {};
+                    newPlaybackState["playing"] = false;
+                    newPlaybackState["repeat"] = false;
+                    newPlaybackState["repeatOne"] = false;
+                    newPlaybackState["shuffle"] = false;
+                    newPlaybackState["songID"] = null;
+                    newPlaybackState["albumID"] = null;
+                    newPlaybackState["artistID"] = null;
+                    newPlaybackState["playlistID"] = null;
+                    newPlaybackState["exists"] = false;
+
+                    this.setState({ playbackState: newPlaybackState });
                 }
             );
         }, 200);
@@ -265,12 +273,14 @@ export default class App extends Component {
                 },
                 function(err) {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                    else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                    else console.error(err);
                 }
             );
         } else {
             const { playbackState } = this.state;
 
-            var newPlaybackState = JSON.parse(JSON.stringify(playbackState));
+            newPlaybackState = JSON.parse(JSON.stringify(playbackState));
             newPlaybackState.playing = true;
             this.setState({ playbackState: newPlaybackState });
 
@@ -280,6 +290,8 @@ export default class App extends Component {
                 },
                 function(err) {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                    else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                    else console.error(err);
                 }
             );
         }
@@ -297,6 +309,8 @@ export default class App extends Component {
 
                 if (next) this.getUserLibrary((offset += 50));
                 else {
+                    this.forceUpdate();
+
                     // Get artists images
                     var artists = Object.keys(window.info.library.artists);
                     this.getArtistsImages(artists, 0, 50);
@@ -304,6 +318,8 @@ export default class App extends Component {
             },
             function(err) {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
             }
         );
 
@@ -392,6 +408,8 @@ export default class App extends Component {
             },
             function(err) {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
             }
         );
     };
@@ -403,13 +421,13 @@ export default class App extends Component {
     // Renders the component
     render() {
         const { width, playbackState } = this.state;
-        const { playing, songID, exisits } = playbackState;
+        const { playing, songID, exists } = playbackState;
         this.updateDeviceType();
 
         // Get the current song info & Cover
         var cover = null;
         var background = null;
-        if (exisits && songID && window.info.library.songs && songID in window.info.library.songs) {
+        if (exists && songID && window.info.library.songs && songID in window.info.library.songs) {
             const { name, artistID, image } = window.info.library.songs[songID];
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
@@ -429,7 +447,9 @@ export default class App extends Component {
                         <div className="app_background" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
-                            <div className="app_sectionsWrapper" />
+                            <div className="app_libraryWrapper">
+                                <Library />
+                            </div>
                             <div className="app_coverWrapper"> {cover} </div>
                         </div>
                     </React.Fragment>

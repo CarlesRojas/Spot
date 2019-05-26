@@ -26,11 +26,10 @@ export default class Cover extends Component {
         window.PubSub.emit("onPausePlay");
 
         console.log("click");
-        /*
+
         const { mesurements } = this.state;
         const { closed_size } = mesurements;
         this.wrapperDOM.style.height = closed_size + "px";
-        */
     };
 
     render() {
