@@ -202,7 +202,7 @@ export default class App extends Component {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
             },
-            function(err) {
+            err => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -233,7 +233,7 @@ export default class App extends Component {
                         this.setState({ playbackState: newPlaybackState });
                     }
                 },
-                function(err) {
+                err => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -271,7 +271,7 @@ export default class App extends Component {
                 response => {
                     this.handlePlaybackChange();
                 },
-                function(err) {
+                err => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -288,7 +288,7 @@ export default class App extends Component {
                 response => {
                     this.handlePlaybackChange();
                 },
-                function(err) {
+                err => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -316,7 +316,7 @@ export default class App extends Component {
                     this.getArtistsImages(artists, 0, 50);
                 }
             },
-            function(err) {
+            err => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -406,7 +406,7 @@ export default class App extends Component {
                 }
                 this.getArtistsImages(artists, offset + limit, limit);
             },
-            function(err) {
+            err => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -432,7 +432,7 @@ export default class App extends Component {
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
             background = image;
-            cover = <Cover width={width} isPlaying={playing} song={name} albumCover={image} artist={artistName} />;
+            cover = <Cover open={true} width={width} playing={playing} song={name} albumCover={image} artist={artistName} />;
         }
 
         // In mobile
@@ -450,7 +450,7 @@ export default class App extends Component {
                             <div className="app_libraryWrapper">
                                 <Library />
                             </div>
-                            <div className="app_coverWrapper"> {cover} </div>
+                            <div className="app_coverWrapper">{cover}</div>
                         </div>
                     </React.Fragment>
                 );

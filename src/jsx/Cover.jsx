@@ -36,16 +36,16 @@ export default class Cover extends Component {
     render() {
         const { mesurements } = this.state;
         const { size, margin, radius, closed_size } = mesurements;
-        const { isPlaying, song, albumCover, artist } = this.props;
+        const { open, playing, song, albumCover, artist } = this.props;
 
         var squareStyle = {
             width: size + "px",
-            height: size + "px"
+            height: open ? size + "px" : closed_size + "px"
         };
 
         var squareMargin = {
             width: size + "px",
-            height: size + "px",
+            height: open ? size + "px" : closed_size + "px",
             margin: margin + "px"
         };
 
@@ -54,6 +54,10 @@ export default class Cover extends Component {
             height: closed_size + "px",
             bottom: margin + "px"
         };
+
+        // Place the play icon
+        if (playing) var playIcon = null;
+        else playIcon = <img className="cover_play" src="https://i.imgur.com/e19q8bV.png" alt="" style={squareStyle} />;
 
         return (
             <div style={squareMargin} ref={elem => (this.wrapperDOM = elem)}>
@@ -71,7 +75,7 @@ export default class Cover extends Component {
                 </svg>
 
                 <div className="cover_wrapper">
-                    <img className={"cover_image" + (isPlaying ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} style={squareStyle} alt="" />
+                    <img className={"cover_image" + (playing ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} style={squareStyle} alt="" />
                     <div id="cover_titleGradient" style={squareStyle} />
                     <div id="cover_timeGradient" style={squareStyle} />
                     <div className="cover_infoWrapper" style={infoStyle}>
@@ -82,6 +86,7 @@ export default class Cover extends Component {
                             {artist}
                         </p>
                     </div>
+                    {playIcon}
                 </div>
             </div>
         );
