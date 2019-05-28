@@ -448,7 +448,7 @@ export default class App extends Component {
                         <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
                             <div className="app_libraryWrapper">
-                                <Library />
+                                <Library playbackState={playbackState} />
                             </div>
                             <div className="app_coverWrapper">{cover}</div>
                         </div>

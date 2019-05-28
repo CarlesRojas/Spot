@@ -5,14 +5,17 @@ export default class Songs extends Component {
     constructor(props) {
         super(props);
 
+        const { type, playbackState } = props;
+
         this.state = {
+            type: type,
             availableHeight: 0,
             scrollTop: 0,
             rowHeight: 100,
-            playingSong: props.songID,
+            playbackState: playbackState,
             selectedIndex: null,
             animate: true,
-            list: props.list,
+            list: null,
             order: null
         };
 

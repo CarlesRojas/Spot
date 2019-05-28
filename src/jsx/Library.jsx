@@ -79,6 +79,7 @@ export default class Library extends Component {
     };
 
     render() {
+        const { playbackState } = this.props;
         const { prevSectionIndex, currSectionName, currSectionIndex } = this.state;
         const leftToRight = prevSectionIndex < currSectionIndex;
 
@@ -91,7 +92,7 @@ export default class Library extends Component {
                 <div className="sections_wrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
                         <div className="section_wrapper">
-                            <Songs />
+                            <Songs type="songs" playbackState={playbackState} />
                         </div>
                     </SlideTransition>
 
@@ -139,7 +140,10 @@ class NavItem extends Component {
     render() {
         const { name, icon, index, selected } = this.props;
         return (
-            <button className={"navBar_button" + (selected ? " navBar_buttonSelected" : "")} onClick={() => window.PubSub.emit("onSectionChange", { name: name, index: index })}>
+            <button
+                className={"navBar_button" + (selected ? " navBar_buttonSelected" : "")}
+                onClick={() => window.PubSub.emit("onSectionChange", { name: name, index: index })}
+            >
                 <img className="navBar_icon" src={icon} alt="" />
             </button>
         );

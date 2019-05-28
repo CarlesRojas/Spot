@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import FadeTransition from "./FadeTransition";
 //import Swipe from "react-easy-swipe";
 import "../css/Cover.css";
 
@@ -38,26 +39,10 @@ export default class Cover extends Component {
         const { size, margin, radius, closed_size } = mesurements;
         const { open, playing, song, albumCover, artist } = this.props;
 
-        var squareStyle = {
-            width: size + "px",
-            height: open ? size + "px" : closed_size + "px"
-        };
-
-        var squareMargin = {
-            width: size + "px",
-            height: open ? size + "px" : closed_size + "px",
-            margin: margin + "px"
-        };
-
-        var infoStyle = {
-            width: size + "px",
-            height: closed_size + "px",
-            bottom: margin + "px"
-        };
-
-        // Place the play icon
-        if (playing) var playIcon = null;
-        else playIcon = <img className="cover_play" src="https://i.imgur.com/e19q8bV.png" alt="" style={squareStyle} />;
+        var squareStyle = { width: size + "px", height: open ? size + "px" : closed_size + "px" };
+        var imageStyle = { width: "autp", height: open ? size + "px" : closed_size + "px" };
+        var squareMargin = { width: size + "px", height: open ? size + "px" : closed_size + "px", margin: margin + "px" };
+        var infoStyle = { width: size + "px", height: closed_size + "px", bottom: margin + "px" };
 
         return (
             <div style={squareMargin} ref={elem => (this.wrapperDOM = elem)}>
@@ -75,7 +60,13 @@ export default class Cover extends Component {
                 </svg>
 
                 <div className="cover_wrapper">
-                    <img className={"cover_image" + (playing ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} style={squareStyle} alt="" />
+                    <img
+                        className={"cover_image" + (playing ? "" : " cover_imagePaused")}
+                        src={albumCover}
+                        onClick={() => this.handleCoverClick()}
+                        style={squareStyle}
+                        alt=""
+                    />
                     <div id="cover_titleGradient" style={squareStyle} />
                     <div id="cover_timeGradient" style={squareStyle} />
                     <div className="cover_infoWrapper" style={infoStyle}>
@@ -86,7 +77,11 @@ export default class Cover extends Component {
                             {artist}
                         </p>
                     </div>
-                    {playIcon}
+                    <FadeTransition isOpen={!playing} duration={100}>
+                        <div className="cover_playWrapper">
+                            <img className="cover_play" src="https://i.imgur.com/e19q8bV.png" alt="" style={imageStyle} />
+                        </div>
+                    </FadeTransition>
                 </div>
             </div>
         );

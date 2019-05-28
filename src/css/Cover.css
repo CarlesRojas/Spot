@@ -40,6 +40,14 @@
     pointer-events: none;
 }
 
+.cover_playWrapper {
+    position: absolute;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: none;
+}
+
 .cover_play {
     position: absolute;
     pointer-events: none;
