@@ -1,5 +1,5 @@
 .cover_wrapper {
-    transition: he ight 0.2s;
+    transition: height 0.2s;
     clip-path: url(#cover_clipPath);
     pointer-events: none;
 }
