@@ -5,9 +5,8 @@ export default class FadeTransition extends Component {
     constructor(props) {
         super(props);
 
-        this.defaultStyle = {
-            transition: `opacity ${this.props.duration}ms ease-in-out`
-        };
+        this.defaultStyle = this.props.extraStyle || {};
+        this.defaultStyle["transition"] = "opacity " + this.props.duration + "ms ease-in-out";
 
         this.transitionStyle = {
             entering: {
@@ -15,7 +14,7 @@ export default class FadeTransition extends Component {
             },
             entered: {
                 opacity: "1",
-                transitionDelay: `${this.props.duration}ms`
+                transitionDelay: this.props.duration + "ms"
             },
             exiting: {
                 opacity: "0"

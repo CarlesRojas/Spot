@@ -329,9 +329,9 @@ export default class Cover extends Component {
                         <p className="cover_song">{song}</p>
                         <p className="cover_artist">{artist}</p>
                     </div>
-                    <FadeTransition isOpen={!playing} duration={100}>
+                    <FadeTransition extraStyle={{ height: coverHeight + "px", width: width + "px", bottom: margin / 2 + "px" }} isOpen={!playing} duration={100}>
                         <div className="cover_playWrapper">
-                            <img className="cover_play" src="https://i.imgur.com/e19q8bV.png" alt="" />
+                            <img className="cover_play" src="https://i.imgur.com/Ehaofzy.png" alt="" />
                         </div>
                     </FadeTransition>
                 </div>
