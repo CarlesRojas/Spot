@@ -197,7 +197,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
@@ -415,16 +415,12 @@ export default class App extends Component {
     };
 
     //##############################################
-    //       SWIPE ANIMATION
-    //##############################################
-
-    //##############################################
     //       REACT CICLE METHODS
     //##############################################
 
     // Renders the component
     render() {
-        const { width, playbackState } = this.state;
+        const { playbackState } = this.state;
         const { playing, songID, exists } = playbackState;
         this.updateDeviceType();
 
@@ -436,8 +432,12 @@ export default class App extends Component {
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
             background = image;
-            cover = <Cover open={true} width={width} playing={playing} song={name} albumCover={image} artist={artistName} />;
+            cover = <Cover playing={playing} song={name} albumCover={image} artist={artistName} />;
         }
+
+        // CARLES: INLINE THIS
+        var library = <Library playbackState={playbackState} />;
+        library = null;
 
         // In mobile
         if (window.info.isMobile) {
@@ -451,10 +451,8 @@ export default class App extends Component {
                         <div className="app_background" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
-                            <div className="app_libraryWrapper">
-                                <Library playbackState={playbackState} />
-                            </div>
-                            <div className="app_coverWrapper">{cover}</div>
+                            {library}
+                            {cover}
                         </div>
                     </React.Fragment>
                 );

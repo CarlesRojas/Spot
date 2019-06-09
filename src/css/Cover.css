@@ -1,5 +1,11 @@
 .cover_wrapper {
-    transition: height 0.2s;
+    position: absolute;
+    width: 100%;
+}
+
+.cover_art {
+    width: 95%;
+    height: 95%;
     clip-path: url(#cover_clipPath);
     pointer-events: none;
 }
@@ -11,6 +17,10 @@
 
 .cover_infoWrapper {
     position: absolute;
+    width: 95%;
+    margin: auto;
+    bottom: 0;
+    vertical-align: middle;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -20,7 +30,7 @@
 .cover_song {
     color: white;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -30,8 +40,9 @@
 }
 
 .cover_artist {
-    color: white;
+    color: rgb(238, 238, 238);
     font-weight: bold;
+    font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -42,8 +53,8 @@
 
 .cover_playWrapper {
     position: absolute;
+    width: 100%;
     height: 100%;
-    margin: 0;
     padding: 0;
     background: none;
 }
@@ -55,6 +66,7 @@
 }
 
 .cover_image {
+    width: 95%;
     position: absolute;
     pointer-events: all;
 }
@@ -65,15 +77,17 @@
 
 #cover_titleGradient {
     position: absolute;
+    width: 95%;
     opacity: 1;
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 25%);
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 50%);
     pointer-events: none;
 }
 
 #cover_timeGradient {
     position: absolute;
-    transition-timing-function: linear;
+    width: 95%;
     opacity: 1;
+    transition-timing-function: linear;
     background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
     /*background-image: linear-gradient(to top, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);*/
     clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);

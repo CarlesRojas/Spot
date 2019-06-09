@@ -25,8 +25,10 @@ export default class EventsPubSub {
 
 /*  EVENTS:
 
-    onWindowResize:             Called when the window is resized               ()
-    onLibraryLoaded:            Calles when library finishes loading            ()
-    onPausePlay:                Called when the user clicks pause/play          ()
-    onSectionChange:            Called when the section changes                 ({ name, index })
+    onWindowResize:             Called when the window is resized                           ()
+    onLibraryLoaded:            Calles when library finishes loading                        ()
+    onPausePlay:                Called when the user clicks pause/play                      ()
+    onSectionChange:            Called when the section changes                             ({ name, index })
+    onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ height, currentHeight, currentTop })
+
 */
