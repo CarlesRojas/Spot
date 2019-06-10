@@ -45,6 +45,7 @@ export default class Cover extends Component {
         });
     }
 
+    // Called when the cover is clicked by the user
     handleCoverClick = () => {
         window.PubSub.emit("onPausePlay");
     };
@@ -341,6 +342,7 @@ export default class Cover extends Component {
         });
     }
 
+    // Renders the component
     render() {
         const { playing, song, albumCover, artist } = this.props;
         const { height, top } = this.state;
@@ -350,6 +352,9 @@ export default class Cover extends Component {
         const margin = (window.innerWidth / 100) * 5;
         const coverHeight = height - margin;
         const imageTop = margin / 2 - (width - coverHeight) / 2;
+
+        var imageFilter = "none";
+        if (!playing) imageFilter = "grayscale(100%)";
 
         return (
             <div
@@ -377,18 +382,13 @@ export default class Cover extends Component {
                 </svg>
 
                 <div className="cover_art" style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}>
-                    <img className={"cover_image" + (playing ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px" }} />
+                    <img className="cover_image" src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px", filter: imageFilter }} />
                     <div id="cover_titleGradient" style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }} />
                     <div id="cover_timeGradient" style={{ height: coverHeight + "px" }} />
-                    <div className="cover_infoWrapper" style={{ height: smallHeight * 0.95 + "px" }}>
+                    <div className="cover_infoWrapper" style={{ height: smallHeight + "px" }}>
                         <p className="cover_song">{song}</p>
                         <p className="cover_artist">{artist}</p>
                     </div>
-                    <FadeTransition extraStyle={{ height: coverHeight + "px", width: width + "px", bottom: margin / 2 + "px" }} isOpen={!playing} duration={100}>
-                        <div className="cover_playWrapper">
-                            <img className="cover_play" src="https://i.imgur.com/Ehaofzy.png" alt="" />
-                        </div>
-                    </FadeTransition>
                 </div>
             </div>
         );

@@ -35,13 +35,14 @@ export default class Playing extends Component {
 
         // Fade the playing in or out
         else {
-            var height = window.innerHeight - (currentTop + currentHeight);
+            height = window.innerHeight - (currentTop + currentHeight);
             var minHeight = currentSongsTop + smallHeigth;
             var maxHeight = window.innerHeight - smallHeigth;
             this.setState({ playingOpen: true, playingHeight: height, playingOpacity: mapNumber(height, minHeight, maxHeight, 0, 1) });
         }
     };
 
+    // Renders the component
     render() {
         //const { playbackState } = this.props;
         const { playingOpen, playingHeight, playingOpacity } = this.state;

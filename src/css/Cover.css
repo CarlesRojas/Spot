@@ -3,6 +3,11 @@
     width: 100%;
 }
 
+.cover_clip {
+    position: absolute;
+    pointer-events: none;
+}
+
 .cover_art {
     width: 95%;
     height: 95%;
@@ -10,8 +15,30 @@
     pointer-events: none;
 }
 
-.cover_clip {
+.cover_image {
+    transition: filter 0.25s;
+    filter: none;
+    width: 95%;
     position: absolute;
+    pointer-events: all;
+}
+
+#cover_titleGradient {
+    position: absolute;
+    width: 95%;
+    opacity: 1;
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 50%);
+    pointer-events: none;
+}
+
+#cover_timeGradient {
+    position: absolute;
+    width: 95%;
+    opacity: 1;
+    transition-timing-function: linear;
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
+    /*background-image: linear-gradient(to top, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);*/
+    clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
     pointer-events: none;
 }
 
@@ -40,7 +67,7 @@
 }
 
 .cover_artist {
-    color: rgb(238, 238, 238);
+    color: white;
     font-weight: bold;
     font-size: 0.9rem;
     white-space: nowrap;
@@ -48,48 +75,5 @@
     text-overflow: ellipsis;
     text-align: center;
     text-shadow: black 0 0 0.25rem;
-    pointer-events: none;
-}
-
-.cover_playWrapper {
-    position: absolute;
-    bottom: 0;
-    padding: 0;
-    background: none;
-}
-
-.cover_play {
-    position: absolute;
-    height: 100%;
-    pointer-events: none;
-    filter: drop-shadow(0 0 1rem black);
-}
-
-.cover_image {
-    width: 95%;
-    position: absolute;
-    pointer-events: all;
-}
-
-.cover_imagePaused {
-    filter: grayscale(100%);
-}
-
-#cover_titleGradient {
-    position: absolute;
-    width: 95%;
-    opacity: 1;
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 50%);
-    pointer-events: none;
-}
-
-#cover_timeGradient {
-    position: absolute;
-    width: 95%;
-    opacity: 1;
-    transition-timing-function: linear;
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
-    /*background-image: linear-gradient(to top, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);*/
-    clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
     pointer-events: none;
 }

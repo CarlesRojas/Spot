@@ -105,6 +105,7 @@ export default class Library extends Component {
         return { sectionName: this.state.sections[0].name, sectionIndex: 0 };
     };
 
+    // Renders the component
     render() {
         const { playbackState } = this.props;
         const { libraryOpen, libraryHeight, libraryOpacity, prevSectionIndex, currSectionName, currSectionIndex } = this.state;
@@ -122,7 +123,7 @@ export default class Library extends Component {
                 <div className="library_sectionsWrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
                         <div className="library_sectionWrapper">
-                            <Songs type="songs" playbackState={playbackState} />
+                            <Songs playbackState={playbackState} />
                         </div>
                     </SlideTransition>
 
@@ -168,6 +169,7 @@ export default class Library extends Component {
 }
 
 class NavItem extends Component {
+    // Renders the component
     render() {
         const { name, icon, index, selected } = this.props;
         return (

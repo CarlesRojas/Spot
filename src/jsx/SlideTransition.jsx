@@ -36,10 +36,12 @@ export default class SlideTransition extends Component {
         };
     }
 
+    // Seths the default style options
     setDefaultStyle = duration => {
         this.defaultStyle = { transition: `left ${duration}ms ease-in-out, top ${duration}ms ease-in-out` };
     };
 
+    // Renders the component
     render() {
         const { isOpen, duration, moveLeftToRight, children } = this.props;
         this.setDefaultStyle(duration);

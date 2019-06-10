@@ -25,6 +25,7 @@ export default class FadeTransition extends Component {
         };
     }
 
+    // Renders the component
     render() {
         return (
             <Transition in={this.props.isOpen} timeout={this.props.duration}>

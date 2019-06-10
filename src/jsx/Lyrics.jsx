@@ -43,6 +43,7 @@ export default class Lyrics extends Component {
         }
     };
 
+    // Renders the component
     render() {
         //const { playbackState } = this.props;
         const { lyricsOpen, lyricsHeight, lyricsOpacity } = this.state;

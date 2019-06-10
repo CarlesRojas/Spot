@@ -5,10 +5,9 @@ export default class Songs extends Component {
     constructor(props) {
         super(props);
 
-        const { type, playbackState } = props;
+        const { playbackState } = props;
 
         this.state = {
-            type: type,
             availableHeight: 0,
             scrollTop: 0,
             rowHeight: 100,
@@ -22,6 +21,7 @@ export default class Songs extends Component {
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
     }
 
+    // Called when the library finishes loading
     handleLibraryLoaded = () => {
         this.getListOrder();
     };
@@ -29,7 +29,10 @@ export default class Songs extends Component {
     // Saves a link Order - ID to the state
     getListOrder = () => {};
 
+    // Renders the component
     render() {
+        const { playbackState } = this.state;
+
         return <div className="songs_wrapper" />;
     }
 
