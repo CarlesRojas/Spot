@@ -13,7 +13,11 @@ export default class ItemSong extends Component {
         return (
             <button className="itemSong_item" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px" }}>
                 <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>{skeleton ? "-" : window.prettifyName(name)}</p>
-                <p className={"itemSong_info " + (skeleton ? "itemSong_skeletonInfo" : "")}>{skeleton ? "-" : window.prettifyName(album) + " · " + window.prettifyName(artist)}</p>
+                <p className={"itemSong_info " + (skeleton ? "itemSong_skeletonInfo" : "")}>
+                    {skeleton ? "-" : window.prettifyName(album)}
+                    <strong> · </strong>
+                    {window.prettifyName(artist)}
+                </p>
             </button>
         );
     }

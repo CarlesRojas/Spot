@@ -56,7 +56,7 @@
 
 .cover_song {
     color: white;
-    font-weight: bold;
+    font-weight: 500;
     font-size: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
@@ -68,7 +68,7 @@
 
 .cover_artist {
     color: rgba(255, 255, 255, 0.75);
-    font-weight: bold;
+    font-weight: 500;
     font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;

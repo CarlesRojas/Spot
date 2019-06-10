@@ -1,4 +1,5 @@
 /*      MAIN ELEMENTS    */
+
 * {
     margin: 0;
     padding: 0;
@@ -21,6 +22,7 @@ body {
 
 input,
 button {
+    font: inherit;
     color: inherit;
 }
 
