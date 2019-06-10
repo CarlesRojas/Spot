@@ -29,6 +29,6 @@ export default class EventsPubSub {
     onLibraryLoaded:            Calles when library finishes loading                        ()
     onPausePlay:                Called when the user clicks pause/play                      ()
     onSectionChange:            Called when the section changes                             ({ name, index })
-    onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ height, currentHeight, currentTop })
+    onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop })
 
 */

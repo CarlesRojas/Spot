@@ -31,11 +31,18 @@ export default class Cover extends Component {
             touchStartY: 0,
             prevTouchY: 0,
             beingTouched: false,
-            moving: false,
             intervalID: null
         };
 
-        window.PubSub.emit("onVerticalSwipe", { height: this.info.normalHeight, currentHeight: this.info.normalHeight, currentTop: this.info.normalTop });
+        window.PubSub.emit("onVerticalSwipe", {
+            normalHeight: this.info.normalHeight,
+            smallHeigth: this.info.smallHeight,
+            normalTop: this.info.normalTop,
+            miniatureTop: this.info.miniatureTop,
+            currentSongsTop: this.info.currentSongsTop,
+            currentHeight: this.info.normalHeight,
+            currentTop: this.info.normalTop
+        });
     }
 
     handleCoverClick = () => {
@@ -50,6 +57,19 @@ export default class Cover extends Component {
     snapToPosition() {
         let { height, top, speed, beingTouched, intervalID } = this.state;
         const { position, acceleration, normalHeight, smallHeight, normalTop, miniatureTop, currentSongsTop } = this.info;
+
+        // Emit info about the current position
+        function emitInfo(height, top, info) {
+            window.PubSub.emit("onVerticalSwipe", {
+                normalHeight: info.normalHeight,
+                smallHeigth: info.smallHeight,
+                normalTop: info.normalTop,
+                miniatureTop: info.miniatureTop,
+                currentSongsTop: info.currentSongsTop,
+                currentHeight: height,
+                currentTop: top
+            });
+        }
 
         switch (position) {
             case "normal":
@@ -68,11 +88,15 @@ export default class Cover extends Component {
                     // End animation
                     if (top >= normalTop) {
                         window.clearInterval(intervalID);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                        emitInfo(normalHeight, normalTop, this.info);
+                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
-                    else this.setState({ height, top, speed });
+                    else {
+                        emitInfo(height, top, this.info);
+                        this.setState({ height, top, speed });
+                    }
                 }
 
                 // If coming from below
@@ -85,17 +109,22 @@ export default class Cover extends Component {
                     if (top <= normalTop) {
                         // End animation
                         window.clearInterval(intervalID);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                        emitInfo(normalHeight, normalTop, this.info);
+                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
-                    else this.setState({ height, top, speed });
+                    else {
+                        emitInfo(height, top, this.info);
+                        this.setState({ height, top, speed });
+                    }
                 }
 
                 // Interrupt animation
                 else {
                     window.clearInterval(intervalID);
-                    this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                    emitInfo(normalHeight, normalTop, this.info);
+                    this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                 }
                 break;
             case "currentSongs":
@@ -116,17 +145,22 @@ export default class Cover extends Component {
 
                     if (top === currentSongsTop && height === smallHeight) {
                         window.clearInterval(intervalID);
-                        this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                        emitInfo(smallHeight, currentSongsTop, this.info);
+                        this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
-                    else this.setState({ height, top, speed });
+                    else {
+                        emitInfo(height, top, this.info);
+                        this.setState({ height, top, speed });
+                    }
                 }
 
                 // Interrupt animation
                 else {
                     window.clearInterval(intervalID);
-                    this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                    emitInfo(smallHeight, currentSongsTop, this.info);
+                    this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                 }
                 break;
             case "miniature":
@@ -140,17 +174,22 @@ export default class Cover extends Component {
                     // End animation
                     if (top >= miniatureTop) {
                         window.clearInterval(intervalID);
-                        this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                        emitInfo(smallHeight, miniatureTop, this.info);
+                        this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
-                    else this.setState({ height, top, speed });
+                    else {
+                        emitInfo(height, top, this.info);
+                        this.setState({ height, top, speed });
+                    }
                 }
 
                 // Interrupt animation
                 else {
                     window.clearInterval(intervalID);
-                    this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0, moving: false });
+                    emitInfo(smallHeight, miniatureTop, this.info);
+                    this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0 });
                 }
                 break;
         }
@@ -170,7 +209,6 @@ export default class Cover extends Component {
             timeOfLastDragEvent: Date.now(),
             touchStartY: clientY,
             beingTouched: true,
-            moving: true,
             intervalID: null
         });
     }
@@ -232,10 +270,20 @@ export default class Cover extends Component {
                     break;
             }
 
+            window.PubSub.emit("onVerticalSwipe", {
+                normalHeight: this.info.normalHeight,
+                smallHeigth: this.info.smallHeight,
+                normalTop: this.info.normalTop,
+                miniatureTop: this.info.miniatureTop,
+                currentSongsTop: this.info.currentSongsTop,
+                currentHeight: height,
+                currentTop: deltaY
+            });
+
             this.setState({
                 top: deltaY,
                 height: height,
-                speed,
+                speed: speed,
                 timeOfLastDragEvent: currTime,
                 prevTouchY: touchY
             });
@@ -244,7 +292,7 @@ export default class Cover extends Component {
 
     // Called when the touch ends
     handleEnd() {
-        const { speed, top } = this.state;
+        const { speed, height, top } = this.state;
         const { position, normalTop, miniatureTop, thresholdSpeed } = this.info;
 
         var newPos;
@@ -275,6 +323,16 @@ export default class Cover extends Component {
                 break;
         }
 
+        window.PubSub.emit("onVerticalSwipe", {
+            normalHeight: this.info.normalHeight,
+            smallHeigth: this.info.smallHeight,
+            normalTop: this.info.normalTop,
+            miniatureTop: this.info.miniatureTop,
+            currentSongsTop: this.info.currentSongsTop,
+            currentHeight: height,
+            currentTop: top
+        });
+
         this.info.position = newPos;
         this.setState({
             speed: speed,
@@ -286,15 +344,13 @@ export default class Cover extends Component {
 
     render() {
         const { playing, song, albumCover, artist } = this.props;
-        const { height, top, moving } = this.state;
+        const { height, top } = this.state;
         const { normalHeight, smallHeight } = this.info;
         const width = (window.innerWidth / 100) * 95;
         const radius = (window.innerWidth / 100) * 4;
         const margin = (window.innerWidth / 100) * 5;
         const coverHeight = height - margin;
         const imageTop = margin / 2 - (width - coverHeight) / 2;
-
-        if (moving) window.PubSub.emit("onVerticalSwipe", { height: normalHeight, currentHeight: height, currentTop: top });
 
         return (
             <div
@@ -314,7 +370,12 @@ export default class Cover extends Component {
                             <circle id="cover_clip_circle_tl" cx={radius + "px"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_tr" cx={"calc(" + width + "px - " + radius + ")"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_bl" cx={radius + "px"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
-                            <circle id="cover_clip_circle_br" cx={"calc(" + width + "px - " + radius + ")"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
+                            <circle
+                                id="cover_clip_circle_br"
+                                cx={"calc(" + width + "px - " + radius + ")"}
+                                cy={"calc(" + coverHeight + "px - " + radius + ")"}
+                                r={radius + "px"}
+                            />
                             <rect id="cover_clip_rect_h" x="0" y={radius + "px"} width={width + "px"} height={"calc(" + coverHeight + "px - " + radius * 2 + "px)"} />
                             <rect id="cover_clip_rect_v" x={radius + "px"} y="0" width={"calc(" + width + "px - " + radius * 2 + "px)"} height={coverHeight + "px"} />
                         </clipPath>
@@ -322,7 +383,13 @@ export default class Cover extends Component {
                 </svg>
 
                 <div className="cover_art" style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}>
-                    <img className={"cover_image" + (playing ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px" }} />
+                    <img
+                        className={"cover_image" + (playing ? "" : " cover_imagePaused")}
+                        src={albumCover}
+                        onClick={() => this.handleCoverClick()}
+                        alt=""
+                        style={{ top: imageTop + "px" }}
+                    />
                     <div id="cover_titleGradient" style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }} />
                     <div id="cover_timeGradient" style={{ height: coverHeight + "px" }} />
                     <div className="cover_infoWrapper" style={{ height: smallHeight * 0.95 + "px" }}>

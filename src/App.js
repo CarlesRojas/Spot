@@ -414,6 +414,17 @@ export default class App extends Component {
         );
     };
 
+    // Remove extra info from a song, album or artist name
+    prettifyName = name => {
+        const separators = [" - ", "(", ":", ",", "/"];
+
+        var index = -1;
+        for (var i = 0; i < separators.length && index < 0; ++i) index = name.indexOf(separators[i]);
+
+        if (index > 0) name = name.substring(0, index);
+        return name.trim();
+    };
+
     //##############################################
     //       REACT CICLE METHODS
     //##############################################
@@ -432,12 +443,8 @@ export default class App extends Component {
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
             background = image;
-            cover = <Cover playing={playing} song={name} albumCover={image} artist={artistName} />;
+            cover = <Cover playing={playing} song={this.prettifyName(name)} albumCover={image} artist={this.prettifyName(artistName)} />;
         }
-
-        // CARLES: INLINE THIS
-        var library = <Library playbackState={playbackState} />;
-        library = null;
 
         // In mobile
         if (window.info.isMobile) {
@@ -451,7 +458,7 @@ export default class App extends Component {
                         <div className="app_background" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
-                            {library}
+                            <Library playbackState={playbackState} />
                             {cover}
                         </div>
                     </React.Fragment>

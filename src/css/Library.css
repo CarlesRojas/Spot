@@ -1,3 +1,9 @@
+.library_wrapper {
+    position: absolute;
+    width: 100%;
+    top: 0;
+}
+
 .sections_wrapper {
     position: relative;
     height: calc(100% - 3rem); /*  */

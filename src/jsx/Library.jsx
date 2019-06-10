@@ -17,6 +17,9 @@ export default class Library extends Component {
         super(props);
 
         this.state = {
+            libraryOpen: false,
+            libraryHeight: 0,
+            libraryOpacity: 0,
             sections: [
                 {
                     name: "song",
@@ -54,6 +57,7 @@ export default class Library extends Component {
 
         // Sub to events when this component is mounted
         window.PubSub.sub("onSectionChange", this.handleSectionChange);
+        window.PubSub.sub("onVerticalSwipe", this.handleVerticalSwipe);
     }
 
     // Handle the click to a new section
@@ -70,6 +74,29 @@ export default class Library extends Component {
         });
     };
 
+    // Handle a change in the swiping cover
+    handleVerticalSwipe = ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop }) => {
+        // Function to map a number to another range
+        function mapNumber(number, inputMin, inputMax, outputMin, outputMax) {
+            return ((number - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin) + outputMin;
+        }
+
+        // Hide if the library is not open
+        if (currentTop <= normalTop) {
+            this.setState({ libraryOpen: false, libraryHeight: normalTop, libraryOpacity: 0 });
+        }
+
+        // Show if the library is open
+        else if (currentTop >= miniatureTop) {
+            this.setState({ libraryOpen: true, libraryHeight: miniatureTop, libraryOpacity: 1 });
+        }
+
+        // Fade the library in or out
+        else {
+            this.setState({ libraryOpen: true, libraryHeight: currentTop, libraryOpacity: mapNumber(currentTop, normalTop, miniatureTop, 0, 1) });
+        }
+    };
+
     // Returns the name & index of the section
     getSectionIndex = sectionName => {
         for (var i = 0; i < this.state.sections.length; ++i) {
@@ -80,15 +107,18 @@ export default class Library extends Component {
 
     render() {
         const { playbackState } = this.props;
-        const { prevSectionIndex, currSectionName, currSectionIndex } = this.state;
+        const { libraryOpen, libraryHeight, libraryOpacity, prevSectionIndex, currSectionName, currSectionIndex } = this.state;
         const leftToRight = prevSectionIndex < currSectionIndex;
 
         // Only play the animation after the first loading
         const duration = this.noTransitionOnFirstLoad ? 0 : 100;
         if (this.noTransitionOnFirstLoad) --this.noTransitionOnFirstLoad;
 
+        if (libraryOpen) var display = "inline";
+        else display = "none";
+
         return (
-            <React.Fragment>
+            <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>
                 <div className="sections_wrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
                         <div className="section_wrapper">
@@ -126,13 +156,14 @@ export default class Library extends Component {
                         <NavItem key={section.name} name={section.name} icon={section.icon} index={section.index} selected={section.name === this.state.currSectionName} />
                     ))}
                 </div>
-            </React.Fragment>
+            </div>
         );
     }
 
     // Unsub from events when this component gets unmounted
     componentWillUnmount() {
         window.PubSub.unsub("onSectionChange", this.handleSectionChange);
+        window.PubSub.unsub("onVerticalSwipe", this.handleVerticalSwipe);
     }
 }
 
