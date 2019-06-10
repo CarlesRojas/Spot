@@ -123,7 +123,7 @@ export default class Library extends Component {
                 <div className="library_sectionsWrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
                         <div className="library_sectionWrapper">
-                            <Songs playbackState={playbackState} />
+                            <Songs playbackState={playbackState} height={libraryHeight} />
                         </div>
                     </SlideTransition>
 

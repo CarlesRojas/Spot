@@ -1,39 +1,125 @@
 import React, { Component } from "react";
+import ItemSong from "./ItemSong";
 import "../css/Songs.css";
 
 export default class Songs extends Component {
     constructor(props) {
         super(props);
 
-        const { playbackState } = props;
+        const { playbackState, height } = props;
 
         this.state = {
-            availableHeight: 0,
+            availableHeight: height,
             scrollTop: 0,
-            rowHeight: 100,
-            playbackState: playbackState,
-            selectedIndex: null,
-            animate: true,
-            list: null,
-            order: null
+            rowHeight: window.innerHeight / 11,
+            order: null,
+            playbackState: playbackState
         };
 
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
+
+        if (!window.info.songList || window.info.songList.length <= 0) window.info.songList = this.getListOrder("dateAdded");
     }
 
     // Called when the library finishes loading
     handleLibraryLoaded = () => {
-        this.getListOrder();
+        if (!window.info.songList || window.info.songList.length <= 0) {
+            window.info.songList = this.getListOrder("dateAdded");
+            this.forceUpdate();
+        }
     };
 
-    // Saves a link Order - ID to the state
-    getListOrder = () => {};
+    // Handle when the list is scrolled
+    handleScroll = event => {
+        this.setState({ scrollTop: event.target.scrollTop });
+    };
+
+    // Returns a list of song IDs in the order specified: ["name", "album", "artist", "dateAdded"]
+    getListOrder = order => {
+        function orderFunction(a, b, order) {
+            if (order === "name") {
+                var orderA = a["name"];
+                var orderB = b["name"];
+            } else if (order === "album") {
+                orderA = window.info.library.albums[a["albumID"]];
+                orderB = window.info.library.albums[b["albumID"]];
+            } else if (order === "artist") {
+                orderA = window.info.library.artists[a["artistID"]];
+                orderB = window.info.library.artists[b["artistID"]];
+            } else {
+                orderA = a["dateAdded"];
+                orderB = b["dateAdded"];
+            }
+
+            // If the first order is the same sort by album name
+            if (orderA === orderB) {
+                var albumA = window.info.library.albums[a["albumID"]];
+                var albumB = window.info.library.albums[b["albumID"]];
+
+                // If the album is the same sort by track number
+                if (albumA === albumB) {
+                    var trackNumA = a["trackNumber"];
+                    var trackNumB = a["trackNumber"];
+                    return trackNumA < trackNumB ? 1 : -1;
+                } else {
+                    return albumA < albumB ? 1 : -1;
+                }
+            } else {
+                return orderA < orderB ? 1 : -1;
+            }
+        }
+
+        return Object.values(window.info.library.songs)
+            .sort((a, b) => orderFunction(a, b, order))
+            .map(x => x["songID"]);
+    };
+
+    // Create the component from an element in the array
+    createItem = (elem, skeleton) => {
+        const { playbackState } = this.props;
+        const { rowHeight } = this.state;
+        const { id, name, album, artist } = elem;
+        return <ItemSong key={id} height={rowHeight} id={id} name={name} album={album} artist={artist} selected={id === playbackState["songID"]} skeleton={skeleton} />;
+    };
 
     // Renders the component
     render() {
-        const { playbackState } = this.state;
+        const { availableHeight, scrollTop, rowHeight } = this.state;
+        const list = window.info.songList;
+        const numRows = list.length > 0 ? list.length : 20;
+        const margin = (window.innerWidth / 100) * 5;
 
-        return <div className="songs_wrapper" />;
+        const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - 10);
+        const endIndex = Math.min(startIndex + Math.ceil(availableHeight / rowHeight) + 20, numRows);
+        const totalHeight = rowHeight * numRows;
+        const paddingTop = startIndex * rowHeight;
+
+        // List to be rendered
+        const renderedItems = [];
+        let index = startIndex;
+
+        // Add all items that will be shown
+        while (index < endIndex) {
+            if (index < list.length) {
+                var { songID, name, albumID, artistID } = window.info.library.songs[list[index]];
+                renderedItems.push(this.createItem({ id: songID, name: name, album: window.info.library.albums[albumID]["name"], artist: window.info.library.artists[artistID]["name"] }, false));
+            } else {
+                renderedItems.push(this.createItem({ id: index, name: "", album: "", artist: "" }, true));
+            }
+            ++index;
+        }
+
+        return (
+            <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)" }}>
+                <p className="songs_title">Liked Songs</p>
+                <button className="songs_shuffle">SHUFFLE</button>
+                <div className="songs_scroll" onScroll={this.handleScroll}>
+                    <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
+                        <ol className="songs_list">{renderedItems}</ol>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     // Stop listening to events

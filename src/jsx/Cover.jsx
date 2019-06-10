@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import FadeTransition from "./FadeTransition";
-//import Swipe from "react-easy-swipe";
 import "../css/Cover.css";
 
 export default class Cover extends Component {

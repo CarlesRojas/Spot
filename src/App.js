@@ -112,10 +112,14 @@ export default class App extends Component {
             window.info.player.connect();
         };
 
+        // Define the prettify function for all to access
+        window.prettifyName = this.prettifyName;
+
         // Subscribe to events
         window.addEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.sub("onWindowResize", this.handleWindowResize);
         window.PubSub.sub("onPausePlay", this.handlePausePlay);
+        window.PubSub.sub("onSongSelected", this.handleSongSelected);
     }
 
     //##############################################
@@ -339,6 +343,7 @@ export default class App extends Component {
         // Add song
         if (!(songID in window.info.library.songs)) {
             var songInfo = {};
+            songInfo["songID"] = songID;
             songInfo["dateAdded"] = dateAdded;
             songInfo["name"] = song.name;
             songInfo["duration"] = song.duration_ms;
@@ -359,6 +364,7 @@ export default class App extends Component {
         // Add the album otherwise
         else {
             albumInfo = {};
+            albumInfo["albumID"] = albumID;
             albumInfo["dateAdded"] = dateAdded;
             albumInfo["name"] = song.album.name;
             albumInfo["image"] = song.album.images.length ? song.album.images[0].url : "https://i.imgur.com/iajaWIN.png";
@@ -379,6 +385,7 @@ export default class App extends Component {
         // Add the artist otherwise
         else {
             artistInfo = {};
+            artistInfo["artistID"] = artistID;
             artistInfo["dateAdded"] = dateAdded;
             artistInfo["name"] = song.artists.length ? song.artists[0].name : "";
             artistInfo["image"] = null;
@@ -395,7 +402,10 @@ export default class App extends Component {
         var curr = artists.slice(offset, offset + limit);
 
         // Return in there is no more artists to get
-        if (curr.length <= 0) return;
+        if (curr.length <= 0) {
+            window.PubSub.emit("onLibraryLoaded");
+            return;
+        }
 
         window.spotifyAPI.getArtists(curr).then(
             response => {
@@ -416,14 +426,31 @@ export default class App extends Component {
         );
     };
 
+    // Called when a song is selected
+    handleSongSelected = ({ id }) => {
+        window.spotifyAPI.play({ uris: ["spotify:track:" + id] }).then(
+            response => {
+                console.log("Done! ", response);
+            },
+            err => {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
+            }
+        );
+    };
+
     // Remove extra info from a song, album or artist name
     prettifyName = name => {
         const separators = [" - ", "(", ":", ",", "/"];
 
-        var index = -1;
-        for (var i = 0; i < separators.length && index < 0; ++i) index = name.indexOf(separators[i]);
+        var index = Number.MAX_SAFE_INTEGER;
+        for (var i = 0; i < separators.length; ++i) {
+            var result = name.indexOf(separators[i]);
+            if (result > 0) index = Math.min(index, name.indexOf(separators[i]));
+        }
 
-        if (index > 0) name = name.substring(0, index);
+        if (index > 0 && index < name.length) name = name.substring(0, index);
         return name.trim();
     };
 
@@ -508,6 +535,7 @@ export default class App extends Component {
         window.removeEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.unsub("onWindowResize", this.handleWindowResize);
         window.PubSub.unsub("onPausePlay", this.handlePausePlay);
+        window.PubSub.unsub("onSongSelected", this.handleSongSelected);
     }
 
     //##############################################

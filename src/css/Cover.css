@@ -67,7 +67,7 @@
 }
 
 .cover_artist {
-    color: white;
+    color: rgba(255, 255, 255, 0.75);
     font-weight: bold;
     font-size: 0.9rem;
     white-space: nowrap;

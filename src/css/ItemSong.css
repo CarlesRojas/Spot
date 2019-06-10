@@ -1,0 +1,75 @@
+/*      ITEM        */
+
+.itemSong_item {
+    position: relative;
+    border: none;
+    white-space: nowrap;
+    outline: 0;
+    padding: 0.8rem;
+    width: 100%;
+    background: none;
+}
+
+/*      MAIN INFO        */
+
+.itemSong_name {
+    color: white;
+    text-align: left;
+    text-decoration: none;
+    margin: 0;
+    padding: 0.1rem 0;
+    font-size: 1.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.itemSong_skeletonName {
+    color: transparent;
+    text-align: left;
+    text-decoration: none;
+    margin: 0;
+    padding: 0.1rem 0;
+    width: 75%;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    background: rgba(150, 150, 150, 0.1);
+    border-radius: 0.5rem;
+}
+
+.itemSong_selectedName {
+    color: rgb(29, 185, 84);
+}
+
+.itemSong_info {
+    color: rgba(255, 255, 255, 0.75);
+    text-align: left;
+    text-decoration: none;
+    margin: 0;
+    padding: 0.1rem 0;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.itemSong_skeletonInfo {
+    color: transparent;
+    text-align: left;
+    text-decoration: none;
+    margin: 0.5rem 0 0 0;
+    padding: 0.1rem 0;
+    width: 50%;
+    font-size: 0.6rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    background: rgba(150, 150, 150, 0.1);
+    border-radius: 0.5rem;
+}

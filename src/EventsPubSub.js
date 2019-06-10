@@ -30,5 +30,7 @@ export default class EventsPubSub {
     onPausePlay:                Called when the user clicks pause/play                      ()
     onSectionChange:            Called when the section changes                             ({ name, index })
     onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop })
-
+    
+    
+    onSongSelected:             Called when a song is clicked                               ({id})
 */
