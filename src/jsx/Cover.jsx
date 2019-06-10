@@ -31,7 +31,7 @@ export default class Cover extends Component {
             touchStartY: 0,
             prevTouchY: 0,
             beingTouched: false,
-            intervalID: null
+            animationIntervalID: null
         };
 
         window.PubSub.emit("onVerticalSwipe", {
@@ -55,7 +55,7 @@ export default class Cover extends Component {
 
     // Snaps to the pos: "normal", "currentSongs", "miniature"
     snapToPosition() {
-        let { height, top, speed, beingTouched, intervalID } = this.state;
+        let { height, top, speed, beingTouched, animationIntervalID } = this.state;
         const { position, acceleration, normalHeight, smallHeight, normalTop, miniatureTop, currentSongsTop } = this.info;
 
         // Emit info about the current position
@@ -75,6 +75,7 @@ export default class Cover extends Component {
             case "normal":
                 // If coming from the top
                 if (!beingTouched && top < normalTop) {
+                    console.log("FromTop");
                     speed += 10 * acceleration;
 
                     if (height < normalHeight) {
@@ -87,9 +88,9 @@ export default class Cover extends Component {
 
                     // End animation
                     if (top >= normalTop) {
-                        window.clearInterval(intervalID);
+                        window.clearInterval(animationIntervalID);
                         emitInfo(normalHeight, normalTop, this.info);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                        this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
@@ -100,7 +101,8 @@ export default class Cover extends Component {
                 }
 
                 // If coming from below
-                else if (!beingTouched) {
+                else if (!beingTouched && top > normalTop) {
+                    console.log("FromBot");
                     speed -= 10 * acceleration;
 
                     top += speed;
@@ -108,9 +110,9 @@ export default class Cover extends Component {
 
                     if (top <= normalTop) {
                         // End animation
-                        window.clearInterval(intervalID);
+                        window.clearInterval(animationIntervalID);
                         emitInfo(normalHeight, normalTop, this.info);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                        this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
@@ -122,9 +124,9 @@ export default class Cover extends Component {
 
                 // Interrupt animation
                 else {
-                    window.clearInterval(intervalID);
+                    window.clearInterval(animationIntervalID);
                     emitInfo(normalHeight, normalTop, this.info);
-                    this.setState({ height: normalHeight, top: normalTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                    this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                 }
                 break;
             case "currentSongs":
@@ -144,9 +146,9 @@ export default class Cover extends Component {
                     }
 
                     if (top === currentSongsTop && height === smallHeight) {
-                        window.clearInterval(intervalID);
+                        window.clearInterval(animationIntervalID);
                         emitInfo(smallHeight, currentSongsTop, this.info);
-                        this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                        this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
@@ -158,9 +160,9 @@ export default class Cover extends Component {
 
                 // Interrupt animation
                 else {
-                    window.clearInterval(intervalID);
+                    window.clearInterval(animationIntervalID);
                     emitInfo(smallHeight, currentSongsTop, this.info);
-                    this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                    this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                 }
                 break;
             case "miniature":
@@ -173,9 +175,9 @@ export default class Cover extends Component {
 
                     // End animation
                     if (top >= miniatureTop) {
-                        window.clearInterval(intervalID);
+                        window.clearInterval(animationIntervalID);
                         emitInfo(smallHeight, miniatureTop, this.info);
-                        this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                        this.setState({ height: smallHeight, top: miniatureTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                     }
 
                     // Kepp animating
@@ -187,9 +189,9 @@ export default class Cover extends Component {
 
                 // Interrupt animation
                 else {
-                    window.clearInterval(intervalID);
+                    window.clearInterval(animationIntervalID);
                     emitInfo(smallHeight, miniatureTop, this.info);
-                    this.setState({ height: smallHeight, top: miniatureTop, speed: 0, intervalID: null, originalTopOffset: 0 });
+                    this.setState({ height: smallHeight, top: miniatureTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
                 }
                 break;
         }
@@ -198,10 +200,9 @@ export default class Cover extends Component {
     // Called when the touch starts
     handleStart(event, clientX, clientY) {
         //event.preventDefault();
+        const { top, animationIntervalID } = this.state;
 
-        const { top, intervalID } = this.state;
-
-        if (intervalID !== null) window.clearInterval(intervalID);
+        if (animationIntervalID !== null) window.clearInterval(animationIntervalID);
 
         this.setState({
             originalTopOffset: top,
@@ -209,7 +210,7 @@ export default class Cover extends Component {
             timeOfLastDragEvent: Date.now(),
             touchStartY: clientY,
             beingTouched: true,
-            intervalID: null
+            animationIntervalID: null
         });
     }
 
@@ -338,7 +339,7 @@ export default class Cover extends Component {
             speed: speed,
             touchStartY: 0,
             beingTouched: false,
-            intervalID: window.setInterval(this.snapToPosition.bind(this), 15)
+            animationIntervalID: window.setInterval(this.snapToPosition.bind(this), 15)
         });
     }
 
