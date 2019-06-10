@@ -75,7 +75,6 @@ export default class Cover extends Component {
             case "normal":
                 // If coming from the top
                 if (!beingTouched && top < normalTop) {
-                    console.log("FromTop");
                     speed += 10 * acceleration;
 
                     if (height < normalHeight) {
@@ -102,7 +101,6 @@ export default class Cover extends Component {
 
                 // If coming from below
                 else if (!beingTouched && top > normalTop) {
-                    console.log("FromBot");
                     speed -= 10 * acceleration;
 
                     top += speed;
@@ -371,12 +369,7 @@ export default class Cover extends Component {
                             <circle id="cover_clip_circle_tl" cx={radius + "px"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_tr" cx={"calc(" + width + "px - " + radius + ")"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_bl" cx={radius + "px"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
-                            <circle
-                                id="cover_clip_circle_br"
-                                cx={"calc(" + width + "px - " + radius + ")"}
-                                cy={"calc(" + coverHeight + "px - " + radius + ")"}
-                                r={radius + "px"}
-                            />
+                            <circle id="cover_clip_circle_br" cx={"calc(" + width + "px - " + radius + ")"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
                             <rect id="cover_clip_rect_h" x="0" y={radius + "px"} width={width + "px"} height={"calc(" + coverHeight + "px - " + radius * 2 + "px)"} />
                             <rect id="cover_clip_rect_v" x={radius + "px"} y="0" width={"calc(" + width + "px - " + radius * 2 + "px)"} height={coverHeight + "px"} />
                         </clipPath>
@@ -384,13 +377,7 @@ export default class Cover extends Component {
                 </svg>
 
                 <div className="cover_art" style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}>
-                    <img
-                        className={"cover_image" + (playing ? "" : " cover_imagePaused")}
-                        src={albumCover}
-                        onClick={() => this.handleCoverClick()}
-                        alt=""
-                        style={{ top: imageTop + "px" }}
-                    />
+                    <img className={"cover_image" + (playing ? "" : " cover_imagePaused")} src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px" }} />
                     <div id="cover_titleGradient" style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }} />
                     <div id="cover_timeGradient" style={{ height: coverHeight + "px" }} />
                     <div className="cover_infoWrapper" style={{ height: smallHeight * 0.95 + "px" }}>

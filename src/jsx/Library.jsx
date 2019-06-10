@@ -83,7 +83,7 @@ export default class Library extends Component {
 
         // Hide if the library is not open
         if (currentTop <= normalTop) {
-            this.setState({ libraryOpen: false, libraryHeight: normalTop, libraryOpacity: 0 });
+            this.setState({ libraryOpen: false, libraryHeight: 0, libraryOpacity: 0 });
         }
 
         // Show if the library is open
@@ -119,39 +119,39 @@ export default class Library extends Component {
 
         return (
             <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>
-                <div className="sections_wrapper">
+                <div className="library_sectionsWrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="section_wrapper">
+                        <div className="library_sectionWrapper">
                             <Songs type="songs" playbackState={playbackState} />
                         </div>
                     </SlideTransition>
 
                     <SlideTransition isOpen={currSectionName === "album"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="section_wrapper">
+                        <div className="library_sectionWrapper">
                             <Albums />
                         </div>
                     </SlideTransition>
 
                     <SlideTransition isOpen={currSectionName === "artist"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="section_wrapper">
+                        <div className="library_sectionWrapper">
                             <Artists />
                         </div>
                     </SlideTransition>
 
                     <SlideTransition isOpen={currSectionName === "playlist"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="section_wrapper">
+                        <div className="library_sectionWrapper">
                             <Playlists />
                         </div>
                     </SlideTransition>
 
                     <SlideTransition isOpen={currSectionName === "search"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="section_wrapper">
+                        <div className="library_sectionWrapper">
                             <Search />
                         </div>
                     </SlideTransition>
                 </div>
 
-                <div className="navBar_bar">
+                <div className="library_navBar">
                     {this.state.sections.map(section => (
                         <NavItem key={section.name} name={section.name} icon={section.icon} index={section.index} selected={section.name === this.state.currSectionName} />
                     ))}
@@ -171,11 +171,8 @@ class NavItem extends Component {
     render() {
         const { name, icon, index, selected } = this.props;
         return (
-            <button
-                className={"navBar_button" + (selected ? " navBar_buttonSelected" : "")}
-                onClick={() => window.PubSub.emit("onSectionChange", { name: name, index: index })}
-            >
-                <img className="navBar_icon" src={icon} alt="" />
+            <button className={"navItem_button" + (selected ? " navItem_buttonSelected" : "")} onClick={() => window.PubSub.emit("onSectionChange", { name: name, index: index })}>
+                <img className="navItem_icon" src={icon} alt="" />
             </button>
         );
     }

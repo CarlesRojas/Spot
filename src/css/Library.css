@@ -4,14 +4,14 @@
     top: 0;
 }
 
-.sections_wrapper {
+.library_sectionsWrapper {
     position: relative;
     height: calc(100% - 3rem); /*  */
     width: 100%;
     overflow: hidden;
 }
 
-.section_wrapper {
+.library_sectionWrapper {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -19,7 +19,7 @@
     padding: 0;
 }
 
-.navBar_bar {
+.library_navBar {
     position: absolute;
     display: flex;
     align-items: center;
@@ -31,7 +31,7 @@
     z-index: 10000;
 }
 
-.navBar_button {
+.navItem_button {
     transition: opacity 0.1s;
     display: flex;
     height: 3rem;
@@ -43,13 +43,13 @@
     opacity: 0.3;
 }
 
-.navBar_button:hover,
-.navBar_buttonSelected,
-.navBar_buttonSelected:hover {
+.navItem_button:hover,
+.navItem_buttonSelected,
+.navItem_buttonSelected:hover {
     opacity: 0.9;
 }
 
-.navBar_icon {
+.navItem_icon {
     pointer-events: none;
     user-select: none;
     height: 1.75rem;

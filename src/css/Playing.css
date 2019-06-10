@@ -1,0 +1,6 @@
+.playing_wrapper {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    background-color: rgba(4, 0, 255, 0.089);
+}

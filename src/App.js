@@ -3,6 +3,8 @@ import Script from "react-load-script";
 import "./App.css";
 import Cover from "./jsx/Cover";
 import Library from "./jsx/Library";
+import Lyrics from "./jsx/Lyrics";
+import Playing from "./jsx/Playing";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
 
@@ -459,6 +461,8 @@ export default class App extends Component {
                         <div className="app_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")" }} />
                         <div className="app_wrapper">
                             <Library playbackState={playbackState} />
+                            <Lyrics playbackState={playbackState} />
+                            <Playing playbackState={playbackState} />
                             {cover}
                         </div>
                     </React.Fragment>
