@@ -66,7 +66,8 @@ export default class App extends Component {
                 albumID: null,
                 artistID: null,
                 playlistID: null,
-                exists: false
+                exists: false,
+                image: null
             }
         };
 
@@ -235,6 +236,7 @@ export default class App extends Component {
                         newPlaybackState["artistID"] = playbackState.artistID === artistID ? playbackState.artistID : null;
                         newPlaybackState["playlistID"] = null; // CARLES <- Update for playlists
                         newPlaybackState["exists"] = true;
+                        newPlaybackState["image"] = response.item.album.images.length > 0 ? response.item.album.images[0].url : null;
 
                         this.setState({ playbackState: newPlaybackState });
                     }
@@ -254,6 +256,7 @@ export default class App extends Component {
                     newPlaybackState["artistID"] = null;
                     newPlaybackState["playlistID"] = null;
                     newPlaybackState["exists"] = false;
+                    newPlaybackState["image"] = null;
 
                     this.setState({ playbackState: newPlaybackState });
                 }

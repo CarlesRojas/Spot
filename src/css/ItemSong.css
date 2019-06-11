@@ -1,12 +1,17 @@
-/*      ITEM        */
+.itemSong_wrapper {
+    position: relative;
+    width: calc(100% + 12rem);
+    background: none;
+}
 
-.itemSong_item {
+.itemSong_button {
     position: relative;
     border: none;
+    padding: 0.8rem;
     white-space: nowrap;
     outline: 0;
-    padding: 0.8rem;
     width: 100%;
+    left: 9rem;
     background: none;
 }
 
@@ -23,6 +28,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
+    pointer-events: none;
 }
 
 .itemSong_skeletonName {
@@ -37,6 +43,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
+    pointer-events: none;
     background: rgba(150, 150, 150, 0.1);
     border-radius: 0.5rem;
 }
@@ -56,6 +63,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
+    pointer-events: none;
 }
 
 .itemSong_skeletonInfo {
@@ -70,6 +78,48 @@
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
+    pointer-events: none;
     background: rgba(150, 150, 150, 0.1);
     border-radius: 0.5rem;
+}
+
+/*      BUTTONS        */
+
+#itemSong_albumButton,
+#itemSong_artistButton,
+#itemSong_addButton,
+#itemSong_likedButton {
+    position: absolute;
+    top: 0;
+    width: 3rem;
+    height: 100%;
+    padding: 0.5rem;
+    border: none;
+    outline: 0;
+    background: transparent;
+    pointer-events: all;
+    opacity: 0.3;
+}
+
+#itemSong_albumButton {
+    left: 0rem;
+}
+
+#itemSong_artistButton {
+    left: 3rem;
+}
+
+#itemSong_addButton {
+    left: 6rem;
+}
+
+#itemSong_likedButton {
+    right: 0;
+}
+
+.itemSong_icon {
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    user-select: none;
 }

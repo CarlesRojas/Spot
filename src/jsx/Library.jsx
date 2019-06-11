@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Vibrant from "node-vibrant";
 import SlideTransition from "./SlideTransition";
 import Songs from "./Songs";
 import Albums from "./Albums";
@@ -51,6 +52,10 @@ export default class Library extends Component {
             prevSectionIndex: null,
             currSectionName: "song",
             currSectionIndex: 0
+        };
+
+        this.info = {
+            imageColor: [150, 150, 150]
         };
 
         this.noTransitionOnFirstLoad = 2;
@@ -115,15 +120,25 @@ export default class Library extends Component {
         const duration = this.noTransitionOnFirstLoad ? 0 : 100;
         if (this.noTransitionOnFirstLoad) --this.noTransitionOnFirstLoad;
 
+        // Show or hide this section
         if (libraryOpen) var display = "inline";
         else display = "none";
+
+        // Extract the color from the currently playing image
+        //try {
+        //console.log(playbackState);
+        if (playbackState.image) {
+            let v = new Vibrant(playbackState.image);
+            v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)));
+        }
+        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 2.5rem)";
 
         return (
             <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>
                 <div className="library_sectionsWrapper">
                     <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
                         <div className="library_sectionWrapper">
-                            <Songs playbackState={playbackState} height={libraryHeight} />
+                            <Songs playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} />
                         </div>
                     </SlideTransition>
 

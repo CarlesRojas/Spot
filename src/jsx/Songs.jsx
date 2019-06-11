@@ -6,14 +6,13 @@ export default class Songs extends Component {
     constructor(props) {
         super(props);
 
-        const { playbackState, height } = props;
+        const { height } = props;
 
         this.state = {
             availableHeight: height,
             scrollTop: 0,
             rowHeight: window.innerHeight / 11,
-            order: null,
-            playbackState: playbackState
+            order: null
         };
 
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
@@ -84,6 +83,7 @@ export default class Songs extends Component {
 
     // Renders the component
     render() {
+        const { imageGradient } = this.props;
         const { availableHeight, scrollTop, rowHeight } = this.state;
         const list = window.info.songList;
         const numRows = list.length > 0 ? list.length : 20;
@@ -110,7 +110,7 @@ export default class Songs extends Component {
         }
 
         return (
-            <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)" }}>
+            <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
                 <p className="songs_title">Liked Songs</p>
                 <button className="songs_shuffle">SHUFFLE</button>
                 <div className="songs_scroll" onScroll={this.handleScroll}>
