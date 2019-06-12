@@ -11,7 +11,7 @@ export default class Artists extends Component {
         this.state = {
             availableHeight: height,
             scrollTop: 0,
-            rowHeight: window.innerHeight / 3.5,
+            rowHeight: window.innerWidth / 1.75,
             order: null
         };
 
@@ -23,7 +23,7 @@ export default class Artists extends Component {
     // Called when the library finishes loading
     handleLibraryLoaded = () => {
         if (!window.info.artistList || window.info.artistList.length <= 0) {
-            window.info.artistList = this.getListOrder("dateAdded");
+            window.info.artistList = this.getListOrder("name");
             this.forceUpdate();
         }
     };

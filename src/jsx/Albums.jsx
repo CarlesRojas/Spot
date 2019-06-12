@@ -11,7 +11,7 @@ export default class Albums extends Component {
         this.state = {
             availableHeight: height,
             scrollTop: 0,
-            rowHeight: window.innerHeight / 3.5,
+            rowHeight: window.innerWidth / 1.75,
             order: null
         };
 

@@ -48,7 +48,7 @@ export default class Library extends Component {
                 }
             ],
             prevSectionName: null,
-            currSectionName: "album"
+            currSectionName: "artist"
         };
 
         this.info = {
