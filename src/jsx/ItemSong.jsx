@@ -339,18 +339,4 @@ export default class ItemSong extends Component {
         this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
         this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
     }
-
-    preventTouch(e) {
-        const minValue = 5; // threshold
-
-        this.clientX = e.touches[0].clientX - this.firstClientX;
-        this.clientY = e.touches[0].clientY - this.firstClientY;
-
-        // Vertical scrolling does not work when you start swiping horizontally.
-        if (Math.abs(this.clientX) > minValue) {
-            e.preventDefault();
-            e.returnValue = false;
-            return false;
-        }
-    }
 }

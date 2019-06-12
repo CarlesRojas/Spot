@@ -212,7 +212,7 @@ export default class Cover extends Component {
     }
 
     // Called when the touch moves
-    handleMove(clientX, clientY) {
+    handleMove(event, clientX, clientY) {
         const { beingTouched, timeOfLastDragEvent, prevTouchY, touchStartY, originalTopOffset } = this.state;
         const { position, normalHeight, smallHeight, normalTop, miniatureTop, currentSongsTop } = this.info;
 
@@ -340,6 +340,10 @@ export default class Cover extends Component {
         });
     }
 
+    //##############################################
+    //       REACT CICLE METHODS
+    //##############################################
+
     // Renders the component
     render() {
         const { playing, song, albumCover, artist } = this.props;
@@ -357,12 +361,10 @@ export default class Cover extends Component {
         return (
             <div
                 className="cover_wrapper"
+                ref={elem => (this.wrapperDOM = elem)}
                 style={{ height: height + "px", top: top + "px" }}
-                onTouchStart={event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-                onTouchMove={event => this.handleMove(event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-                onTouchEnd={() => this.handleEnd()}
                 onMouseDown={event => this.handleStart(event, event.clientX, event.clientY)}
-                onMouseMove={event => this.handleMove(event.clientX, event.clientY)}
+                onMouseMove={event => this.handleMove(event, event.clientX, event.clientY)}
                 onMouseUp={() => this.handleEnd()}
                 onMouseLeave={() => this.handleEnd()}
             >
@@ -390,5 +392,19 @@ export default class Cover extends Component {
                 </div>
             </div>
         );
+    }
+
+    // Called when the component mounts
+    componentDidMount() {
+        this.wrapperDOM.addEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
+        this.wrapperDOM.addEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.addEventListener("touchend", () => this.handleEnd());
+    }
+
+    // Called when the component unmounts
+    componentWillUnmount() {
+        this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
+        this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
     }
 }
