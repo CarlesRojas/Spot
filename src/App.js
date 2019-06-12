@@ -22,6 +22,8 @@ export default class App extends Component {
             refreshToken: params.refresh_token,
             tokenExpireDateTime: new Date(Date.now() + 25 * 60 * 1000),
             deviceID: null,
+            progressIntervalID: null,
+            updateProgressInterval: 15,
             library: {
                 songs: {},
                 albums: {},
@@ -68,7 +70,10 @@ export default class App extends Component {
                 playlistID: null,
                 exists: false,
                 image: null
-            }
+            },
+            duration: 0,
+            progress: 0,
+            percentage: 0
         };
 
         // Connects to Spotify Playback & creates a new Player
@@ -237,8 +242,27 @@ export default class App extends Component {
                         newPlaybackState["playlistID"] = null; // CARLES <- Update for playlists
                         newPlaybackState["exists"] = true;
                         newPlaybackState["image"] = response.item.album.images.length > 0 ? response.item.album.images[0].url : null;
+                        newPlaybackState["duration"] = response.item.duration_ms;
+                        newPlaybackState["progress"] = response.progress_ms;
+                        newPlaybackState["percentage"] = (response.progress_ms / response.item.duration_ms) * 100;
 
-                        this.setState({ playbackState: newPlaybackState });
+                        if (response.is_playing) {
+                            if (!window.info.progressIntervalID) {
+                                window.info.progressIntervalID = window.setInterval(this.updateSongProgress.bind(this), window.info.updateProgressInterval);
+                            }
+                        } else {
+                            if (window.info.progressIntervalID) {
+                                window.clearInterval(window.info.progressIntervalID);
+                                window.info.progressIntervalID = null;
+                            }
+                        }
+
+                        this.setState({
+                            playbackState: newPlaybackState,
+                            duration: response.item.duration_ms,
+                            progress: response.progress_ms,
+                            percentage: (response.progress_ms / response.item.duration_ms) * 100
+                        });
                     }
                 },
                 err => {
@@ -258,10 +282,28 @@ export default class App extends Component {
                     newPlaybackState["exists"] = false;
                     newPlaybackState["image"] = null;
 
-                    this.setState({ playbackState: newPlaybackState });
+                    if (window.info.progressIntervalID) {
+                        window.clearInterval(window.info.progressIntervalID);
+                        window.info.progressIntervalID = null;
+                    }
+                    this.setState({
+                        playbackState: newPlaybackState,
+                        duration: 0,
+                        progress: 0,
+                        percentage: 0
+                    });
                 }
             );
         }, 200);
+    };
+
+    // Update the progress of the song
+    updateSongProgress = () => {
+        const { updateProgressInterval } = window.info;
+        const { duration, progress } = this.state;
+        var newProgress = progress + updateProgressInterval;
+        var newPercentage = (newProgress / duration) * 100;
+        this.setState({ progress: newProgress, percentage: newPercentage });
     };
 
     // Pause or Play the current song
@@ -445,7 +487,7 @@ export default class App extends Component {
 
     // Remove extra info from a song, album or artist name
     prettifyName = name => {
-        const separators = [" - ", "(", ":", ",", "/"];
+        const separators = [" - ", "(", ":", ",", " /"];
 
         var index = Number.MAX_SAFE_INTEGER;
         for (var i = 0; i < separators.length; ++i) {
@@ -463,7 +505,7 @@ export default class App extends Component {
 
     // Renders the component
     render() {
-        const { playbackState } = this.state;
+        const { playbackState, percentage } = this.state;
         const { playing, songID, exists } = playbackState;
         this.updateDeviceType();
 
@@ -475,7 +517,7 @@ export default class App extends Component {
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
             background = image;
-            cover = <Cover playing={playing} song={this.prettifyName(name)} albumCover={image} artist={this.prettifyName(artistName)} />;
+            cover = <Cover playing={playing} song={this.prettifyName(name)} albumCover={image} artist={this.prettifyName(artistName)} percentage={percentage} />;
         }
 
         // In mobile

@@ -27,18 +27,21 @@
     position: absolute;
     width: 95%;
     opacity: 1;
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 50%);
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 50%);
     pointer-events: none;
 }
 
 #cover_timeGradient {
     position: absolute;
-    width: 95%;
+    width: calc(95% + 2px);
+    height: calc(95% + 2px);
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
     opacity: 1;
     transition-timing-function: linear;
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
-    /*background-image: linear-gradient(to top, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);*/
-    clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
     pointer-events: none;
 }
 
@@ -67,7 +70,7 @@
 }
 
 .cover_artist {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
     font-size: 0.9rem;
     white-space: nowrap;

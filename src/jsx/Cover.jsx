@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Vibrant from "node-vibrant";
 import "../css/Cover.css";
 
 export default class Cover extends Component {
@@ -8,7 +9,7 @@ export default class Cover extends Component {
         this.info = {
             position: "normal", // "normal", "currentSongs", "miniature"
             thresholdSpeed: 10,
-            acceleration: 0.1,
+            acceleration: 1.25,
 
             // Heights
             normalHeight: window.innerWidth,
@@ -17,7 +18,10 @@ export default class Cover extends Component {
             // Top positions
             normalTop: window.innerHeight - window.innerWidth,
             currentSongsTop: 0,
-            miniatureTop: window.innerHeight - window.innerWidth / 3.5
+            miniatureTop: window.innerHeight - window.innerWidth / 3.5,
+
+            // Image color
+            imageColor: [150, 150, 150]
         };
 
         this.state = {
@@ -74,7 +78,7 @@ export default class Cover extends Component {
             case "normal":
                 // If coming from the top
                 if (!beingTouched && top < normalTop) {
-                    speed += 10 * acceleration;
+                    speed += 100 * acceleration;
 
                     if (height < normalHeight) {
                         height += speed;
@@ -100,7 +104,7 @@ export default class Cover extends Component {
 
                 // If coming from below
                 else if (!beingTouched && top > normalTop) {
-                    speed -= 10 * acceleration;
+                    speed -= 100 * acceleration;
 
                     top += speed;
                     height = Math.min(height - speed, normalHeight);
@@ -129,7 +133,7 @@ export default class Cover extends Component {
             case "currentSongs":
                 // If coming from below
                 if (!beingTouched && (top > currentSongsTop || height > smallHeight)) {
-                    speed -= 10 * acceleration;
+                    speed -= 100 * acceleration;
 
                     if (top > currentSongsTop) {
                         top += speed;
@@ -166,7 +170,7 @@ export default class Cover extends Component {
             default:
                 // If coming from the top
                 if (!beingTouched && top < miniatureTop) {
-                    speed += 10 * acceleration;
+                    speed += 100 * acceleration;
                     top += speed;
                     height = Math.max(height - speed, smallHeight);
 
@@ -346,7 +350,7 @@ export default class Cover extends Component {
 
     // Renders the component
     render() {
-        const { playing, song, albumCover, artist } = this.props;
+        const { playing, song, albumCover, artist, percentage } = this.props;
         const { height, top } = this.state;
         const { normalHeight, smallHeight } = this.info;
         const width = (window.innerWidth / 100) * 95;
@@ -355,8 +359,36 @@ export default class Cover extends Component {
         const coverHeight = height - margin;
         const imageTop = margin / 2 - (width - coverHeight) / 2;
 
+        // Image filter for pause / play
         var imageFilter = "none";
         if (!playing) imageFilter = "grayscale(100%)";
+
+        // Time gradient clip-path, for sont duration
+        var clipPath = "polygon(0% 0%, " + percentage + "% 0%, " + percentage + "% 100%, 0% 100%)";
+
+        // Gradient color according to luminance
+        var imageTimeGradient = "linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%)";
+        if (albumCover) {
+            let v = new Vibrant(albumCover);
+            // Options: "DarkMuted", "DarkVibrant", "LightMuted", "LightVibrant", "Muted", "Vibrant"
+            v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.DarkVibrant.getRgb()) : console.log(err)));
+
+            const { imageColor } = this.info;
+            imageTimeGradient =
+                "linear-gradient(to top, rgba(" +
+                imageColor[0] +
+                ", " +
+                imageColor[1] +
+                ", " +
+                imageColor[2] +
+                ", 0.7) 0%, rgba(" +
+                imageColor[0] +
+                ", " +
+                imageColor[1] +
+                ", " +
+                imageColor[2] +
+                ", 0) 50%)";
+        }
 
         return (
             <div
@@ -384,7 +416,7 @@ export default class Cover extends Component {
                 <div className="cover_art" style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}>
                     <img className="cover_image" src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px", filter: imageFilter }} />
                     <div id="cover_titleGradient" style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }} />
-                    <div id="cover_timeGradient" style={{ height: coverHeight + "px" }} />
+                    <div id="cover_timeGradient" style={{ clipPath: clipPath, backgroundImage: imageTimeGradient }} />
                     <div className="cover_infoWrapper" style={{ height: smallHeight + "px" }}>
                         <p className="cover_song">{song}</p>
                         <p className="cover_artist">{artist}</p>
