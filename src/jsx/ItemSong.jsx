@@ -144,14 +144,7 @@ export default class ItemSong extends Component {
 
     // Called when the touch starts
     handleStart(event, clientX, clientY) {
-        //event.preventDefault();
         const { left, animationIntervalID } = this.state;
-
-        // Only engage when the user is scrolling horizontally
-        console.log(event.targetTouches[0]);
-        console.log("ClientX: ", clientX);
-        console.log("ClientY: ", clientY);
-        //if (Math.abs(clientX) < Math.abs(clientY)) return;
 
         if (animationIntervalID !== null) window.clearInterval(animationIntervalID);
 
@@ -176,19 +169,25 @@ export default class ItemSong extends Component {
         var deltaYMovement = clientY - touchStartY;
 
         if (beingTouched) {
-            // Vertical scrolling does not work when you start swiping horizontally.
+            // If it is the first move and has the correct scrolling direction, prevent default scroll
             if (firstMove && Math.abs(deltaXMovement) > Math.abs(deltaYMovement)) {
-                console.log("Canceeel");
                 this.setState({ firstMove: false, correctScrollDirection: true });
 
+                // If the normal scroll is not running, prevent it
                 if (event.cancelable) {
                     event.preventDefault();
                     event.returnValue = false;
-                } else {
+                }
+
+                // If the normal scroll is already runningm cancel this touch
+                else {
                     this.handleEnd();
                     return;
                 }
-            } else if (!correctScrollDirection) {
+            }
+
+            // If its not the first move, and have a bad scrolling direction, end this touch
+            else if (!correctScrollDirection) {
                 this.handleEnd();
                 return;
             }

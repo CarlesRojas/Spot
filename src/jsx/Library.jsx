@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Vibrant from "node-vibrant";
-import SlideTransition from "./SlideTransition";
 import Songs from "./Songs";
 import Albums from "./Albums";
 import Artists from "./Artists";
@@ -124,47 +123,55 @@ export default class Library extends Component {
         if (libraryOpen) var display = "inline";
         else display = "none";
 
+        // Set the left property
+        switch (currSectionName) {
+            case "song":
+                var left = "0%";
+                break;
+            case "album":
+                left = "-100%";
+                break;
+            case "artist":
+                left = "-200%";
+                break;
+            case "playlist":
+                left = "-300%";
+                break;
+            case "search":
+                left = "-400%";
+            default:
+                break;
+        }
+
         // Extract the color from the currently playing image
-        //try {
-        //console.log(playbackState);
         if (playbackState.image) {
             let v = new Vibrant(playbackState.image);
             v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)));
         }
-        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 2.5rem)";
+        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
 
         return (
             <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>
-                <div className="library_sectionsWrapper">
-                    <SlideTransition isOpen={currSectionName === "song"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="library_sectionWrapper">
-                            <Songs playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} />
-                        </div>
-                    </SlideTransition>
+                <div className="library_sectionsWrapper" style={{ left: left }}>
+                    <div className="library_sectionWrapper">
+                        <Songs playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "song"} />
+                    </div>
 
-                    <SlideTransition isOpen={currSectionName === "album"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="library_sectionWrapper">
-                            <Albums />
-                        </div>
-                    </SlideTransition>
+                    <div className="library_sectionWrapper">
+                        <Albums />
+                    </div>
 
-                    <SlideTransition isOpen={currSectionName === "artist"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="library_sectionWrapper">
-                            <Artists />
-                        </div>
-                    </SlideTransition>
+                    <div className="library_sectionWrapper">
+                        <Artists />
+                    </div>
 
-                    <SlideTransition isOpen={currSectionName === "playlist"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="library_sectionWrapper">
-                            <Playlists />
-                        </div>
-                    </SlideTransition>
+                    <div className="library_sectionWrapper">
+                        <Playlists />
+                    </div>
 
-                    <SlideTransition isOpen={currSectionName === "search"} duration={duration} moveLeftToRight={leftToRight}>
-                        <div className="library_sectionWrapper">
-                            <Search />
-                        </div>
-                    </SlideTransition>
+                    <div className="library_sectionWrapper">
+                        <Search />
+                    </div>
                 </div>
 
                 <div className="library_navBar">

@@ -8,6 +8,10 @@ export default class Songs extends Component {
 
         const { height } = props;
 
+        this.info = {
+            scrollTop: 0
+        };
+
         this.state = {
             availableHeight: height,
             scrollTop: 0,
