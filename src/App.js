@@ -371,7 +371,7 @@ export default class App extends Component {
             albumInfo["dateAdded"] = dateAdded;
             albumInfo["name"] = song.album.name;
             albumInfo["image"] = song.album.images.length ? song.album.images[0].url : "https://i.imgur.com/iajaWIN.png";
-            albumInfo["artistID"] = song.album.artists.length ? song.album.artists[0].id : "";
+            albumInfo["artistID"] = artistID;
             albumInfo["songs"] = {};
             albumInfo["songs"][songID] = null;
             window.info.library.albums[albumID] = albumInfo;

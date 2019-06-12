@@ -288,9 +288,6 @@ export default class ItemSong extends Component {
         const { id, height, name, album, artist, selected, skeleton } = this.props;
         const { left } = this.state;
 
-        //onTouchStart={event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-        //onTouchMove={event => this.handleMove(event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-        //onTouchEnd={() => this.handleEnd()}
         return (
             <div
                 className="itemSong_wrapper"

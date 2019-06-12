@@ -24,40 +24,36 @@ export default class Library extends Component {
                 {
                     name: "song",
                     icon: SongIcon,
-                    index: 0
+                    left: "0%"
                 },
                 {
                     name: "album",
                     icon: AlbumIcon,
-                    index: 1
+                    left: "-100%"
                 },
                 {
                     name: "artist",
                     icon: ArtistIcon,
-                    index: 2
+                    left: "-200%"
                 },
                 {
                     name: "playlist",
                     icon: PlaylistIcon,
-                    index: 3
+                    left: "-300%"
                 },
                 {
                     name: "search",
                     icon: SearchIcon,
-                    index: 4
+                    left: "-400%"
                 }
             ],
             prevSectionName: null,
-            prevSectionIndex: null,
-            currSectionName: "song",
-            currSectionIndex: 0
+            currSectionName: "album"
         };
 
         this.info = {
             imageColor: [150, 150, 150]
         };
-
-        this.noTransitionOnFirstLoad = 2;
 
         // Sub to events when this component is mounted
         window.PubSub.sub("onSectionChange", this.handleSectionChange);
@@ -65,20 +61,18 @@ export default class Library extends Component {
     }
 
     // Handle the click to a new section
-    handleSectionChange = ({ name, index }) => {
+    handleSectionChange = ({ name }) => {
         this.setState(prevState => {
             if (prevState.currSectionName === name) return;
             else
                 return {
                     prevSectionName: prevState.currSectionName,
-                    prevSectionIndex: prevState.currSectionIndex,
-                    currSectionName: name,
-                    currSectionIndex: index
+                    currSectionName: name
                 };
         });
     };
 
-    // Handle a change in the swiping cover
+    // Handle a change in the cover position
     handleVerticalSwipe = ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop }) => {
         // Function to map a number to another range
         function mapNumber(number, inputMin, inputMax, outputMin, outputMax) {
@@ -101,47 +95,25 @@ export default class Library extends Component {
         }
     };
 
-    // Returns the name & index of the section
-    getSectionIndex = sectionName => {
+    // Returns the info of the section
+    getSectionInfo = sectionName => {
         for (var i = 0; i < this.state.sections.length; ++i) {
-            if (this.state.sections[i].name === sectionName) return { sectionName: sectionName, sectionIndex: i };
+            if (this.state.sections[i].name === sectionName) return this.state.sections[i];
         }
-        return { sectionName: this.state.sections[0].name, sectionIndex: 0 };
+        return { name: "song", icon: SongIcon, left: "0%" };
     };
 
     // Renders the component
     render() {
         const { playbackState } = this.props;
-        const { libraryOpen, libraryHeight, libraryOpacity, prevSectionIndex, currSectionName, currSectionIndex } = this.state;
-        const leftToRight = prevSectionIndex < currSectionIndex;
-
-        // Only play the animation after the first loading
-        const duration = this.noTransitionOnFirstLoad ? 0 : 100;
-        if (this.noTransitionOnFirstLoad) --this.noTransitionOnFirstLoad;
+        const { libraryOpen, libraryHeight, libraryOpacity, currSectionName } = this.state;
 
         // Show or hide this section
         if (libraryOpen) var display = "inline";
         else display = "none";
 
         // Set the left property
-        switch (currSectionName) {
-            case "song":
-                var left = "0%";
-                break;
-            case "album":
-                left = "-100%";
-                break;
-            case "artist":
-                left = "-200%";
-                break;
-            case "playlist":
-                left = "-300%";
-                break;
-            case "search":
-                left = "-400%";
-            default:
-                break;
-        }
+        var left = this.getSectionInfo(currSectionName).left;
 
         // Extract the color from the currently playing image
         if (playbackState.image) {
@@ -158,25 +130,25 @@ export default class Library extends Component {
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Albums />
+                        <Albums playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "album"} />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Artists />
+                        <Artists playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "artist"} />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Playlists />
+                        <Playlists playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "playlist"} />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Search />
+                        <Search playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "search"} />
                     </div>
                 </div>
 
                 <div className="library_navBar">
                     {this.state.sections.map(section => (
-                        <NavItem key={section.name} name={section.name} icon={section.icon} index={section.index} selected={section.name === this.state.currSectionName} />
+                        <NavItem key={section.name} name={section.name} icon={section.icon} selected={section.name === this.state.currSectionName} />
                     ))}
                 </div>
             </div>
@@ -193,9 +165,9 @@ export default class Library extends Component {
 class NavItem extends Component {
     // Renders the component
     render() {
-        const { name, icon, index, selected } = this.props;
+        const { name, icon, selected } = this.props;
         return (
-            <button className={"navItem_button" + (selected ? " navItem_buttonSelected" : "")} onClick={() => window.PubSub.emit("onSectionChange", { name: name, index: index })}>
+            <button className={"navItem_button" + (selected ? " navItem_buttonSelected" : "")} onClick={() => window.PubSub.emit("onSectionChange", { name: name })}>
                 <img className="navItem_icon" src={icon} alt="" />
             </button>
         );

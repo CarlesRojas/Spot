@@ -1,0 +1,71 @@
+.itemArtist_wrapper {
+    position: relative;
+    width: 50%;
+    background: none;
+}
+
+.itemArtist_button {
+    position: relative;
+    border: none;
+    padding: 0.8rem;
+    white-space: nowrap;
+    outline: 0;
+    width: 100%;
+    background: none;
+}
+
+/*      MAIN INFO        */
+
+.itemArtist_cover {
+    width: 100%;
+    height: auto;
+    user-select: none;
+    pointer-events: none;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.itemArtist_skeletonCover {
+    width: 100%;
+    padding-top: 100%;
+    user-select: none;
+    pointer-events: none;
+    background: rgba(150, 150, 150, 0.1);
+    border-radius: 0.5rem;
+}
+
+.itemArtist_name {
+    color: white;
+    text-align: left;
+    text-decoration: none;
+    margin: 0.5rem 0;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    pointer-events: none;
+}
+
+.itemArtist_skeletonName {
+    color: transparent;
+    text-align: left;
+    text-decoration: none;
+    margin: 0.5rem 15%;
+    padding: 0.1rem 0;
+    width: 70%;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    pointer-events: none;
+    background: rgba(150, 150, 150, 0.1);
+    border-radius: 0.5rem;
+}
+
+.itemArtist_selectedName {
+    color: rgb(29, 185, 84);
+}

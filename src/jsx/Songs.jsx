@@ -8,10 +8,6 @@ export default class Songs extends Component {
 
         const { height } = props;
 
-        this.info = {
-            scrollTop: 0
-        };
-
         this.state = {
             availableHeight: height,
             scrollTop: 0,
@@ -44,31 +40,32 @@ export default class Songs extends Component {
                 var orderA = a["name"];
                 var orderB = b["name"];
             } else if (order === "album") {
-                orderA = window.info.library.albums[a["albumID"]];
-                orderB = window.info.library.albums[b["albumID"]];
+                orderA = window.info.library.albums[a["albumID"]].name;
+                orderB = window.info.library.albums[b["albumID"]].name;
             } else if (order === "artist") {
-                orderA = window.info.library.artists[a["artistID"]];
-                orderB = window.info.library.artists[b["artistID"]];
+                orderA = window.info.library.artists[a["artistID"]].name;
+                orderB = window.info.library.artists[b["artistID"]].name;
             } else {
-                orderA = a["dateAdded"];
-                orderB = b["dateAdded"];
+                // Reversed so it orders recents first
+                orderA = b["dateAdded"];
+                orderB = a["dateAdded"];
             }
 
             // If the first order is the same sort by album name
             if (orderA === orderB) {
-                var albumA = window.info.library.albums[a["albumID"]];
-                var albumB = window.info.library.albums[b["albumID"]];
+                var albumA = window.info.library.albums[a["albumID"]].name;
+                var albumB = window.info.library.albums[b["albumID"]].name;
 
                 // If the album is the same sort by track number
                 if (albumA === albumB) {
                     var trackNumA = a["trackNumber"];
                     var trackNumB = a["trackNumber"];
-                    return trackNumA < trackNumB ? 1 : -1;
+                    return trackNumA <= trackNumB ? 1 : -1;
                 } else {
-                    return albumA < albumB ? 1 : -1;
+                    return albumA > albumB ? 1 : -1;
                 }
             } else {
-                return orderA < orderB ? 1 : -1;
+                return orderA > orderB ? 1 : -1;
             }
         }
 
