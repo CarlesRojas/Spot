@@ -27,8 +27,11 @@ export default class ItemSong extends Component {
             speed: 0,
             timeOfLastDragEvent: 0,
             touchStartX: 0,
+            touchStartY: 0,
             prevTouchX: 0,
             beingTouched: false,
+            firstMove: false,
+            correctScrollDirection: false,
             animationIntervalID: null
         };
     }
@@ -157,17 +160,39 @@ export default class ItemSong extends Component {
             speed: 0,
             timeOfLastDragEvent: Date.now(),
             touchStartX: clientX,
+            touchStartY: clientY,
             beingTouched: true,
+            firstMove: true,
             animationIntervalID: null
         });
     }
 
     // Called when the touch moves
-    handleMove(clientX, clientY) {
-        const { beingTouched, timeOfLastDragEvent, prevTouchX, touchStartX, originalLeftOffset } = this.state;
+    handleMove(event, clientX, clientY) {
+        const { beingTouched, firstMove, correctScrollDirection, timeOfLastDragEvent, prevTouchX, touchStartX, touchStartY, originalLeftOffset } = this.state;
         const { position, normalLeft, addLeft, likeLeft } = this.info;
 
+        var deltaXMovement = clientX - touchStartX;
+        var deltaYMovement = clientY - touchStartY;
+
         if (beingTouched) {
+            // Vertical scrolling does not work when you start swiping horizontally.
+            if (firstMove && Math.abs(deltaXMovement) > Math.abs(deltaYMovement)) {
+                console.log("Canceeel");
+                this.setState({ firstMove: false, correctScrollDirection: true });
+
+                if (event.cancelable) {
+                    event.preventDefault();
+                    event.returnValue = false;
+                } else {
+                    this.handleEnd();
+                    return;
+                }
+            } else if (!correctScrollDirection) {
+                this.handleEnd();
+                return;
+            }
+
             const touchX = clientX;
             const currTime = Date.now();
             const deltaTime = currTime - timeOfLastDragEvent;
@@ -246,25 +271,34 @@ export default class ItemSong extends Component {
             this.setState({
                 speed: speed,
                 touchStartX: 0,
+                touchStartY: 0,
                 beingTouched: false,
+                firstMove: false,
+                correctScrollDirection: false,
                 animationIntervalID: window.setInterval(this.snapToPosition.bind(this), 15)
             });
         }
     }
 
+    //##############################################
+    //       REACT CICLE METHODS
+    //##############################################
+
+    // Renders the component
     render() {
         const { id, height, name, album, artist, selected, skeleton } = this.props;
         const { left } = this.state;
 
+        //onTouchStart={event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
+        //onTouchMove={event => this.handleMove(event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
+        //onTouchEnd={() => this.handleEnd()}
         return (
             <div
                 className="itemSong_wrapper"
+                ref={elem => (this.wrapperDOM = elem)}
                 style={{ left: left + "px" }}
-                onTouchStart={event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-                onTouchMove={event => this.handleMove(event.targetTouches[0].clientX, event.targetTouches[0].clientY)}
-                onTouchEnd={() => this.handleEnd()}
                 onMouseDown={event => this.handleStart(event, event.clientX, event.clientY)}
-                onMouseMove={event => this.handleMove(event.clientX, event.clientY)}
+                onMouseMove={event => this.handleMove(event, event.clientX, event.clientY)}
                 onMouseUp={() => this.handleEnd()}
                 onMouseLeave={() => this.handleEnd()}
             >
@@ -294,5 +328,33 @@ export default class ItemSong extends Component {
                 </button>
             </div>
         );
+    }
+
+    // Called when the component mounts
+    componentDidMount() {
+        this.wrapperDOM.addEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
+        this.wrapperDOM.addEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.addEventListener("touchend", () => this.handleEnd());
+    }
+
+    // Called when the component unmounts
+    componentWillUnmount() {
+        this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
+        this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
+    }
+
+    preventTouch(e) {
+        const minValue = 5; // threshold
+
+        this.clientX = e.touches[0].clientX - this.firstClientX;
+        this.clientY = e.touches[0].clientY - this.firstClientY;
+
+        // Vertical scrolling does not work when you start swiping horizontally.
+        if (Math.abs(this.clientX) > minValue) {
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+        }
     }
 }
