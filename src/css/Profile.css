@@ -1,14 +1,5 @@
-.artistView_wrapper {
+.profile_wrapper {
     position: relative;
-    /*
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    */
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -16,7 +7,7 @@
     pointer-events: all;
 }
 
-.artistView_backgroundBlurred {
+.profile_backgroundBlurred {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -27,7 +18,7 @@
     background-size: auto 100%;
 }
 
-.artistView_background {
+.profile_background {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -38,15 +29,20 @@
     background-size: auto 100%;
 }
 
-.artistView_profile {
-    z-index: 10;
+.profile_gradient {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.profile_header {
     display: flex;
     flex-direction: column;
     padding: 0.5rem;
     align-items: center;
 }
 
-.artistView_image {
+.profile_image {
     left: 0;
     right: 0;
     margin: 2.5% 0 0 0;
@@ -56,9 +52,9 @@
     object-fit: cover;
 }
 
-.artistView_name {
-    margin: 2.5%;
-    width: 95%;
+.profile_name {
+    margin: 2.5% 0 0 0;
+    width: 100%;
     font-size: 1.2rem;
     font-weight: 500;
     text-align: left;
@@ -72,29 +68,22 @@
     user-select: none;
 }
 
-.artistView_albums {
-    z-index: 10;
-    height: 20%; /* CARLES Remove and replace with automatic child height*/
-}
-
-.artistView_songs {
-    z-index: 10;
+.profile_songs {
     flex-grow: 1;
 }
 
-.artistView_controls {
-    z-index: 10;
+.profile_controls {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
     align-items: center;
 }
 
-.artistView_shuffle {
+.profile_shuffle {
     outline: none;
     border: none;
     border-radius: 8.5rem;
     width: 60%;
+    margin: 1rem auto 0 auto;
     padding: 0.8rem 0;
     background-color: rgb(29, 185, 84);
     font-size: 1rem;
@@ -102,12 +91,12 @@
     text-align: center;
 }
 
-.artistView_back {
+.profile_back {
     outline: none;
     border: none;
     border-radius: 8.5rem;
-    width: 80%;
-    padding: 0.8rem 0;
+    width: 75%;
+    padding: 1rem 0;
     background-color: transparent;
     font-size: 1rem;
     font-weight: bold;

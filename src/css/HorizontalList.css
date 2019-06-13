@@ -1,0 +1,12 @@
+.horizontalList_wrapper {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    margin: 0 0.75rem;
+    height: 100%;
+}
+
+.horizontalList_scroll {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ItemArtist from "./ItemArtist";
+import ItemAlbumArtist from "./ItemAlbumArtist";
 import "../css/Artists.css";
 
 export default class Artists extends Component {
@@ -12,6 +12,10 @@ export default class Artists extends Component {
             availableHeight: height,
             scrollTop: 0,
             rowHeight: window.innerWidth / 1.75,
+
+            // Get width of a single artist: window width - scrollbar width - 1.5 rem of margins
+            artistWidth: (window.innerWidth - 7 - 1.5 * 16) / 2,
+            artistPadding: 0.8 * 16,
             order: null
         };
 
@@ -71,9 +75,22 @@ export default class Artists extends Component {
     // Create the component from an element in the array
     createItem = (elem, skeleton) => {
         const { playbackState } = this.props;
-        const { rowHeight } = this.state;
+        const { rowHeight, artistWidth, artistPadding } = this.state;
         const { id, name, image } = elem;
-        return <ItemArtist key={id} height={rowHeight} id={id} name={name} image={image} selected={id === playbackState["artistID"]} skeleton={skeleton} />;
+        return (
+            <ItemAlbumArtist
+                key={id}
+                height={rowHeight}
+                width={artistWidth}
+                padding={artistPadding}
+                id={id}
+                name={name}
+                image={image}
+                selected={id === playbackState["artistID"]}
+                skeleton={skeleton}
+                type={"artist"}
+            />
+        );
     };
 
     // Renders the component

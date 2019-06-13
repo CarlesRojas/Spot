@@ -5,7 +5,7 @@ import Cover from "./jsx/Cover";
 import Library from "./jsx/Library";
 import Lyrics from "./jsx/Lyrics";
 import Playing from "./jsx/Playing";
-import LibraryElem from "./jsx/LibraryElem";
+import Profile from "./jsx/Profile";
 import SlideTransition from "./jsx/SlideTransition";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
@@ -29,7 +29,7 @@ export default class App extends Component {
 
             // Library and Music
             progressIntervalID: null,
-            updateProgressInterval: 15,
+            updateProgressInterval: 5000, // CARLES Change to 15
             library: {
                 songs: {},
                 albums: {},
@@ -604,13 +604,13 @@ export default class App extends Component {
 
                         <SlideTransition isOpen={popups.artist !== ""} duration={150} vertical={true} moveTopToBottom={popups.artist !== ""}>
                             <div className="app_popupWrapper">
-                                <LibraryElem type={"artist"} id={popups.artist} />
+                                <Profile type={"artist"} id={popups.artist} playbackState={playbackState} />
                             </div>
                         </SlideTransition>
 
                         <SlideTransition isOpen={popups.album !== ""} duration={150} vertical={true} moveTopToBottom={popups.album !== ""}>
                             <div className="app_popupWrapper">
-                                <LibraryElem type={"album"} id={popups.album} />
+                                <Profile type={"album"} id={popups.album} playbackState={playbackState} />
                             </div>
                         </SlideTransition>
                     </React.Fragment>
