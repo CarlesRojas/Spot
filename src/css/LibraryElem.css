@@ -1,0 +1,116 @@
+.artistView_wrapper {
+    position: relative;
+    /*
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+}
+
+.artistView_backgroundBlurred {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transform: scale(1);
+    filter: blur(10px) brightness(10%);
+    background-position: center;
+    background-size: auto 100%;
+}
+
+.artistView_background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transform: scale(1);
+    filter: brightness(10%);
+    background-position: center;
+    background-size: auto 100%;
+}
+
+.artistView_profile {
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    align-items: center;
+}
+
+.artistView_image {
+    left: 0;
+    right: 0;
+    margin: 2.5% 0 0 0;
+    border-radius: 50%;
+    pointer-events: none;
+    user-select: none;
+    object-fit: cover;
+}
+
+.artistView_name {
+    margin: 2.5%;
+    width: 95%;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: left;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.75);
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+}
+
+.artistView_albums {
+    z-index: 10;
+    height: 20%; /* CARLES Remove and replace with automatic child height*/
+}
+
+.artistView_songs {
+    z-index: 10;
+    flex-grow: 1;
+}
+
+.artistView_controls {
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    align-items: center;
+}
+
+.artistView_shuffle {
+    outline: none;
+    border: none;
+    border-radius: 8.5rem;
+    width: 60%;
+    padding: 0.8rem 0;
+    background-color: rgb(29, 185, 84);
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.artistView_back {
+    outline: none;
+    border: none;
+    border-radius: 8.5rem;
+    width: 80%;
+    padding: 0.8rem 0;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+}

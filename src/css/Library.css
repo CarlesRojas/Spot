@@ -1,48 +1,47 @@
 .library_wrapper {
     position: absolute;
-    width: 100%;
     top: 0;
+    width: 100%;
 }
 
 .library_sectionsWrapper {
-    transition: left 0.2s;
     position: relative;
-    height: calc(100% - 3rem);
-    width: 500%;
-    overflow: hidden;
     display: flex;
+    width: 500%;
+    height: calc(100% - 3rem);
+    overflow: hidden;
+    transition: left 0.2s;
 }
 
 .library_sectionWrapper {
     position: relative;
+    margin: 0;
     width: 20%;
     height: 100%;
-    margin: 0;
     padding: 0;
 }
 
 .library_navBar {
     position: absolute;
     display: flex;
-    align-items: center;
     justify-content: center;
-    width: 100%;
     bottom: 0;
+    width: 100%;
     background: rgba(45, 45, 45, 0);
     pointer-events: none;
-    z-index: 10000;
+    align-items: center;
 }
 
 .navItem_button {
-    transition: opacity 0.1s;
     display: flex;
+    outline: 0;
+    border: none;
     height: 3rem;
     padding: 0 1.25rem;
-    border: none;
-    outline: 0;
     background: transparent;
-    pointer-events: all;
     opacity: 0.3;
+    transition: opacity 0.1s;
+    pointer-events: all;
 }
 
 .navItem_button:hover,
@@ -52,7 +51,7 @@
 }
 
 .navItem_icon {
+    height: 1.75rem;
     pointer-events: none;
     user-select: none;
-    height: 1.75rem;
 }

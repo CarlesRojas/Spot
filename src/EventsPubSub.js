@@ -35,4 +35,6 @@ export default class EventsPubSub {
     onSongSelected:             Called when a song is clicked                               ({id})
     onAlbumSelected:            Called when an album is clicked                             ({id})
     onArtistSelected:           Called when an artist is clicked                            ({id})
+    onClosePopup:               Called when the back button in a popup is clicked           ({type})
+
 */

@@ -43,10 +43,11 @@ export default class SlideTransition extends Component {
 
     // Renders the component
     render() {
-        const { isOpen, duration, moveLeftToRight, children } = this.props;
+        const { isOpen, duration, vertical, moveLeftToRight, moveTopToBottom, children } = this.props;
         this.setDefaultStyle(duration);
 
-        let transition = moveLeftToRight ? this.transitionRightToLeft : this.transitionLeftToRight;
+        if (vertical) var transition = moveTopToBottom ? this.transitionTopToBot : this.transitionBotToTop;
+        else transition = moveLeftToRight ? this.transitionRightToLeft : this.transitionLeftToRight;
 
         return (
             <Transition in={isOpen} timeout={duration}>

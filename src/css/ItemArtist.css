@@ -6,64 +6,63 @@
 
 .itemArtist_button {
     position: relative;
-    border: none;
-    padding: 0.8rem;
-    white-space: nowrap;
     outline: 0;
+    border: none;
     width: 100%;
+    padding: 0.8rem;
     background: none;
+    white-space: nowrap;
 }
 
 /*      MAIN INFO        */
 
 .itemArtist_cover {
-    width: 100%;
-    height: auto;
-    user-select: none;
-    pointer-events: none;
     border-radius: 50%;
+    width: 100%;
+    pointer-events: none;
+    user-select: none;
     object-fit: cover;
 }
 
 .itemArtist_skeletonCover {
-    width: 100%;
-    padding-top: 100%;
-    user-select: none;
-    pointer-events: none;
-    background: rgba(150, 150, 150, 0.1);
     border-radius: 50%;
+    width: 100%;
+    background: rgba(150, 150, 150, 0.1);
+    pointer-events: none;
+    user-select: none;
+    padding-top: 100%;
 }
 
 .itemArtist_name {
-    color: white;
-    text-align: left;
-    text-decoration: none;
     margin: 0.4rem 0;
     padding: 0.1rem 0.5rem;
     font-size: 0.9rem;
+    text-align: left;
     text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
+    text-decoration: none;
     text-overflow: ellipsis;
-    user-select: none;
+    white-space: nowrap;
+    color: white;
+    overflow: hidden;
     pointer-events: none;
+    user-select: none;
 }
 
 .itemArtist_skeletonName {
-    color: transparent;
+    margin: 0.4rem 15%;
+    border-radius: 0.5rem;
+    width: 70%;
+    padding: 0.1rem 0;
+    background: rgba(150, 150, 150, 0.1);
+    font-size: 0.9rem;
     text-align: left;
     text-decoration: none;
-    margin: 0.4rem 15%;
-    padding: 0.1rem 0;
-    width: 70%;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
-    user-select: none;
+    white-space: nowrap;
+    color: transparent;
+    overflow: hidden;
     pointer-events: none;
-    background: rgba(150, 150, 150, 0.1);
-    border-radius: 0.5rem;
+    user-select: none;
 }
 
 .itemArtist_selectedName {

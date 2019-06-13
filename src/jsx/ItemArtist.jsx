@@ -4,7 +4,6 @@ import "../css/ItemArtist.css";
 export default class ItemArtist extends Component {
     // Handle the click on this item
     handleClick = (id, skeleton) => {
-        console.log("Artist Selected: " + window.info.library.artists[id].name);
         if (!skeleton) window.PubSub.emit("onArtistSelected", { id });
     };
 

@@ -1,6 +1,6 @@
 .lyrics_wrapper {
     position: absolute;
-    width: 100%;
     top: 0;
+    width: 100%;
     background-color: rgba(30, 255, 0, 0.089);
 }

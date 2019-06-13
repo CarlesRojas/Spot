@@ -4,33 +4,43 @@
 
 .app_backgroundBlurred {
     position: absolute;
-    height: 100%;
     width: 100%;
-    background-position: center;
-    background-size: auto 100%;
+    height: 100%;
+    background-color: black;
     transform: scale(1);
     filter: blur(10px) brightness(10%);
+    background-position: center;
+    background-size: auto 100%;
 }
 
 .app_background {
     position: absolute;
-    height: 100%;
     width: 100%;
-    background-position: center;
-    background-size: auto 100%;
+    height: 100%;
+    background-color: black;
     transform: scale(1);
     filter: brightness(10%);
+    background-position: center;
+    background-size: auto 100%;
 }
 
 .app_wrapper {
     position: relative;
-    overflow: hidden;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 .app_desktop {
-    height: 100%;
     width: 100%;
+    height: 100%;
     background-color: rgb(255, 155, 155);
+}
+
+.app_popupWrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }

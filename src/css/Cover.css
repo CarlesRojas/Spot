@@ -16,30 +16,30 @@
 }
 
 .cover_image {
-    transition: filter 0.25s;
-    filter: none;
-    width: 95%;
     position: absolute;
+    width: 95%;
+    filter: none;
+    transition: filter 0.25s;
     pointer-events: all;
 }
 
 #cover_titleGradient {
     position: absolute;
     width: 95%;
-    opacity: 1;
     background-image: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 50%);
+    opacity: 1;
     pointer-events: none;
 }
 
 #cover_timeGradient {
     position: absolute;
-    width: calc(95% + 2px);
-    height: calc(95% + 2px);
-    margin: auto;
-    left: 0;
-    right: 0;
     top: 0;
     bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: calc(95% + 2px);
+    height: calc(95% + 2px);
     opacity: 1;
     transition-timing-function: linear;
     pointer-events: none;
@@ -47,36 +47,36 @@
 
 .cover_infoWrapper {
     position: absolute;
-    width: 95%;
-    margin: auto;
-    bottom: 0;
-    vertical-align: middle;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    bottom: 0;
+    margin: auto;
+    width: 95%;
     pointer-events: none;
+    vertical-align: middle;
 }
 
 .cover_song {
-    color: white;
-    font-weight: 500;
     font-size: 1.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: 500;
     text-align: center;
     text-shadow: black 0 0 0.25rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: white;
+    overflow: hidden;
     pointer-events: none;
 }
 
 .cover_artist {
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
     font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: 500;
     text-align: center;
     text-shadow: black 0 0 0.25rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.8);
+    overflow: hidden;
     pointer-events: none;
 }

@@ -78,8 +78,21 @@ export default class Songs extends Component {
     createItem = (elem, skeleton) => {
         const { playbackState } = this.props;
         const { rowHeight } = this.state;
-        const { id, name, album, artist } = elem;
-        return <ItemSong key={id} height={rowHeight} id={id} name={name} album={album} artist={artist} selected={id === playbackState["songID"]} skeleton={skeleton} />;
+        const { id, name, album, artist, albumID, artistID } = elem;
+        return (
+            <ItemSong
+                key={id}
+                height={rowHeight}
+                id={id}
+                name={name}
+                album={album}
+                artist={artist}
+                albumID={albumID}
+                artistID={artistID}
+                selected={id === playbackState["songID"]}
+                skeleton={skeleton}
+            />
+        );
     };
 
     // Renders the component
@@ -103,9 +116,11 @@ export default class Songs extends Component {
         while (index < endIndex) {
             if (index < list.length) {
                 var { songID, name, albumID, artistID } = window.info.library.songs[list[index]];
-                renderedItems.push(this.createItem({ id: songID, name: name, album: window.info.library.albums[albumID]["name"], artist: window.info.library.artists[artistID]["name"] }, false));
+                renderedItems.push(
+                    this.createItem({ id: songID, name: name, album: window.info.library.albums[albumID]["name"], artist: window.info.library.artists[artistID]["name"], albumID, artistID }, false)
+                );
             } else {
-                renderedItems.push(this.createItem({ id: index, name: "", album: "", artist: "" }, true));
+                renderedItems.push(this.createItem({ id: index, name: "", album: "", artist: "", albumID: "", artistID: "" }, true));
             }
             ++index;
         }

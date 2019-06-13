@@ -1,41 +1,41 @@
 .songs_wrapper {
     position: relative;
-    width: 100%;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .songs_title {
-    color: rgba(255, 255, 255, 0.75);
     margin: 0.5rem 0 0 0;
-    text-align: center;
     font-size: 1.2rem;
     font-weight: 500;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .songs_shuffle {
-    background-color: rgb(29, 185, 84);
     margin: 1rem auto;
+    outline: none;
+    border: none;
+    border-radius: 8.5rem;
     width: 60%;
     padding: 0.8rem 0;
-    text-align: center;
+    background-color: rgb(29, 185, 84);
     font-size: 1rem;
     font-weight: bold;
-    border-radius: 8.5rem;
-    border: none;
-    outline: none;
+    text-align: center;
 }
 
 .songs_scroll {
-    width: 100%;
-    flex-grow: 1;
-    overflow-y: scroll;
     overflow-x: hidden;
+    overflow-y: scroll;
+    flex-grow: 1;
+    width: 100%;
 }
 
 .songs_list {
     position: relative;
-    list-style-type: none;
     margin: 0 0.75rem;
     padding: 0;
+    list-style-type: none;
 }

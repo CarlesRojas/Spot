@@ -5,6 +5,8 @@ import Cover from "./jsx/Cover";
 import Library from "./jsx/Library";
 import Lyrics from "./jsx/Lyrics";
 import Playing from "./jsx/Playing";
+import LibraryElem from "./jsx/LibraryElem";
+import SlideTransition from "./jsx/SlideTransition";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
 
@@ -18,10 +20,14 @@ export default class App extends Component {
         // State of the window
         window.info = {
             isMobile: false,
+
+            // Credentials
             accessToken: params.access_token,
             refreshToken: params.refresh_token,
             tokenExpireDateTime: new Date(Date.now() + 25 * 60 * 1000),
             deviceID: null,
+
+            // Library and Music
             progressIntervalID: null,
             updateProgressInterval: 15,
             library: {
@@ -32,33 +38,18 @@ export default class App extends Component {
             }
         };
 
-        // Get tokens and info from the cookie or set it if there was none
-        if (window.info.accessToken) {
-            window.spotifyAPI.setAccessToken(window.info.accessToken);
-
-            this.setCookie("spot_accessToken", window.info.accessToken, 5);
-            this.setCookie("spot_refreshToken", window.info.refreshToken, 5);
-            this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
-        } else {
-            var accessTokenCookie = this.getCookie("spot_accessToken");
-            var refreshTokenCookie = this.getCookie("spot_refreshToken");
-            var tokenExpireDateTimeCookie = new Date(Date.parse(this.getCookie("spot_tokenExpireDateTime")));
-
-            if (accessTokenCookie && refreshTokenCookie && tokenExpireDateTimeCookie && tokenExpireDateTimeCookie > Date.now()) {
-                window.spotifyAPI.setAccessToken(accessTokenCookie);
-
-                window.info.accessToken = accessTokenCookie;
-                window.info.refreshToken = refreshTokenCookie;
-                window.info.tokenExpireDateTime = tokenExpireDateTimeCookie;
-            }
-        }
+        // Obtain token info from cookies
+        this.getTokenInfoFromCookies();
 
         // Set the state for the app
         this.state = {
+            // Window info
             width: window.innerWidth,
             height: window.innerHeight,
             isPortrait: window.innerWidth <= window.innerHeight,
             loggedIn: window.info.accessToken ? true : false,
+
+            // Playback info
             playbackState: {
                 playing: false,
                 repeat: false,
@@ -73,50 +64,17 @@ export default class App extends Component {
             },
             duration: 0,
             progress: 0,
-            percentage: 0
+            percentage: 0,
+
+            // Popups
+            popups: {
+                album: "",
+                artist: ""
+            }
         };
 
-        // Connects to Spotify Playback & creates a new Player
-        window.onSpotifyWebPlaybackSDKReady = () => {
-            window.info.player = new window.Spotify.Player({
-                name: "Spot",
-                getOAuthToken: callback => {
-                    callback(window.info.accessToken);
-                }
-            });
-
-            // Error handling
-            window.info.player.addListener("initialization_error", ({ message }) => {
-                //console.error(message);
-            });
-            window.info.player.addListener("authentication_error", ({ message }) => {
-                //console.error(message);
-            });
-            window.info.player.addListener("account_error", ({ message }) => {
-                //console.error(message);
-            });
-            window.info.player.addListener("playback_error", ({ message }) => {
-                //console.error(message);
-            });
-
-            // Playback status updates
-            window.info.player.addListener("player_state_changed", state => {
-                this.handlePlaybackChange();
-            });
-
-            // Ready
-            window.info.player.addListener("ready", ({ device_id }) => {
-                this.transferPlayer(device_id);
-            });
-
-            // Not Ready
-            window.info.player.addListener("not_ready", ({ device_id }) => {
-                console.log("Device ID has gone offline", device_id);
-            });
-
-            // Connect to the player!
-            window.info.player.connect();
-        };
+        // Create spotify Player
+        this.createSpotPlayer();
 
         // Define the prettify function for all to access
         window.prettifyName = this.prettifyName;
@@ -126,6 +84,9 @@ export default class App extends Component {
         window.PubSub.sub("onWindowResize", this.handleWindowResize);
         window.PubSub.sub("onPausePlay", this.handlePausePlay);
         window.PubSub.sub("onSongSelected", this.handleSongSelected);
+        window.PubSub.sub("onAlbumSelected", this.handleAlbumSelected);
+        window.PubSub.sub("onArtistSelected", this.handleArtistSelected);
+        window.PubSub.sub("onClosePopup", this.handleClosePopup);
     }
 
     //##############################################
@@ -153,6 +114,29 @@ export default class App extends Component {
     //##############################################
     //       OAUTH SETUP
     //##############################################
+
+    getTokenInfoFromCookies = () => {
+        // Get tokens and info from the cookie or set it if there was none
+        if (window.info.accessToken) {
+            window.spotifyAPI.setAccessToken(window.info.accessToken);
+
+            this.setCookie("spot_accessToken", window.info.accessToken, 5);
+            this.setCookie("spot_refreshToken", window.info.refreshToken, 5);
+            this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
+        } else {
+            var accessTokenCookie = this.getCookie("spot_accessToken");
+            var refreshTokenCookie = this.getCookie("spot_refreshToken");
+            var tokenExpireDateTimeCookie = new Date(Date.parse(this.getCookie("spot_tokenExpireDateTime")));
+
+            if (accessTokenCookie && refreshTokenCookie && tokenExpireDateTimeCookie && tokenExpireDateTimeCookie > Date.now()) {
+                window.spotifyAPI.setAccessToken(accessTokenCookie);
+
+                window.info.accessToken = accessTokenCookie;
+                window.info.refreshToken = refreshTokenCookie;
+                window.info.tokenExpireDateTime = tokenExpireDateTimeCookie;
+            }
+        }
+    };
 
     // Obtains parameters from the hash of the URL
     getHashParams = () => {
@@ -203,6 +187,50 @@ export default class App extends Component {
     //##############################################
     //       SPOTIFY API
     //##############################################
+
+    createSpotPlayer = () => {
+        // Connects to Spotify Playback & creates a new Player
+        window.onSpotifyWebPlaybackSDKReady = () => {
+            window.info.player = new window.Spotify.Player({
+                name: "Spot",
+                getOAuthToken: callback => {
+                    callback(window.info.accessToken);
+                }
+            });
+
+            // Error handling
+            window.info.player.addListener("initialization_error", ({ message }) => {
+                //console.error(message);
+            });
+            window.info.player.addListener("authentication_error", ({ message }) => {
+                //console.error(message);
+            });
+            window.info.player.addListener("account_error", ({ message }) => {
+                //console.error(message);
+            });
+            window.info.player.addListener("playback_error", ({ message }) => {
+                //console.error(message);
+            });
+
+            // Playback status updates
+            window.info.player.addListener("player_state_changed", state => {
+                this.handlePlaybackChange();
+            });
+
+            // Ready
+            window.info.player.addListener("ready", ({ device_id }) => {
+                this.transferPlayer(device_id);
+            });
+
+            // Not Ready
+            window.info.player.addListener("not_ready", ({ device_id }) => {
+                console.log("Device ID has gone offline", device_id);
+            });
+
+            // Connect to the player!
+            window.info.player.connect();
+        };
+    };
 
     // Transfer the spotify player to Spot in this device
     transferPlayer = deviceID => {
@@ -317,7 +345,6 @@ export default class App extends Component {
             newPlaybackState.playing = false;
             this.setState({ playbackState: newPlaybackState });
 
-            // CARLES <- Possible timeout so an incoming playback state can'c change this twice causing the flicker bug
             window.spotifyAPI.pause().then(
                 response => {
                     this.handlePlaybackChange();
@@ -471,20 +498,6 @@ export default class App extends Component {
         );
     };
 
-    // Called when a song is selected
-    handleSongSelected = ({ id }) => {
-        window.spotifyAPI.play({ uris: ["spotify:track:" + id] }).then(
-            response => {
-                console.log("Done! ", response);
-            },
-            err => {
-                if (err.status === 401) window.location.assign("http://localhost:8888/login");
-                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
-                else console.error(err);
-            }
-        );
-    };
-
     // Remove extra info from a song, album or artist name
     prettifyName = name => {
         const separators = [" - ", "(", ":", ",", " /"];
@@ -500,12 +513,63 @@ export default class App extends Component {
     };
 
     //##############################################
+    //       USER ACTIONS
+    //##############################################
+
+    // Called when a song is selected
+    handleSongSelected = ({ id }) => {
+        window.spotifyAPI.play({ uris: ["spotify:track:" + id] }).then(
+            response => {
+                console.log("Done! ", response);
+            },
+            err => {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
+            }
+        );
+    };
+
+    // Called when the user selects an album from the library
+    handleAlbumSelected = ({ id }) => {
+        var newPopups = { ...this.state.popups };
+        newPopups.album = id;
+
+        this.setState({ popups: newPopups });
+    };
+
+    // Called when the user selects an artist from the library
+    handleArtistSelected = ({ id }) => {
+        var newPopups = { ...this.state.popups };
+        newPopups.artist = id;
+
+        this.setState({ popups: newPopups });
+    };
+
+    // Called when the user clicks the back button in a popup. Type: "album", "artist"
+    handleClosePopup = ({ type }) => {
+        var newPopups = { ...this.state.popups };
+
+        switch (type) {
+            case "album":
+                newPopups.album = "";
+                break;
+            case "artist":
+            default:
+                newPopups.artist = "";
+                break;
+        }
+
+        this.setState({ popups: newPopups });
+    };
+
+    //##############################################
     //       REACT CICLE METHODS
     //##############################################
 
     // Renders the component
     render() {
-        const { playbackState, percentage } = this.state;
+        const { playbackState, percentage, popups } = this.state;
         const { playing, songID, exists } = playbackState;
         this.updateDeviceType();
 
@@ -537,6 +601,18 @@ export default class App extends Component {
                             <Playing playbackState={playbackState} />
                             {cover}
                         </div>
+
+                        <SlideTransition isOpen={popups.artist !== ""} duration={150} vertical={true} moveTopToBottom={popups.artist !== ""}>
+                            <div className="app_popupWrapper">
+                                <LibraryElem type={"artist"} id={popups.artist} />
+                            </div>
+                        </SlideTransition>
+
+                        <SlideTransition isOpen={popups.album !== ""} duration={150} vertical={true} moveTopToBottom={popups.album !== ""}>
+                            <div className="app_popupWrapper">
+                                <LibraryElem type={"album"} id={popups.album} />
+                            </div>
+                        </SlideTransition>
                     </React.Fragment>
                 );
             }
@@ -581,6 +657,9 @@ export default class App extends Component {
         window.PubSub.unsub("onWindowResize", this.handleWindowResize);
         window.PubSub.unsub("onPausePlay", this.handlePausePlay);
         window.PubSub.unsub("onSongSelected", this.handleSongSelected);
+        window.PubSub.unsub("onAlbumSelected", this.handleAlbumSelected);
+        window.PubSub.unsub("onArtistSelected", this.handleArtistSelected);
+        window.PubSub.sub("onClosePopup", this.handleClosePopup);
     }
 
     //##############################################

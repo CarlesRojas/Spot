@@ -23,7 +23,7 @@ export default class Artists extends Component {
     // Called when the library finishes loading
     handleLibraryLoaded = () => {
         if (!window.info.artistList || window.info.artistList.length <= 0) {
-            window.info.artistList = this.getListOrder("name");
+            window.info.artistList = this.getListOrder("dateAdded");
             this.forceUpdate();
         }
     };

@@ -35,9 +35,32 @@ export default class ItemSong extends Component {
             animationIntervalID: null
         };
     }
+
     // Handle the click on this item
     handleClick = (id, skeleton) => {
         if (!skeleton) window.PubSub.emit("onSongSelected", { id });
+    };
+
+    // Handle the click on the album icon
+    handleAlbumClick = id => {
+        window.PubSub.emit("onAlbumSelected", { id });
+    };
+
+    // Handle the click on the artist icon
+    handleArtistClick = id => {
+        window.PubSub.emit("onArtistSelected", { id });
+    };
+
+    // Handle the click on the album icon
+    handleAddClick = id => {
+        console.log("Add");
+        // CARLES Add functionality
+    };
+
+    // Handle the click on the album icon
+    handleLikeClick = id => {
+        console.log("Like");
+        // CARLES Like functionality
     };
 
     //##############################################
@@ -285,9 +308,8 @@ export default class ItemSong extends Component {
 
     // Renders the component
     render() {
-        const { id, height, name, album, artist, selected, skeleton } = this.props;
+        const { id, height, name, album, artist, selected, skeleton, albumID, artistID } = this.props;
         const { left } = this.state;
-
         return (
             <div
                 className="itemSong_wrapper"
@@ -307,19 +329,19 @@ export default class ItemSong extends Component {
                     </p>
                 </button>
 
-                <button id={"itemSong_albumButton"} onClick={() => console.log("Album")}>
+                <button id={"itemSong_albumButton"} onClick={() => this.handleAlbumClick(albumID)}>
                     <img className="itemSong_icon" src={AlbumIcon} alt="" />
                 </button>
 
-                <button id={"itemSong_artistButton"} onClick={() => console.log("Artist")}>
+                <button id={"itemSong_artistButton"} onClick={() => this.handleArtistClick(artistID)}>
                     <img className="itemSong_icon" src={ArtistIcon} alt="" />
                 </button>
 
-                <button id={"itemSong_addButton"} onClick={() => console.log("Add")}>
+                <button id={"itemSong_addButton"} onClick={() => this.handleAddClick(id)}>
                     <img className="itemSong_icon" src={AddIcon} alt="" />
                 </button>
 
-                <button id={"itemSong_likedButton"} onClick={() => console.log("Liked")}>
+                <button id={"itemSong_likedButton"} onClick={() => this.handleLikeClick(id)}>
                     <img className="itemSong_icon" src={LikedIcon} alt="" />
                 </button>
             </div>
