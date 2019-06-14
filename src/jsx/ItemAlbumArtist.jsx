@@ -51,7 +51,7 @@ export default class ItemAlbumArtist extends Component {
             );
         else
             title = (
-                <p className={"itemAlbumArtist_name " + (selected ? " itemAlbumArtist_selectedName" : "")} style={{ width: coverSize, padding: padding / 2 + "px" }}>
+                <p className={"itemAlbumArtist_name " + (selected ? " itemAlbumArtist_selectedName" : "")} style={{ width: coverSize, padding: padding / 2 + "px " + padding + "px" }}>
                     {window.prettifyName(name)}
                 </p>
             );

@@ -68,6 +68,10 @@
     user-select: none;
 }
 
+.profile_nameSelected {
+    color: rgb(29, 185, 84);
+}
+
 .profile_songs {
     flex-grow: 1;
 }
