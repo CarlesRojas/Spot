@@ -74,7 +74,15 @@ export default class App extends Component {
             // Popups
             popups: {
                 album: "",
-                artist: ""
+                albumSongs: [],
+                albumName: "Unknown Album",
+                albumImage: "https://i.imgur.com/iajaWIN.png",
+
+                artist: "",
+                artistSongs: [],
+                artistAlbums: [],
+                artistName: "Unknown Artist",
+                artistImage: "https://i.imgur.com/PgCafqK.png"
             }
         };
 
@@ -538,7 +546,25 @@ export default class App extends Component {
     // Called when the user selects an album from the library
     handleAlbumSelected = ({ id }) => {
         var newPopups = { ...this.state.popups };
-        newPopups.album = id;
+
+        if (id in window.info.library.albums) {
+            newPopups.album = id;
+            newPopups.albumName = window.info.library.albums[id].name;
+            newPopups.albumImage = window.info.library.albums[id].image;
+
+            newPopups.albumSongs = {};
+            Object.keys(window.info.library.albums[id].songs)
+                .filter(songID => songID in window.info.library.songs)
+                .map(songID => {
+                    return (newPopups.albumSongs[songID] = window.info.library.songs[songID]);
+                });
+        } else {
+            // CARLES implement for when the album is not in library (coming from search)
+            newPopups.album = id;
+            newPopups.albumName = "Unknown Album";
+            newPopups.albumImage = "https://i.imgur.com/iajaWIN.png";
+            newPopups.albumSongs = [];
+        }
 
         this.setState({ popups: newPopups });
     };
@@ -546,7 +572,33 @@ export default class App extends Component {
     // Called when the user selects an artist from the library
     handleArtistSelected = ({ id }) => {
         var newPopups = { ...this.state.popups };
-        newPopups.artist = id;
+
+        if (id in window.info.library.artists) {
+            newPopups.artist = id;
+            newPopups.artistName = window.info.library.artists[id].name;
+            newPopups.artistImage = window.info.library.artists[id].image;
+
+            newPopups.artistSongs = {};
+            Object.keys(window.info.library.artists[id].songs)
+                .filter(songID => songID in window.info.library.songs)
+                .map(songID => {
+                    return (newPopups.artistSongs[songID] = window.info.library.songs[songID]);
+                });
+
+            newPopups.artistAlbums = {};
+            Object.keys(window.info.library.artists[id].albums)
+                .filter(albumID => albumID in window.info.library.albums)
+                .map(albumID => {
+                    return (newPopups.artistAlbums[albumID] = window.info.library.albums[albumID]);
+                });
+        } else {
+            // CARLES implement for when the artist is not in library (coming from search)
+            newPopups.artist = id;
+            newPopups.artistName = "Unknown Artist";
+            newPopups.artistImage = "https://i.imgur.com/PgCafqK.png";
+            newPopups.artistSongs = [];
+            newPopups.artistAlbums = [];
+        }
 
         this.setState({ popups: newPopups });
     };
@@ -609,13 +661,29 @@ export default class App extends Component {
 
                         <SlideTransition isOpen={popups.artist !== ""} duration={150} vertical={true} moveTopToBottom={popups.artist !== ""}>
                             <div className="app_popupWrapper">
-                                <Profile type={"artist"} id={popups.artist} playbackState={playbackState} />
+                                <Profile
+                                    type={"artist"}
+                                    id={popups.artist}
+                                    playbackState={playbackState}
+                                    name={popups.artistName}
+                                    image={popups.artistImage}
+                                    songList={popups.artistSongs}
+                                    albumList={popups.artistAlbums}
+                                />
                             </div>
                         </SlideTransition>
 
                         <SlideTransition isOpen={popups.album !== ""} duration={150} vertical={true} moveTopToBottom={popups.album !== ""}>
                             <div className="app_popupWrapper">
-                                <Profile type={"album"} id={popups.album} playbackState={playbackState} />
+                                <Profile
+                                    type={"album"}
+                                    id={popups.album}
+                                    playbackState={playbackState}
+                                    name={popups.albumName}
+                                    image={popups.albumImage}
+                                    songList={popups.albumSongs}
+                                    albumList={[]}
+                                />
                             </div>
                         </SlideTransition>
                     </React.Fragment>

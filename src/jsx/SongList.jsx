@@ -6,14 +6,12 @@ export default class SongList extends Component {
     constructor(props) {
         super(props);
 
-        const { height } = props;
+        const { order } = props;
 
         this.state = {
-            availableHeight: height,
             scrollTop: 0,
             rowHeight: window.innerHeight / 11,
-            order: null,
-            listOrder: this.getListOrder("dateAdded")
+            listOrder: this.getListOrder(order)
         };
 
         // Special case for library song list
@@ -22,7 +20,8 @@ export default class SongList extends Component {
 
     // Called when the library finishes loading
     handleLibraryLoaded = () => {
-        this.setState({ listOrder: this.getListOrder("dateAdded") });
+        const { order } = this.props;
+        this.setState({ listOrder: this.getListOrder(order) });
     };
 
     // Returns a list of song IDs in the order specified: ["name", "album", "artist", "dateAdded"]
@@ -70,6 +69,7 @@ export default class SongList extends Component {
 
     // Handle when the list is scrolled
     handleScroll = event => {
+        window.PubSub.emit("onCloseSongActions");
         this.setState({ scrollTop: event.target.scrollTop });
     };
 

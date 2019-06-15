@@ -17,9 +17,9 @@ export default class Songs extends Component {
                 list: [{ event: "onAlbumSelected", type: "album" }, { event: "onArtistSelected", type: "artist" }, { event: "onAddClicked", type: "add" }]
             },
             right: {
-                numberOfActionsAlwaysVisible: 1,
+                numberOfActionsAlwaysVisible: 0,
                 // Items in reverse order (first one is in the right)
-                list: [{ event: "onLikeClicked", type: "like" }, { event: "onAlbumSelected", type: "album" }]
+                list: [{ event: "onLikeClicked", type: "like" }]
             }
         };
 
@@ -27,7 +27,7 @@ export default class Songs extends Component {
             <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
                 <p className="songs_title">Liked Songs</p>
                 <div className="songs_listWrapper">
-                    <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} />
+                    <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} order="dateAdded" />
                 </div>
                 <button className="songs_shuffle">SHUFFLE</button>
             </div>

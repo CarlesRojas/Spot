@@ -21,9 +21,12 @@ export default class ItemSong extends Component {
             thresholdSpeed: 10,
             acceleration: 0.1,
 
-            // Left positions & width
+            // Dimensions and static positions
             width: containerWidth + (hiddenLeftIcons + hiddenRightIcons) * 3 * 16,
             nameWidth: containerWidth - (actions.left.numberOfActionsAlwaysVisible + actions.right.numberOfActionsAlwaysVisible) * 3 * 16,
+            nameLeftOffset: actions.left.list.length * 3 * 16,
+
+            // Left positions
             leftLeft: 0 * 16,
             normalLeft: hiddenLeftIcons * -3 * 16, // 3rems each action
             rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16
@@ -52,6 +55,24 @@ export default class ItemSong extends Component {
     // Handle the click on an action
     handleActionClick = (id, event) => {
         window.PubSub.emit(event, { id });
+    };
+
+    handleCloseSongActions = id => {
+        const { position } = this.info;
+
+        if (id && id === this.props.id) return;
+
+        window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
+        this.info.position = "normal";
+        this.setState({
+            speed: position === "left" ? -5 : 5,
+            touchStartX: 0,
+            touchStartY: 0,
+            beingTouched: false,
+            firstMove: false,
+            correctScrollDirection: false,
+            animationIntervalID: window.setInterval(this.snapToPosition.bind(this), 15)
+        });
     };
 
     //##############################################
@@ -248,18 +269,22 @@ export default class ItemSong extends Component {
 
     // Called when the touch ends
     handleEnd() {
+        const { id, actions } = this.props;
         const { speed, left, beingTouched } = this.state;
         const { position, normalLeft, leftLeft, rightLeft, thresholdSpeed } = this.info;
+
+        var hiddenLeftIcons = actions.left.list.length - actions.left.numberOfActionsAlwaysVisible;
+        var hiddenRightIcons = actions.right.list.length - actions.right.numberOfActionsAlwaysVisible;
 
         if (beingTouched) {
             var newPos;
             switch (position) {
                 case "normal":
-                    if (speed < -thresholdSpeed && left <= normalLeft) newPos = "right";
-                    else if (speed > thresholdSpeed) newPos = "left";
+                    if (speed < -thresholdSpeed && left <= normalLeft) newPos = hiddenRightIcons > 0 ? "right" : "normal";
+                    else if (speed > thresholdSpeed) newPos = hiddenLeftIcons > 0 ? "left" : "normal";
                     else {
-                        if (left >= (normalLeft - leftLeft) / 2) newPos = "left";
-                        else if (left <= rightLeft + (normalLeft - rightLeft) / 2) newPos = "right";
+                        if (left >= (normalLeft - leftLeft) / 2) newPos = hiddenLeftIcons > 0 ? "left" : "normal";
+                        else if (left <= rightLeft + (normalLeft - rightLeft) / 2) newPos = hiddenRightIcons > 0 ? "right" : "normal";
                         else newPos = "normal";
                     }
                     break;
@@ -279,6 +304,11 @@ export default class ItemSong extends Component {
                     }
                     break;
             }
+
+            if (newPos === "left" || newPos === "right") {
+                window.PubSub.emit("onCloseSongActions", id);
+                window.PubSub.sub("onCloseSongActions", this.handleCloseSongActions);
+            } else window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
 
             this.info.position = newPos;
             this.setState({
@@ -300,7 +330,7 @@ export default class ItemSong extends Component {
     // Renders the component
     render() {
         const { id, height, name, album, artist, selected, skeleton, albumID, artistID, actions } = this.props;
-        const { width, nameWidth, normalLeft } = this.info;
+        const { width, nameWidth, nameLeftOffset } = this.info;
         const { left } = this.state;
 
         // Compute left buttons
@@ -358,8 +388,10 @@ export default class ItemSong extends Component {
                 onMouseUp={() => this.handleEnd()}
                 onMouseLeave={() => this.handleEnd()}
             >
-                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: -normalLeft + "px" }}>
-                    <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>{skeleton ? "-" : window.prettifyName(name)}</p>
+                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}>
+                    <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
+                        {skeleton ? "-" : window.prettifyName(name)}
+                    </p>
                     <p className={"itemSong_info " + (skeleton ? "itemSong_skeletonInfo" : "")}>
                         {skeleton ? "-" : window.prettifyName(album)}
                         <strong> · </strong>
@@ -385,5 +417,6 @@ export default class ItemSong extends Component {
         this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
         this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
         this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
+        window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
     }
 }

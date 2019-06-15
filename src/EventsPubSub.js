@@ -39,5 +39,6 @@ export default class EventsPubSub {
     onLikeClicked:              CARLES complete
 
     onClosePopup:               Called when the back button in a popup is clicked           ({type})
+    onCloseSongActions:         Called when the song item position should reset             ({id})          id: id of the song that sends the signal (only in some cases, null otherwise)
 
 */

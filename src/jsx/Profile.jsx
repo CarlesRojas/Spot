@@ -8,31 +8,20 @@ export default class Profile extends Component {
     constructor(props) {
         super(props);
 
-        const { type, id } = props;
+        const { type, id, image, name } = props;
 
         // Set information
-        if (window.info && window.info.library && window.info.library.artists && window.info.library.albums) {
-            switch (type) {
-                case "artist":
-                    var borderRadius = "50%";
-                    var image = id in window.info.library.artists ? window.info.library.artists[id].image : "https://i.imgur.com/PgCafqK.png";
-                    var background = image === "https://i.imgur.com/PgCafqK.png" ? null : image;
-                    var name = id in window.info.library.artists ? window.info.library.artists[id].name : "Unknown Artist";
-                    break;
+        switch (type) {
+            case "artist":
+                var borderRadius = "50%";
+                var background = image === "https://i.imgur.com/PgCafqK.png" ? null : image;
+                break;
 
-                case "album":
-                default:
-                    borderRadius = "0.5rem";
-                    image = id in window.info.library.albums ? window.info.library.albums[id].image : "https://i.imgur.com/iajaWIN.png";
-                    background = image === "https://i.imgur.com/iajaWIN.png" ? null : image;
-                    name = id in window.info.library.albums ? window.info.library.albums[id].name : "Unknown Album";
-                    break;
-            }
-        } else {
-            borderRadius = "0rem";
-            image = "https://i.imgur.com/iajaWIN.png";
-            background = null;
-            name = "Unknown Album";
+            case "album":
+            default:
+                borderRadius = "0.5rem";
+                background = image === "https://i.imgur.com/iajaWIN.png" ? null : image;
+                break;
         }
 
         // Get background main color
@@ -43,6 +32,8 @@ export default class Profile extends Component {
                 else console.log(err);
             });
         }
+
+        // Get the list of songs
 
         this.state = {
             type,
@@ -57,48 +48,7 @@ export default class Profile extends Component {
             albumsWidth: (window.innerWidth - 1.5 * 16) / 3,
             albumsPadding: 0.5 * 16
         };
-
-        // Sub to events when this component is mounted
-        window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
     }
-
-    // Called when the library finishes loading
-    handleLibraryLoaded = () => {
-        const { type, id } = this.props;
-
-        switch (type) {
-            case "artist":
-                var borderRadius = "50%";
-                var image = id in window.info.library.artists ? window.info.library.artists[id].image : "https://i.imgur.com/PgCafqK.png";
-                var background = image === "https://i.imgur.com/PgCafqK.png" ? null : image;
-                var name = id in window.info.library.artists ? window.info.library.artists[id].name : "Unknown Artist";
-                break;
-
-            case "album":
-            default:
-                borderRadius = "0.5rem";
-                image = id in window.info.library.albums ? window.info.library.albums[id].image : "https://i.imgur.com/iajaWIN.png";
-                background = image === "https://i.imgur.com/iajaWIN.png" ? null : image;
-                name = id in window.info.library.albums ? window.info.library.albums[id].name : "Unknown Album";
-                break;
-        }
-
-        // Get background main color
-        if (background) {
-            let v = new Vibrant(background);
-            v.getPalette((err, palette) => {
-                if (!err) this.setState({ imageColor: palette.Vibrant.getRgb() });
-                else console.log(err);
-            });
-        }
-
-        this.setState({
-            borderRadius,
-            image,
-            background,
-            name
-        });
-    };
 
     // Handle a click on the shuffle button
     handleShuffleClick = () => {
@@ -109,13 +59,12 @@ export default class Profile extends Component {
     // Handle a click on the back button
     handleBackClick = () => {
         const { type } = this.state;
-
         window.PubSub.emit("onClosePopup", { type });
     };
 
     // Renders the component
     render() {
-        const { playbackState } = this.props;
+        const { playbackState, songList, albumList } = this.props;
         const { type, id, borderRadius, image, background, name, albumsHeight, albumsWidth, albumsPadding, imageColor } = this.state;
         const { albumID, artistID } = playbackState;
 
@@ -124,19 +73,20 @@ export default class Profile extends Component {
             case "artist":
                 var selected = artistID === id;
                 var zIndex = 10;
-                if (id in window.info.library.artists) {
-                    var albumObjects = Object.keys(window.info.library.artists[id].albums).map(elemID => {
-                        return {
-                            id: elemID,
-                            height: albumsHeight,
-                            width: albumsWidth,
-                            padding: albumsPadding,
-                            name: elemID in window.info.library.albums ? window.info.library.albums[elemID].name : "Unknown Album",
-                            image: elemID in window.info.library.albums ? window.info.library.albums[elemID].image : "https://i.imgur.com/iajaWIN.png",
-                            selected: elemID === albumID
-                        };
-                    });
 
+                var albumObjects = Object.values(albumList).map(albumInfo => {
+                    return {
+                        id: albumInfo.albumID,
+                        height: albumsHeight,
+                        width: albumsWidth,
+                        padding: albumsPadding,
+                        name: albumInfo.name,
+                        image: albumInfo.image,
+                        selected: albumInfo.albumID === albumID
+                    };
+                });
+
+                if (albumObjects.length) {
                     var albums = (
                         <div className="profile_albums" style={{ height: albumsHeight, zIndex: zIndex }}>
                             <HorizontalList elements={albumObjects} />
@@ -144,19 +94,6 @@ export default class Profile extends Component {
                     );
                 } else albums = null;
 
-                // Prepare song actions
-                var actions = {
-                    left: {
-                        numberOfActionsAlwaysVisible: 0,
-                        // Items in normal order (first one is in the left)
-                        list: [{ event: "onAlbumSelected", type: "album" }, { event: "onAddClicked", type: "add" }]
-                    },
-                    right: {
-                        numberOfActionsAlwaysVisible: 0,
-                        // Items in reverse order (first one is in the right)
-                        list: [{ event: "onLikeClicked", type: "like" }]
-                    }
-                };
                 break;
 
             case "album":
@@ -165,21 +102,22 @@ export default class Profile extends Component {
                 zIndex = 20;
                 albums = null;
 
-                // Prepare song actions
-                actions = {
-                    left: {
-                        numberOfActionsAlwaysVisible: 0,
-                        // Items in normal order (first one is in the left)
-                        list: [{ event: "onArtistSelected", type: "artist" }, { event: "onAddClicked", type: "add" }]
-                    },
-                    right: {
-                        numberOfActionsAlwaysVisible: 0,
-                        // Items in reverse order (first one is in the right)
-                        list: [{ event: "onLikeClicked", type: "like" }]
-                    }
-                };
                 break;
         }
+
+        // Prepare song actions
+        var actions = {
+            left: {
+                numberOfActionsAlwaysVisible: 0,
+                // Items in normal order (first one is in the left)
+                list: [{ event: "onAddClicked", type: "add" }]
+            },
+            right: {
+                numberOfActionsAlwaysVisible: 0,
+                // Items in reverse order (first one is in the right)
+                list: [{ event: "onLikeClicked", type: "like" }]
+            }
+        };
 
         // Image gradient for the top of the window
         var imageGradient = "linear-gradient(to bottom, rgba(" + imageColor[0] + ", " + imageColor[1] + ", " + imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
@@ -194,7 +132,7 @@ export default class Profile extends Component {
                     <p className={"profile_name" + (selected ? " profile_nameSelected" : "")}>{window.prettifyName(name)}</p>
                 </div>
                 <div className="profile_songs" style={{ zIndex: zIndex }}>
-                    <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} />
+                    <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" />
                 </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>
@@ -207,10 +145,5 @@ export default class Profile extends Component {
                 </div>
             </div>
         );
-    }
-
-    // Stop listening to events
-    componentWillUnmount() {
-        window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
     }
 }
