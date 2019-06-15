@@ -381,13 +381,13 @@ export default class Cover extends Component {
                 imageColor[1] +
                 ", " +
                 imageColor[2] +
-                ", 0.7) 0%, rgba(" +
+                ", 0.5) 0%, rgba(" +
                 imageColor[0] +
                 ", " +
                 imageColor[1] +
                 ", " +
                 imageColor[2] +
-                ", 0) 50%)";
+                ", 0) 100%)";
         }
 
         return (
