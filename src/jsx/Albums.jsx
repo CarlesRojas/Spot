@@ -89,6 +89,7 @@ export default class Albums extends Component {
                 selected={id === playbackState["albumID"]}
                 skeleton={skeleton}
                 type={"album"}
+                noName={false}
             />
         );
     };

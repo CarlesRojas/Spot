@@ -27,6 +27,11 @@ export default class App extends Component {
             tokenExpireDateTime: new Date(Date.now() + 25 * 60 * 1000),
             deviceID: null,
 
+            // Ordered Lists
+            songList: [],
+            albumList: [],
+            artistList: [],
+
             // Library and Music
             progressIntervalID: null,
             updateProgressInterval: 5000, // CARLES Change to 15
@@ -420,7 +425,9 @@ export default class App extends Component {
             songInfo["name"] = song.name;
             songInfo["duration"] = song.duration_ms;
             songInfo["albumID"] = albumID;
+            songInfo["albumName"] = song.album.name;
             songInfo["artistID"] = artistID;
+            songInfo["artistName"] = song.artists.length ? song.artists[0].name : "";
             songInfo["trackNumber"] = song.track_number;
             songInfo["image"] = song.album.images.length ? song.album.images[0].url : "https://i.imgur.com/iajaWIN.png";
             window.info.library.songs[songID] = songInfo;

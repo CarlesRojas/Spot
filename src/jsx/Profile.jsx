@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Vibrant from "node-vibrant";
+import SongList from "./SongList";
 import "../css/Profile.css";
 import HorizontalList from "./HorizontalList";
 
@@ -52,9 +53,9 @@ export default class Profile extends Component {
             name,
             imageColor: [150, 150, 150],
 
-            albumsHeight: window.innerWidth / 3 + 1.75 * 16, // 1.75 rems
             albumsWidth: (window.innerWidth - 1.5 * 16) / 3, // 1.5 rem
             albumsPadding: 0.5 * 16 // 0.5 rems
+            albumsHeight: (window.innerWidth - 1.5 * 16) / 3 + 7,
         };
 
         // Sub to events when this component is mounted
@@ -116,7 +117,7 @@ export default class Profile extends Component {
     render() {
         const { playbackState } = this.props;
         const { type, id, borderRadius, image, background, name, albumsHeight, albumsWidth, albumsPadding, imageColor } = this.state;
-        const { albumID, artistID } = playbackState;
+        const { albumID } = playbackState;
 
         // Set information
         var selected = artistID === id;
@@ -166,7 +167,9 @@ export default class Profile extends Component {
                     <img className="profile_image" src={image} alt="" style={{ borderRadius: borderRadius, height: width, width: width }} />
                     <p className={"profile_name" + (selected ? " profile_nameSelected" : "")}>{window.prettifyName(name)}</p>
                 </div>
-                <div className="profile_songs" style={{ zIndex: zIndex }} />
+                <div className="profile_songs" style={{ zIndex: zIndex }}>
+                    <SongList songList={window.info.library.songs} playbackState={playbackState} />
+                </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>
                     <button className="profile_shuffle" onClick={() => this.handleShuffleClick()}>

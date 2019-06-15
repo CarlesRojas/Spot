@@ -1,0 +1,14 @@
+.songList_scroll {
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 100%;
+    width: 100%;
+}
+
+.songList_list {
+    position: relative;
+    margin: 0 0.75rem;
+    padding: 0;
+    list-style-type: none;
+}

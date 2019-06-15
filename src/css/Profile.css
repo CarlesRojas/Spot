@@ -38,14 +38,13 @@
 .profile_header {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
+    margin: 1rem 0;
     align-items: center;
 }
 
 .profile_image {
     left: 0;
     right: 0;
-    margin: 2.5% 0 0 0;
     border-radius: 50%;
     pointer-events: none;
     user-select: none;
@@ -73,7 +72,12 @@
 }
 
 .profile_songs {
+    position: relative;
     flex-grow: 1;
+}
+
+.profile_albums {
+    margin: 1rem 0 0 0;
 }
 
 .profile_controls {
