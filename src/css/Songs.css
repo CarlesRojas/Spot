@@ -26,16 +26,8 @@
     text-align: center;
 }
 
-.songs_scroll {
-    overflow-x: hidden;
-    overflow-y: scroll;
+.songs_listWrapper {
+    position: relative;
     flex-grow: 1;
     width: 100%;
-}
-
-.songs_list {
-    position: relative;
-    margin: 0 0.75rem;
-    padding: 0;
-    list-style-type: none;
 }

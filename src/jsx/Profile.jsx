@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Vibrant from "node-vibrant";
+import SongList from "./SongList";
 import "../css/Profile.css";
 import HorizontalList from "./HorizontalList";
 
@@ -10,9 +11,9 @@ export default class Profile extends Component {
         const { type, id } = props;
 
         this.state = {
-            albumsHeight: window.innerWidth / 3 + 1.75 * 16, // 1.75 rems
-            albumsWidth: (window.innerWidth - 1.5 * 16) / 3, // 1.5 rem
-            albumsPadding: 0.5 * 16, // 0.5 rems
+            albumsHeight: (window.innerWidth - 1.5 * 16) / 3 + 7,
+            albumsWidth: (window.innerWidth - 1.5 * 16) / 3,
+            albumsPadding: 0.5 * 16,
             type: type,
             id: id
         };
@@ -39,7 +40,7 @@ export default class Profile extends Component {
     render() {
         const { playbackState } = this.props;
         const { type, id, albumsHeight, albumsWidth, albumsPadding } = this.state;
-        const { albumID, artistID } = playbackState;
+        const { albumID } = playbackState;
 
         // Set information
         switch (type) {
@@ -87,7 +88,14 @@ export default class Profile extends Component {
             let v = new Vibrant(background);
             v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)));
         }
-        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
+        var imageGradient =
+            "linear-gradient(to bottom, rgba(" +
+            this.info.imageColor[0] +
+            ", " +
+            this.info.imageColor[1] +
+            ", " +
+            this.info.imageColor[2] +
+            ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
 
         // Get width of a single artist: window width - scrollbar width - 1.5 rem of margins - 0.8 * 4 rem of padding devided by 2
         var width = window.innerWidth / 3;
@@ -101,7 +109,9 @@ export default class Profile extends Component {
                     <img className="profile_image" src={image} alt="" style={{ borderRadius: borderRadius, height: width, width: width }} />
                     <p className="profile_name">{window.prettifyName(name)}</p>
                 </div>
-                <div className="profile_songs" style={{ zIndex: zIndex }} />
+                <div className="profile_songs" style={{ zIndex: zIndex }}>
+                    <SongList songList={window.info.library.songs} playbackState={playbackState} />
+                </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>
                     <button className="profile_shuffle" onClick={() => this.handleShuffleClick()}>

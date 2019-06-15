@@ -89,6 +89,7 @@ export default class Artists extends Component {
                 selected={id === playbackState["artistID"]}
                 skeleton={skeleton}
                 type={"artist"}
+                noName={false}
             />
         );
     };

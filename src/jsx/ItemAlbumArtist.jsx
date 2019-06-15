@@ -11,7 +11,8 @@ export default class ItemAlbumArtist extends Component {
 
     // Renders the component
     render() {
-        var { id, height, width, padding, name, image, selected, skeleton, type } = this.props;
+        const { noName } = this.props;
+        const { id, height, width, padding, name, image, selected, skeleton, type } = this.props;
 
         // Substract padding from the cover size
         var coverSize = "calc(" + width + "px - " + padding * 2 + "px)";
@@ -43,22 +44,28 @@ export default class ItemAlbumArtist extends Component {
             );
 
         // Skeleton name
-        if (skeleton)
-            var title = (
+        if (noName) var title = null;
+        else if (skeleton) {
+            title = (
                 <p className={"itemAlbumArtist_skeletonName "} style={{ width: width * 0.5 + "px" }}>
                     {"-"}
                 </p>
             );
-        else
+        } else {
             title = (
                 <p className={"itemAlbumArtist_name " + (selected ? " itemAlbumArtist_selectedName" : "")} style={{ width: coverSize, padding: padding / 2 + "px" }}>
                     {window.prettifyName(name)}
                 </p>
             );
+        }
 
         return (
             <div className="itemAlbumArtist_wrapper">
-                <button className="itemAlbumArtist_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: width + "px", padding: padding + "px" }}>
+                <button
+                    className="itemAlbumArtist_button"
+                    onClick={() => this.handleClick(id, skeleton)}
+                    style={{ height: height + "px", width: width + "px", padding: padding + "px" }}
+                >
                     {cover}
                     {title}
                 </button>
