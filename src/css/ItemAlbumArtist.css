@@ -35,7 +35,7 @@
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: white;
+    color: rgba(255, 255, 255, 0.6);
     overflow: hidden;
     pointer-events: none;
     user-select: none;

@@ -1,12 +1,10 @@
 .itemSong_wrapper {
     position: relative;
-    width: calc(100% + 12rem);
     background: none;
 }
 
 .itemSong_button {
     position: relative;
-    left: 9rem;
     outline: 0;
     border: none;
     width: 100%;
@@ -60,7 +58,7 @@
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.5);
     overflow: hidden;
     pointer-events: none;
     user-select: none;
@@ -85,10 +83,7 @@
 
 /*      BUTTONS        */
 
-#itemSong_albumButton,
-#itemSong_artistButton,
-#itemSong_addButton,
-#itemSong_likedButton {
+.itemSong_actionButton {
     position: absolute;
     top: 0;
     outline: 0;
@@ -99,22 +94,6 @@
     background: transparent;
     opacity: 0.3;
     pointer-events: all;
-}
-
-#itemSong_albumButton {
-    left: 0rem;
-}
-
-#itemSong_artistButton {
-    left: 3rem;
-}
-
-#itemSong_addButton {
-    left: 6rem;
-}
-
-#itemSong_likedButton {
-    right: 0;
 }
 
 .itemSong_icon {

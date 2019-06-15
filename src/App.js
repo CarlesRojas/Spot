@@ -242,7 +242,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
@@ -526,9 +526,7 @@ export default class App extends Component {
     // Called when a song is selected
     handleSongSelected = ({ id }) => {
         window.spotifyAPI.play({ uris: ["spotify:track:" + id] }).then(
-            response => {
-                console.log("Done! ", response);
-            },
+            response => {},
             err => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);

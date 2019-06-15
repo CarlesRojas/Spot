@@ -75,7 +75,7 @@ export default class SongList extends Component {
 
     // Create the component from an element in the array
     createItem = (elem, skeleton) => {
-        const { playbackState } = this.props;
+        const { playbackState, actions } = this.props;
         const { rowHeight } = this.state;
         const { id, name, album, artist, albumID, artistID } = elem;
 
@@ -91,6 +91,7 @@ export default class SongList extends Component {
                 artistID={artistID}
                 selected={id === playbackState["songID"]}
                 skeleton={skeleton}
+                actions={actions}
             />
         );
     };

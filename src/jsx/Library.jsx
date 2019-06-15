@@ -48,7 +48,7 @@ export default class Library extends Component {
                 }
             ],
             prevSectionName: null,
-            currSectionName: "artist"
+            currSectionName: "song"
         };
 
         this.info = {
@@ -120,14 +120,7 @@ export default class Library extends Component {
             let v = new Vibrant(playbackState.image);
             v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)));
         }
-        var imageGradient =
-            "linear-gradient(to bottom, rgba(" +
-            this.info.imageColor[0] +
-            ", " +
-            this.info.imageColor[1] +
-            ", " +
-            this.info.imageColor[2] +
-            ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
+        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
 
         return (
             <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>

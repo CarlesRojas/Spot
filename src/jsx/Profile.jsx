@@ -53,9 +53,9 @@ export default class Profile extends Component {
             name,
             imageColor: [150, 150, 150],
 
-            albumsWidth: (window.innerWidth - 1.5 * 16) / 3, // 1.5 rem
-            albumsPadding: 0.5 * 16 // 0.5 rems
             albumsHeight: (window.innerWidth - 1.5 * 16) / 3 + 7,
+            albumsWidth: (window.innerWidth - 1.5 * 16) / 3,
+            albumsPadding: 0.5 * 16
         };
 
         // Sub to events when this component is mounted
@@ -117,12 +117,12 @@ export default class Profile extends Component {
     render() {
         const { playbackState } = this.props;
         const { type, id, borderRadius, image, background, name, albumsHeight, albumsWidth, albumsPadding, imageColor } = this.state;
-        const { albumID } = playbackState;
+        const { albumID, artistID } = playbackState;
 
         // Set information
-        var selected = artistID === id;
         switch (type) {
             case "artist":
+                var selected = artistID === id;
                 var zIndex = 10;
                 if (id in window.info.library.artists) {
                     var albumObjects = Object.keys(window.info.library.artists[id].albums).map(elemID => {
@@ -144,19 +144,45 @@ export default class Profile extends Component {
                     );
                 } else albums = null;
 
+                // Prepare song actions
+                var actions = {
+                    left: {
+                        numberOfActionsAlwaysVisible: 0,
+                        // Items in normal order (first one is in the left)
+                        list: [{ event: "onAlbumSelected", type: "album" }, { event: "onAddClicked", type: "add" }]
+                    },
+                    right: {
+                        numberOfActionsAlwaysVisible: 0,
+                        // Items in reverse order (first one is in the right)
+                        list: [{ event: "onLikeClicked", type: "like" }]
+                    }
+                };
                 break;
 
             case "album":
             default:
+                selected = albumID === id;
                 zIndex = 20;
                 albums = null;
+
+                // Prepare song actions
+                actions = {
+                    left: {
+                        numberOfActionsAlwaysVisible: 0,
+                        // Items in normal order (first one is in the left)
+                        list: [{ event: "onArtistSelected", type: "artist" }, { event: "onAddClicked", type: "add" }]
+                    },
+                    right: {
+                        numberOfActionsAlwaysVisible: 0,
+                        // Items in reverse order (first one is in the right)
+                        list: [{ event: "onLikeClicked", type: "like" }]
+                    }
+                };
                 break;
         }
 
+        // Image gradient for the top of the window
         var imageGradient = "linear-gradient(to bottom, rgba(" + imageColor[0] + ", " + imageColor[1] + ", " + imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
-
-        // Get width of a single artist: window width - scrollbar width - 1.5 rem of margins - 0.8 * 4 rem of padding devided by 2
-        var width = window.innerWidth / 3;
 
         return (
             <div className="profile_wrapper">
@@ -164,11 +190,11 @@ export default class Profile extends Component {
                 <div className="profile_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")", zIndex: zIndex - 5 }} />
                 <div className="profile_gradient" style={{ backgroundImage: imageGradient, zIndex: zIndex - 4 }} />
                 <div className="profile_header" style={{ zIndex: zIndex }}>
-                    <img className="profile_image" src={image} alt="" style={{ borderRadius: borderRadius, height: width, width: width }} />
+                    <img className="profile_image" src={image} alt="" style={{ borderRadius: borderRadius, height: window.innerWidth / 3, width: window.innerWidth / 3 }} />
                     <p className={"profile_name" + (selected ? " profile_nameSelected" : "")}>{window.prettifyName(name)}</p>
                 </div>
                 <div className="profile_songs" style={{ zIndex: zIndex }}>
-                    <SongList songList={window.info.library.songs} playbackState={playbackState} />
+                    <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} />
                 </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>

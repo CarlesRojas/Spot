@@ -13,12 +13,12 @@ export default class Cover extends Component {
 
             // Heights
             normalHeight: window.innerWidth,
-            smallHeight: window.innerWidth / 3.5,
+            smallHeight: window.innerWidth / 4,
 
             // Top positions
             normalTop: window.innerHeight - window.innerWidth,
             currentSongsTop: 0,
-            miniatureTop: window.innerHeight - window.innerWidth / 3.5,
+            miniatureTop: window.innerHeight - window.innerWidth / 4,
 
             // Image color
             imageColor: [150, 150, 150]

@@ -10,15 +10,23 @@ export default class ItemSong extends Component {
     constructor(props) {
         super(props);
 
+        const { actions } = props;
+
+        var hiddenLeftIcons = actions.left.list.length - actions.left.numberOfActionsAlwaysVisible;
+        var hiddenRightIcons = actions.right.list.length - actions.right.numberOfActionsAlwaysVisible;
+        var containerWidth = window.innerWidth - 7 - 1.5 * 16;
+
         this.info = {
-            position: "normal", // "normal", "like", "add"
+            position: "normal", // "normal", "left", "right"
             thresholdSpeed: 10,
             acceleration: 0.1,
 
-            // Top positions
-            normalLeft: -9 * 16,
-            addLeft: 0 * 16,
-            likeLeft: -12 * 16
+            // Left positions & width
+            width: containerWidth + (hiddenLeftIcons + hiddenRightIcons) * 3 * 16,
+            nameWidth: containerWidth - (actions.left.numberOfActionsAlwaysVisible + actions.right.numberOfActionsAlwaysVisible) * 3 * 16,
+            leftLeft: 0 * 16,
+            normalLeft: hiddenLeftIcons * -3 * 16, // 3rems each action
+            rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16
         };
 
         this.state = {
@@ -41,26 +49,9 @@ export default class ItemSong extends Component {
         if (!skeleton) window.PubSub.emit("onSongSelected", { id });
     };
 
-    // Handle the click on the album icon
-    handleAlbumClick = id => {
-        window.PubSub.emit("onAlbumSelected", { id });
-    };
-
-    // Handle the click on the artist icon
-    handleArtistClick = id => {
-        window.PubSub.emit("onArtistSelected", { id });
-    };
-
-    // Handle the click on the album icon
-    handleAddClick = id => {
-        console.log("Add");
-        // CARLES Add functionality
-    };
-
-    // Handle the click on the album icon
-    handleLikeClick = id => {
-        console.log("Like");
-        // CARLES Like functionality
+    // Handle the click on an action
+    handleActionClick = (id, event) => {
+        window.PubSub.emit(event, { id });
     };
 
     //##############################################
@@ -70,7 +61,7 @@ export default class ItemSong extends Component {
     // Snaps to the pos: "normal", "currentSongs", "miniature"
     snapToPosition() {
         let { left, speed, beingTouched, animationIntervalID } = this.state;
-        const { position, acceleration, normalLeft, addLeft, likeLeft } = this.info;
+        const { position, acceleration, normalLeft, leftLeft, rightLeft } = this.info;
 
         switch (position) {
             case "normal":
@@ -114,15 +105,15 @@ export default class ItemSong extends Component {
                     this.setState({ left: normalLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
                 }
                 break;
-            case "like":
+            case "right":
                 // If coming from the left
-                if (!beingTouched && left < likeLeft) {
+                if (!beingTouched && left < rightLeft) {
                     speed -= 10 * acceleration;
                     left += speed;
 
-                    if (left >= likeLeft) {
+                    if (left >= rightLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: likeLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({ left: rightLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
                     }
 
                     // Keep animating
@@ -134,20 +125,20 @@ export default class ItemSong extends Component {
                 // Interrupt animation
                 else {
                     window.clearInterval(animationIntervalID);
-                    this.setState({ left: likeLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                    this.setState({ left: rightLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
                 }
                 break;
-            case "add":
+            case "left":
             default:
                 // If coming from the right
-                if (!beingTouched && left > addLeft) {
+                if (!beingTouched && left > leftLeft) {
                     speed += 10 * acceleration;
                     left += speed;
 
                     // End animation
-                    if (left <= addLeft) {
+                    if (left <= leftLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: addLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({ left: leftLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
                     }
 
                     // Keep animating
@@ -159,7 +150,7 @@ export default class ItemSong extends Component {
                 // Interrupt animation
                 else {
                     window.clearInterval(animationIntervalID);
-                    this.setState({ left: addLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                    this.setState({ left: leftLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
                 }
                 break;
         }
@@ -186,7 +177,7 @@ export default class ItemSong extends Component {
     // Called when the touch moves
     handleMove(event, clientX, clientY) {
         const { beingTouched, firstMove, correctScrollDirection, timeOfLastDragEvent, prevTouchX, touchStartX, touchStartY, originalLeftOffset } = this.state;
-        const { position, normalLeft, addLeft, likeLeft } = this.info;
+        const { position, normalLeft, leftLeft, rightLeft } = this.info;
 
         var deltaXMovement = clientX - touchStartX;
         var deltaYMovement = clientY - touchStartY;
@@ -223,23 +214,23 @@ export default class ItemSong extends Component {
 
             switch (position) {
                 case "normal":
-                    if (deltaX > addLeft) {
-                        deltaX = addLeft;
-                    } else if (deltaX < likeLeft) {
-                        deltaX = likeLeft;
+                    if (deltaX > leftLeft) {
+                        deltaX = leftLeft;
+                    } else if (deltaX < rightLeft) {
+                        deltaX = rightLeft;
                     }
                     break;
-                case "like":
-                    if (deltaX < likeLeft) {
-                        deltaX = likeLeft;
+                case "right":
+                    if (deltaX < rightLeft) {
+                        deltaX = rightLeft;
                     } else if (deltaX > normalLeft) {
                         deltaX = normalLeft;
                     }
                     break;
-                case "add":
+                case "left":
                 default:
-                    if (deltaX > addLeft) {
-                        deltaX = addLeft;
+                    if (deltaX > leftLeft) {
+                        deltaX = leftLeft;
                     } else if (deltaX < normalLeft) {
                         deltaX = normalLeft;
                     }
@@ -258,32 +249,32 @@ export default class ItemSong extends Component {
     // Called when the touch ends
     handleEnd() {
         const { speed, left, beingTouched } = this.state;
-        const { position, normalLeft, addLeft, likeLeft, thresholdSpeed } = this.info;
+        const { position, normalLeft, leftLeft, rightLeft, thresholdSpeed } = this.info;
 
         if (beingTouched) {
             var newPos;
             switch (position) {
                 case "normal":
-                    if (speed < -thresholdSpeed && left <= normalLeft) newPos = "like";
-                    else if (speed > thresholdSpeed) newPos = "add";
+                    if (speed < -thresholdSpeed && left <= normalLeft) newPos = "right";
+                    else if (speed > thresholdSpeed) newPos = "left";
                     else {
-                        if (left >= (normalLeft - addLeft) / 2) newPos = "add";
-                        else if (left <= likeLeft + (normalLeft - likeLeft) / 2) newPos = "like";
+                        if (left >= (normalLeft - leftLeft) / 2) newPos = "left";
+                        else if (left <= rightLeft + (normalLeft - rightLeft) / 2) newPos = "right";
                         else newPos = "normal";
                     }
                     break;
-                case "like":
+                case "right":
                     if (speed > thresholdSpeed) newPos = "normal";
                     else {
-                        if (left <= likeLeft + (normalLeft - likeLeft) / 2) newPos = "like";
+                        if (left <= rightLeft + (normalLeft - rightLeft) / 2) newPos = "right";
                         else newPos = "normal";
                     }
                     break;
-                case "add":
+                case "left":
                 default:
                     if (speed < -thresholdSpeed) newPos = "normal";
                     else {
-                        if (left >= (normalLeft - addLeft) / 2) newPos = "add";
+                        if (left >= (normalLeft - leftLeft) / 2) newPos = "left";
                         else newPos = "normal";
                     }
                     break;
@@ -308,19 +299,66 @@ export default class ItemSong extends Component {
 
     // Renders the component
     render() {
-        const { id, height, name, album, artist, selected, skeleton, albumID, artistID } = this.props;
+        const { id, height, name, album, artist, selected, skeleton, albumID, artistID, actions } = this.props;
+        const { width, nameWidth, normalLeft } = this.info;
         const { left } = this.state;
+
+        // Compute left buttons
+        var leftButtons = actions.left.list.map(({ event, type }, index) => {
+            if (type === "album") {
+                var icon = AlbumIcon;
+                var importantID = albumID;
+            } else if (type === "artist") {
+                icon = ArtistIcon;
+                importantID = artistID;
+            } else if (type === "add") {
+                icon = AddIcon;
+                importantID = id;
+            } else if (type === "like") {
+                icon = LikedIcon;
+                importantID = id;
+            }
+
+            return (
+                <button key={index} className="itemSong_actionButton" onClick={() => this.handleActionClick(importantID, event)} style={{ left: index * 3 + "rem" }}>
+                    <img className="itemSong_icon" src={icon} alt="" />
+                </button>
+            );
+        });
+
+        var rightButtons = actions.right.list.map(({ event, type }, index) => {
+            if (type === "album") {
+                var icon = AlbumIcon;
+                var importantID = albumID;
+            } else if (type === "artist") {
+                icon = ArtistIcon;
+                importantID = artistID;
+            } else if (type === "add") {
+                icon = AddIcon;
+                importantID = id;
+            } else if (type === "like") {
+                icon = LikedIcon;
+                importantID = id;
+            }
+
+            return (
+                <button key={index} className="itemSong_actionButton" onClick={() => this.handleActionClick(importantID, event)} style={{ right: index * 3 + "rem" }}>
+                    <img className="itemSong_icon" src={icon} alt="" />
+                </button>
+            );
+        });
+
         return (
             <div
                 className="itemSong_wrapper"
                 ref={elem => (this.wrapperDOM = elem)}
-                style={{ left: left + "px" }}
+                style={{ left: left + "px", width: width + "px" }}
                 onMouseDown={event => this.handleStart(event, event.clientX, event.clientY)}
                 onMouseMove={event => this.handleMove(event, event.clientX, event.clientY)}
                 onMouseUp={() => this.handleEnd()}
                 onMouseLeave={() => this.handleEnd()}
             >
-                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px" }}>
+                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: -normalLeft + "px" }}>
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>{skeleton ? "-" : window.prettifyName(name)}</p>
                     <p className={"itemSong_info " + (skeleton ? "itemSong_skeletonInfo" : "")}>
                         {skeleton ? "-" : window.prettifyName(album)}
@@ -329,21 +367,8 @@ export default class ItemSong extends Component {
                     </p>
                 </button>
 
-                <button id={"itemSong_albumButton"} onClick={() => this.handleAlbumClick(albumID)}>
-                    <img className="itemSong_icon" src={AlbumIcon} alt="" />
-                </button>
-
-                <button id={"itemSong_artistButton"} onClick={() => this.handleArtistClick(artistID)}>
-                    <img className="itemSong_icon" src={ArtistIcon} alt="" />
-                </button>
-
-                <button id={"itemSong_addButton"} onClick={() => this.handleAddClick(id)}>
-                    <img className="itemSong_icon" src={AddIcon} alt="" />
-                </button>
-
-                <button id={"itemSong_likedButton"} onClick={() => this.handleLikeClick(id)}>
-                    <img className="itemSong_icon" src={LikedIcon} alt="" />
-                </button>
+                {leftButtons}
+                {rightButtons}
             </div>
         );
     }
