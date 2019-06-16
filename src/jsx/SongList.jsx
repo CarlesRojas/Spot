@@ -29,7 +29,7 @@ export default class SongList extends Component {
         this.setState({ listOrder: this.getListOrder(order) });
     };
 
-    // Returns a list of song IDs in the order specified: ["name", "nameReversed", "dateAdded", "dateReversed"]
+    // Returns a list of song IDs in the order specified: ["album", "name", "nameReversed", "dateAdded", "dateReversed"]
     getListOrder = order => {
         const { songList } = this.props;
 
@@ -44,9 +44,12 @@ export default class SongList extends Component {
                 // Reversed so it orders recents first
                 orderA = b["dateAdded"];
                 orderB = a["dateAdded"];
-            } else {
+            } else if (order === "dateReversed") {
                 orderA = a["dateAdded"];
                 orderB = b["dateAdded"];
+            } else {
+                orderA = a["albumID"];
+                orderB = b["albumID"];
             }
 
             // If the first order is the same sort by album name
@@ -57,8 +60,8 @@ export default class SongList extends Component {
                 // If the album is the same sort by track number
                 if (albumA === albumB) {
                     var trackNumA = a["trackNumber"];
-                    var trackNumB = a["trackNumber"];
-                    return trackNumA <= trackNumB ? 1 : -1;
+                    var trackNumB = b["trackNumber"];
+                    return trackNumA >= trackNumB ? 1 : -1;
                 } else {
                     return albumA > albumB ? 1 : -1;
                 }
