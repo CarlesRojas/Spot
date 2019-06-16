@@ -6,7 +6,7 @@ export default class SongList extends Component {
     constructor(props) {
         super(props);
 
-        const { order } = props;
+        const { order, listenToOrderChange } = props;
 
         this.state = {
             scrollTop: 0,
@@ -16,6 +16,7 @@ export default class SongList extends Component {
 
         // Special case for library song list
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
+        if (listenToOrderChange) window.PubSub.sub("onSongOrderChange", this.handleSongOrderChange);
     }
 
     // Called when the library finishes loading
@@ -24,7 +25,11 @@ export default class SongList extends Component {
         this.setState({ listOrder: this.getListOrder(order) });
     };
 
-    // Returns a list of song IDs in the order specified: ["name", "album", "artist", "dateAdded"]
+    handleSongOrderChange = ({ order }) => {
+        this.setState({ listOrder: this.getListOrder(order) });
+    };
+
+    // Returns a list of song IDs in the order specified: ["name", "nameReversed", "dateAdded", "dateReversed"]
     getListOrder = order => {
         const { songList } = this.props;
 
@@ -32,16 +37,16 @@ export default class SongList extends Component {
             if (order === "name") {
                 var orderA = a["name"];
                 var orderB = b["name"];
-            } else if (order === "album") {
-                orderA = a["albumName"];
-                orderB = b["albumName"];
-            } else if (order === "artist") {
-                orderA = a["artistName"];
-                orderB = b["artistName"];
-            } else {
+            } else if (order === "nameReversed") {
+                orderA = b["name"];
+                orderB = a["name"];
+            } else if (order === "dateAdded") {
                 // Reversed so it orders recents first
                 orderA = b["dateAdded"];
                 orderB = a["dateAdded"];
+            } else {
+                orderA = a["dateAdded"];
+                orderB = b["dateAdded"];
             }
 
             // If the first order is the same sort by album name
@@ -134,7 +139,7 @@ export default class SongList extends Component {
 
     // Stop listening to events
     componentWillUnmount() {
-        const { type } = this.props;
-        if (type === "librarySongs") window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.unsub("onSongOrderChange", this.handleSongOrderChange);
     }
 }

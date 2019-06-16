@@ -391,22 +391,19 @@ export default class Cover extends Component {
         }
 
         return (
-            <div
-                className="cover_wrapper"
-                ref={elem => (this.wrapperDOM = elem)}
-                style={{ height: height + "px", top: top + "px" }}
-                onMouseDown={event => this.handleStart(event, event.clientX, event.clientY)}
-                onMouseMove={event => this.handleMove(event, event.clientX, event.clientY)}
-                onMouseUp={() => this.handleEnd()}
-                onMouseLeave={() => this.handleEnd()}
-            >
+            <div className="cover_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ height: height + "px", top: top + "px" }}>
                 <svg className="cover_clip">
                     <defs>
                         <clipPath id="cover_clipPath">
                             <circle id="cover_clip_circle_tl" cx={radius + "px"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_tr" cx={"calc(" + width + "px - " + radius + ")"} cy={radius + "px"} r={radius + "px"} />
                             <circle id="cover_clip_circle_bl" cx={radius + "px"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
-                            <circle id="cover_clip_circle_br" cx={"calc(" + width + "px - " + radius + ")"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
+                            <circle
+                                id="cover_clip_circle_br"
+                                cx={"calc(" + width + "px - " + radius + ")"}
+                                cy={"calc(" + coverHeight + "px - " + radius + ")"}
+                                r={radius + "px"}
+                            />
                             <rect id="cover_clip_rect_h" x="0" y={radius + "px"} width={width + "px"} height={"calc(" + coverHeight + "px - " + radius * 2 + "px)"} />
                             <rect id="cover_clip_rect_v" x={radius + "px"} y="0" width={"calc(" + width + "px - " + radius * 2 + "px)"} height={coverHeight + "px"} />
                         </clipPath>

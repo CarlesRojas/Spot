@@ -43,10 +43,16 @@ export default class Artists extends Component {
             if (order === "name") {
                 var orderA = a["name"];
                 var orderB = b["name"];
-            } else {
+            } else if (order === "nameReversed") {
+                orderA = b["name"];
+                orderB = a["name"];
+            } else if (order === "dateAdded") {
                 // Reversed so it orders recents first
                 orderA = b["dateAdded"];
                 orderB = a["dateAdded"];
+            } else {
+                orderA = a["dateAdded"];
+                orderB = b["dateAdded"];
             }
 
             // If the first order is the same sort by artist name

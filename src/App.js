@@ -6,7 +6,9 @@ import Library from "./jsx/Library";
 import Lyrics from "./jsx/Lyrics";
 import Playing from "./jsx/Playing";
 import Profile from "./jsx/Profile";
+import Popup from "./jsx/Popup";
 import SlideTransition from "./jsx/SlideTransition";
+import FadeTransition from "./jsx/FadeTransition";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
 
@@ -82,7 +84,15 @@ export default class App extends Component {
                 artistSongs: [],
                 artistAlbums: [],
                 artistName: "Unknown Artist",
-                artistImage: "https://i.imgur.com/PgCafqK.png"
+                artistImage: "https://i.imgur.com/PgCafqK.png",
+
+                sortBy: false,
+                sortByCallback: null,
+                sortByItems: [],
+
+                addTo: false,
+                addToCallback: null,
+                addToItems: []
             }
         };
 
@@ -99,6 +109,8 @@ export default class App extends Component {
         window.PubSub.sub("onSongSelected", this.handleSongSelected);
         window.PubSub.sub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.sub("onArtistSelected", this.handleArtistSelected);
+        window.PubSub.sub("onAddToSelected", this.handleAddToSelected);
+        window.PubSub.sub("onSortBySelected", this.handleSortBySelected);
         window.PubSub.sub("onClosePopup", this.handleClosePopup);
     }
 
@@ -250,7 +262,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
@@ -603,6 +615,28 @@ export default class App extends Component {
         this.setState({ popups: newPopups });
     };
 
+    // Called when the user selects the sort option
+    handleSortBySelected = ({ items, callback }) => {
+        var newPopups = { ...this.state.popups };
+
+        newPopups.sortBy = true;
+        newPopups.sortByCallback = callback;
+        newPopups.sortByItems = items;
+
+        this.setState({ popups: newPopups });
+    };
+
+    // Called when the user selects the add to option
+    handleAddToSelected = ({ items, callback }) => {
+        var newPopups = { ...this.state.popups };
+
+        newPopups.addTo = true;
+        newPopups.addToCallback = callback;
+        newPopups.addToItems = items;
+
+        this.setState({ popups: newPopups });
+    };
+
     // Called when the user clicks the back button in a popup. Type: "album", "artist"
     handleClosePopup = ({ type }) => {
         var newPopups = { ...this.state.popups };
@@ -611,9 +645,20 @@ export default class App extends Component {
             case "album":
                 newPopups.album = "";
                 break;
+
             case "artist":
-            default:
                 newPopups.artist = "";
+                break;
+
+            case "sortBy":
+                newPopups.sortBy = false;
+                newPopups.sortByCallback = null;
+                break;
+
+            case "addTo":
+            default:
+                newPopups.addTo = false;
+                newPopups.addToCallback = null;
                 break;
         }
 
@@ -686,6 +731,18 @@ export default class App extends Component {
                                 />
                             </div>
                         </SlideTransition>
+
+                        <FadeTransition isOpen={popups.sortBy} duration={150}>
+                            <div className="app_popupWrapper" style={{ zIndex: 500 }}>
+                                <Popup type={"sortBy"} items={popups.sortByItems} callback={popups.callback} />
+                            </div>
+                        </FadeTransition>
+
+                        <FadeTransition isOpen={popups.addTo} duration={150}>
+                            <div className="app_popupWrapper" style={{ zIndex: 500 }}>
+                                <Popup type={"addTo"} items={popups.addToItems} callback={popups.callback} />
+                            </div>
+                        </FadeTransition>
                     </React.Fragment>
                 );
             }
@@ -732,7 +789,9 @@ export default class App extends Component {
         window.PubSub.unsub("onSongSelected", this.handleSongSelected);
         window.PubSub.unsub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.unsub("onArtistSelected", this.handleArtistSelected);
-        window.PubSub.sub("onClosePopup", this.handleClosePopup);
+        window.PubSub.unsub("onAddToSelected", this.handleAddToSelected);
+        window.PubSub.unsub("onSortBySelected", this.handleSortBySelected);
+        window.PubSub.unsub("onClosePopup", this.handleClosePopup);
     }
 
     //##############################################

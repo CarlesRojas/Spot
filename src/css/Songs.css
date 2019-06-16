@@ -6,11 +6,35 @@
 }
 
 .songs_title {
-    margin: 0.75rem 0;
+    margin: 1rem 0;
+    padding: 0;
     font-size: 1.2rem;
     font-weight: 500;
     text-align: center;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
+
+.songs_sortButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    outline: 0;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.75rem;
+    background: transparent;
+    opacity: 0.3;
+    pointer-events: all;
+}
+
+.songs_icon {
+    transition: transform 0.2s;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
 }
 
 .songs_shuffle {

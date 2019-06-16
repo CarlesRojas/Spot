@@ -33,8 +33,6 @@ export default class Profile extends Component {
             });
         }
 
-        // Get the list of songs
-
         this.state = {
             type,
             id,
@@ -132,7 +130,7 @@ export default class Profile extends Component {
                     <p className={"profile_name" + (selected ? " profile_nameSelected" : "")}>{window.prettifyName(name)}</p>
                 </div>
                 <div className="profile_songs" style={{ zIndex: zIndex }}>
-                    <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" />
+                    <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" listenToOrderChange={false} />
                 </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>

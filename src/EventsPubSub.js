@@ -31,11 +31,12 @@ export default class EventsPubSub {
     onSectionChange:            Called when the section changes                             ({ name })
     onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop })
     
-    
+    onSongOrderChange:          Called when the order in the main songs list changes        ({order})
     onSongSelected:             Called when a song is clicked                               ({id})
     onAlbumSelected:            Called when an album is clicked                             ({id})
     onArtistSelected:           Called when an artist is clicked                            ({id})
-    onAddClicked:               CARLES complete
+    onAddToSelected:            Called when the Add To action is selected                   ({items, callback})
+    onSortBySelected:           Called when the Sort By action is selected                  ({items, callback})
     onLikeClicked:              CARLES complete
 
     onClosePopup:               Called when the back button in a popup is clicked           ({type})

@@ -65,7 +65,7 @@ export default class ItemSong extends Component {
         window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
         this.info.position = "normal";
         this.setState({
-            speed: position === "left" ? -5 : 5,
+            speed: position === "left" ? -10 : 10,
             touchStartX: 0,
             touchStartY: 0,
             beingTouched: false,
@@ -379,16 +379,12 @@ export default class ItemSong extends Component {
         });
 
         return (
-            <div
-                className="itemSong_wrapper"
-                ref={elem => (this.wrapperDOM = elem)}
-                style={{ left: left + "px", width: width + "px" }}
-                onMouseDown={event => this.handleStart(event, event.clientX, event.clientY)}
-                onMouseMove={event => this.handleMove(event, event.clientX, event.clientY)}
-                onMouseUp={() => this.handleEnd()}
-                onMouseLeave={() => this.handleEnd()}
-            >
-                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}>
+            <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ left: left + "px", width: width + "px" }}>
+                <button
+                    className="itemSong_button"
+                    onClick={() => this.handleClick(id, skeleton)}
+                    style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}
+                >
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
                         {skeleton ? "-" : window.prettifyName(name)}
                     </p>
