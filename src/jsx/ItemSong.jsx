@@ -57,6 +57,7 @@ export default class ItemSong extends Component {
         window.PubSub.emit(event, { id });
     };
 
+    // Handle the actions having to close
     handleCloseSongActions = id => {
         const { position } = this.info;
 
@@ -74,6 +75,9 @@ export default class ItemSong extends Component {
             animationIntervalID: window.setInterval(this.snapToPosition.bind(this), 15)
         });
     };
+
+    // Handle the song being eliminated from the list
+    handleDeleteSong = () => {};
 
     //##############################################
     //       SWIPE CONTROLS
@@ -380,11 +384,7 @@ export default class ItemSong extends Component {
 
         return (
             <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ left: left + "px", width: width + "px" }}>
-                <button
-                    className="itemSong_button"
-                    onClick={() => this.handleClick(id, skeleton)}
-                    style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}
-                >
+                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}>
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
                         {skeleton ? "-" : window.prettifyName(name)}
                     </p>
