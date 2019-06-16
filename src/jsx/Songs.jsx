@@ -37,70 +37,10 @@ export default class Songs extends Component {
                     name: "Date Added",
                     callbackName: "dateAdded",
                     selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
                 }
             ];
 
-            window.PubSub.emit("onSortBySelected", { items, callback: this.handleSortChange });
+            window.PubSub.emit("onSortBySelected", { items, callback: this.handleSortChange.bind(this) });
         }
     };
 
@@ -124,10 +64,7 @@ export default class Songs extends Component {
 
     // Called when a different sort order is selected from the popup
     handleSortChange = order => {
-        this.setState({
-            sortRotation: 0,
-            order
-        });
+        this.setState({ sortRotation: 0, order });
         window.PubSub.emit("onSongOrderChange", { order });
     };
 
@@ -157,7 +94,7 @@ export default class Songs extends Component {
             <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
                 <p className="songs_title">Liked Songs</p>
                 <div className="songs_sortButton" ref={elem => (this.buttonDOM = elem)}>
-                    <img className="songs_icon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
+                    <img className="songs_sortIcon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
                 </div>
                 <div className="songs_listWrapper">
                     <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} order={"dateAdded"} listenToOrderChange={true} />

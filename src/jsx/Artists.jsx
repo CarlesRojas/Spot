@@ -2,11 +2,17 @@ import React, { Component } from "react";
 import ItemAlbumArtist from "./ItemAlbumArtist";
 import "../css/Artists.css";
 
+import SortIcon from "../resources/sort.svg";
+
 export default class Artists extends Component {
     constructor(props) {
         super(props);
 
         const { height } = props;
+
+        this.info = {
+            longPressTimeout: null
+        };
 
         this.state = {
             availableHeight: height,
@@ -16,20 +22,20 @@ export default class Artists extends Component {
             // Get width of a single artist: window width - scrollbar width - 1.5 rem of margins
             artistWidth: (window.innerWidth - 7 - 1.5 * 16) / 2,
             artistPadding: 0.8 * 16,
-            order: null
+
+            // Order
+            sortRotation: 0,
+            order: "dateAdded",
+            listOrder: this.getListOrder("dateAdded")
         };
 
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
-
-        if (!window.info.artistList || window.info.artistList.length <= 0) window.info.artistList = this.getListOrder("dateAdded");
     }
 
     // Called when the library finishes loading
     handleLibraryLoaded = () => {
-        if (!window.info.artistList || window.info.artistList.length <= 0) {
-            window.info.artistList = this.getListOrder("dateAdded");
-            this.forceUpdate();
-        }
+        const { order } = this.state;
+        this.setState({ listOrder: this.getListOrder(order) });
     };
 
     // Handle when the list is scrolled
@@ -37,7 +43,56 @@ export default class Artists extends Component {
         this.setState({ scrollTop: event.target.scrollTop });
     };
 
-    // Returns a list of song IDs in the order specified: ["name", "dateAdded"]
+    // Called when the sort icon is clicked
+    handleSortClick = () => {
+        const { order } = this.state;
+
+        // Is the timeout is still there, then it is a short click
+        if (this.info.longPressTimeout) {
+            clearTimeout(this.info.longPressTimeout);
+            this.info.longPressTimeout = null;
+
+            var items = [
+                {
+                    name: "Name",
+                    callbackName: "name",
+                    selected: order === "name" || order === "nameReversed"
+                },
+                {
+                    name: "Date Added",
+                    callbackName: "dateAdded",
+                    selected: order === "dateAdded" || order === "dateAddedReversed"
+                }
+            ];
+
+            window.PubSub.emit("onSortBySelected", { items, callback: this.handleSortChange.bind(this) });
+        }
+    };
+
+    // Called when the sort icon is long pressed
+    handleSortLongPress = () => {
+        const { sortRotation, order } = this.state;
+        clearTimeout(this.info.longPressTimeout);
+        this.info.longPressTimeout = null;
+
+        if (order === "name") var newOrder = "nameReversed";
+        else if (order === "nameReversed") newOrder = "name";
+        else if (order === "dateAdded") newOrder = "dateAddedReversed";
+        else if (order === "dateAddedReversed") newOrder = "dateAdded";
+
+        this.setState({
+            sortRotation: sortRotation === 0 ? 180 : 0,
+            order: newOrder,
+            listOrder: this.getListOrder(newOrder)
+        });
+    };
+
+    // Called when a different sort order is selected from the popup
+    handleSortChange = order => {
+        this.setState({ sortRotation: 0, order, listOrder: this.getListOrder(order) });
+    };
+
+    // Returns a list of song IDs in the order specified: ["name", "nameReversed", "dateAdded", "dateReversed"]
     getListOrder = order => {
         function orderFunction(a, b, order) {
             if (order === "name") {
@@ -103,10 +158,11 @@ export default class Artists extends Component {
     // Renders the component
     render() {
         const { imageGradient } = this.props;
-        const { availableHeight, scrollTop, rowHeight } = this.state;
-        const list = window.info.artistList;
+        const { availableHeight, scrollTop, rowHeight, listOrder, sortRotation } = this.state;
+        const list = listOrder;
         const numRows = list.length > 0 ? Math.ceil(list.length / 2) : 20;
         const margin = (window.innerWidth / 100) * 5;
+        const sortTransform = "rotate( " + sortRotation + "deg)";
 
         const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) * 2 - 10);
         const endIndex = Math.min(startIndex + Math.ceil(availableHeight / rowHeight) * 2 + 20, numRows * 2);
@@ -131,6 +187,9 @@ export default class Artists extends Component {
         return (
             <div className="artists_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
                 <p className="artists_title">Liked Artists</p>
+                <div className="artists_sortButton" ref={elem => (this.buttonDOM = elem)}>
+                    <img className="artists_icon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
+                </div>
                 <div className="artists_scroll" onScroll={this.handleScroll}>
                     <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
                         <ol className="artists_list">{renderedItems}</ol>
@@ -140,8 +199,16 @@ export default class Artists extends Component {
         );
     }
 
+    // Called when the component mounts
+    componentDidMount() {
+        this.buttonDOM.addEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
+        this.buttonDOM.addEventListener("touchend", () => this.handleSortClick());
+    }
+
     // Stop listening to events
     componentWillUnmount() {
         window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
+        this.buttonDOM.removeEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
+        this.buttonDOM.removeEventListener("touchend", () => this.handleSortClick());
     }
 }

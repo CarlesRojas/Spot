@@ -15,6 +15,28 @@
     pointer-events: none;
 }
 
+.artists_sortButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    outline: 0;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.75rem;
+    background: transparent;
+    opacity: 0.3;
+    pointer-events: all;
+}
+
+.artists_sortIcon {
+    transition: transform 0.2s;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+}
+
 .artists_scroll {
     overflow-x: hidden;
     overflow-y: scroll;

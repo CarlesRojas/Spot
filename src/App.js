@@ -8,7 +8,6 @@ import Playing from "./jsx/Playing";
 import Profile from "./jsx/Profile";
 import Popup from "./jsx/Popup";
 import SlideTransition from "./jsx/SlideTransition";
-import FadeTransition from "./jsx/FadeTransition";
 import SpotifyWebApi from "spotify-web-api-js";
 window.spotifyAPI = new SpotifyWebApi();
 
@@ -732,17 +731,17 @@ export default class App extends Component {
                             </div>
                         </SlideTransition>
 
-                        <FadeTransition isOpen={popups.sortBy} duration={150}>
+                        <SlideTransition isOpen={popups.sortBy} duration={150} vertical={true} moveTopToBottom={popups.sortBy}>
                             <div className="app_popupWrapper" style={{ zIndex: 500 }}>
-                                <Popup type={"sortBy"} items={popups.sortByItems} callback={popups.callback} />
+                                <Popup type={"sortBy"} items={popups.sortByItems} callback={popups.sortByCallback} />
                             </div>
-                        </FadeTransition>
+                        </SlideTransition>
 
-                        <FadeTransition isOpen={popups.addTo} duration={150}>
+                        <SlideTransition isOpen={popups.addTo} duration={150} vertical={true} moveTopToBottom={popups.addTo}>
                             <div className="app_popupWrapper" style={{ zIndex: 500 }}>
-                                <Popup type={"addTo"} items={popups.addToItems} callback={popups.callback} />
+                                <Popup type={"addTo"} items={popups.addToItems} callback={popups.addToCallback} />
                             </div>
-                        </FadeTransition>
+                        </SlideTransition>
                     </React.Fragment>
                 );
             }

@@ -29,7 +29,7 @@
     pointer-events: all;
 }
 
-.songs_icon {
+.songs_sortIcon {
     transition: transform 0.2s;
     width: 100%;
     height: 100%;
