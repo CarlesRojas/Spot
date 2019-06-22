@@ -112,6 +112,7 @@ export default class App extends Component {
         window.PubSub.sub("onSortBySelected", this.handleSortBySelected);
         window.PubSub.sub("onClosePopup", this.handleClosePopup);
         window.PubSub.sub("onSongLikeClicked", this.handleSongLikeClicked);
+        window.PubSub.sub("onProfileLikeClicked", this.handleProfileLikeClicked);
     }
 
     //##############################################
@@ -262,7 +263,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
@@ -679,12 +680,12 @@ export default class App extends Component {
 
         // Delete the songs from the artist that are not in the library anymore
         var songsInArtist = Object.keys(newPopups.artistSongs);
-        for (var i = 0; i < Object.keys(newPopups.artistSongs).length; ++i)
+        for (i = 0; i < Object.keys(newPopups.artistSongs).length; ++i)
             if (!(songsInArtist[i] in window.info.library.songs)) delete newPopups.artistSongs[songsInArtist[i]];
 
         // Delete the albums from the artist that are not in the library anymore
         var albumsInArtist = Object.keys(newPopups.artistAlbums);
-        for (var i = 0; i < Object.keys(newPopups.artistAlbums).length; ++i)
+        for (i = 0; i < Object.keys(newPopups.artistAlbums).length; ++i)
             if (!(albumsInArtist[i] in window.info.library.albums)) delete newPopups.artistAlbums[albumsInArtist[i]];
 
         // Close the album popup if there are no more songs in it
@@ -696,10 +697,12 @@ export default class App extends Component {
         this.setState({ popups: newPopups });
     };
 
-    // Called when the user liked / unlikes a song
+    // Called when the user likes / unlikes a song
     handleSongLikeClicked = ({ id }) => {
+        console.log("Deleting song: ", id);
+
         // Remove song from library
-        if (true || id in window.info.library.songs) {
+        if (id in window.info.library.songs) {
             var albumID = window.info.library.songs[id].albumID;
             var artistID = window.info.library.songs[id].artistID;
             delete window.info.library.songs[id];
@@ -734,6 +737,25 @@ export default class App extends Component {
 
         // Add to library CARLES
         else {
+        }
+    };
+
+    // Called when the user likes / unlikes an album/artist
+    handleProfileLikeClicked = ({ id, type }) => {
+        // Delete the album from the library
+        if (type === "album") {
+            if (id in window.info.library.albums) {
+                const albumSongs = Object.keys(window.info.library.albums[id].songs);
+                for (var i = 0; i < albumSongs.length; ++i) this.handleSongLikeClicked({ id: albumSongs[i] });
+            }
+        }
+
+        // Delete the artist from the library
+        else {
+            if (id in window.info.library.artists) {
+                const artistSongs = Object.keys(window.info.library.artists[id].songs);
+                for (i = 0; i < artistSongs.length; ++i) this.handleSongLikeClicked({ id: artistSongs[i] });
+            }
         }
     };
 
@@ -873,6 +895,7 @@ export default class App extends Component {
         window.PubSub.unsub("onSortBySelected", this.handleSortBySelected);
         window.PubSub.unsub("onClosePopup", this.handleClosePopup);
         window.PubSub.unsub("onSongLikeClicked", this.handleSongLikeClicked);
+        window.PubSub.unsub("onProfileLikeClicked", this.handleProfileLikeClicked);
     }
 
     //##############################################

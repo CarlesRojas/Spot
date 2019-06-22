@@ -4,6 +4,9 @@ import SongList from "./SongList";
 import "../css/Profile.css";
 import HorizontalList from "./HorizontalList";
 
+import LikedIcon from "../resources/liked.svg";
+import AddIcon from "../resources/add.svg";
+
 export default class Profile extends Component {
     constructor(props) {
         super(props);
@@ -52,6 +55,13 @@ export default class Profile extends Component {
     handleShuffleClick = () => {
         // CARLES Shuffle
         console.log("Shuffle");
+    };
+
+    // Handle the click on an action
+    handleActionClick = event => {
+        const { type, id } = this.state;
+
+        window.PubSub.emit(event, { id, type });
     };
 
     // Handle a click on the back button
@@ -108,7 +118,7 @@ export default class Profile extends Component {
             left: {
                 numberOfActionsAlwaysVisible: 0,
                 // Items in normal order (first one is in the left)
-                list: [{ event: "onAddClicked", type: "add" }]
+                list: [{ event: "onAddToSelected", type: "add" }]
             },
             right: {
                 numberOfActionsAlwaysVisible: 0,
@@ -118,7 +128,11 @@ export default class Profile extends Component {
         };
 
         // Image gradient for the top of the window
-        var imageGradient = "linear-gradient(to bottom, rgba(" + imageColor[0] + ", " + imageColor[1] + ", " + imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
+        var imageGradient =
+            "linear-gradient(to bottom, rgba(" + imageColor[0] + ", " + imageColor[1] + ", " + imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
+
+        // Height of the album cover
+        var imageHeight = window.innerWidth / 3;
 
         return (
             <div className="profile_wrapper">
@@ -126,8 +140,30 @@ export default class Profile extends Component {
                 <div className="profile_backgroundBlurred" style={{ backgroundImage: "url(" + background + ")", zIndex: zIndex - 5 }} />
                 <div className="profile_gradient" style={{ backgroundImage: imageGradient, zIndex: zIndex - 4 }} />
                 <div className="profile_header" style={{ zIndex: zIndex }}>
-                    <img className="profile_image" src={image} alt="" style={{ borderRadius: borderRadius, height: window.innerWidth / 3, width: window.innerWidth / 3 }} />
+                    <img
+                        className="profile_image"
+                        src={image}
+                        alt=""
+                        style={{ borderRadius: borderRadius, height: imageHeight, width: imageHeight }}
+                    />
+
                     <p className={"profile_name" + (selected ? " profile_nameSelected" : "")}>{window.prettifyName(name)}</p>
+
+                    <button
+                        className="profile_actionButton profile_action_like"
+                        onClick={() => this.handleActionClick("onProfileLikeClicked")}
+                        style={{ top: "calc(" + imageHeight / 2 + "px - 1.5rem)" }}
+                    >
+                        <img className="profile_icon" src={LikedIcon} alt="" />
+                    </button>
+
+                    <button
+                        className="profile_actionButton profile_action_add"
+                        onClick={() => this.handleActionClick("onAddToSelected")}
+                        style={{ top: "calc(" + imageHeight / 2 + "px - 1.5rem)" }}
+                    >
+                        <img className="profile_icon" src={AddIcon} alt="" />
+                    </button>
                 </div>
                 <div className="profile_songs" style={{ zIndex: zIndex }}>
                     <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" listenToOrderChange={false} />

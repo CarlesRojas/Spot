@@ -81,7 +81,11 @@ export default class Songs extends Component {
             left: {
                 numberOfActionsAlwaysVisible: 0,
                 // Items in normal order (first one is in the left)
-                list: [{ event: "onAlbumSelected", type: "album" }, { event: "onArtistSelected", type: "artist" }, { event: "onAddClicked", type: "add" }]
+                list: [
+                    { event: "onAlbumSelected", type: "album" },
+                    { event: "onArtistSelected", type: "artist" },
+                    { event: "onAddToSelected", type: "add" }
+                ]
             },
             right: {
                 numberOfActionsAlwaysVisible: 0,
@@ -91,13 +95,22 @@ export default class Songs extends Component {
         };
 
         return (
-            <div className="songs_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
+            <div
+                className="songs_wrapper"
+                style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}
+            >
                 <p className="songs_title">Liked Songs</p>
                 <div className="songs_sortButton" ref={elem => (this.buttonDOM = elem)}>
                     <img className="songs_sortIcon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
                 </div>
                 <div className="songs_listWrapper">
-                    <SongList songList={window.info.library.songs} playbackState={playbackState} actions={actions} order={"dateAdded"} listenToOrderChange={true} />
+                    <SongList
+                        songList={window.info.library.songs}
+                        playbackState={playbackState}
+                        actions={actions}
+                        order={"dateAdded"}
+                        listenToOrderChange={true}
+                    />
                 </div>
                 <button className="songs_shuffle">SHUFFLE</button>
             </div>

@@ -37,7 +37,8 @@ export default class EventsPubSub {
     onArtistSelected:           Called when an artist is clicked                            ({id})
     onAddToSelected:            Called when the Add To action is selected                   ({items, callback})
     onSortBySelected:           Called when the Sort By action is selected                  ({items, callback})
-    onSongLikeClicked:          CARLES when the like button is called in a song             ({id})
+    onSongLikeClicked:          Called when the like button is called in a song             ({id})
+    onProfileLikeClicked:       Called when the like button is called in an album/artist    ({id})
 
     onClosePopup:               Called when the back button in a popup is clicked           ({type})
     onCloseSongActions:         Called when the song item position should reset             ({id})          id: id of the song that sends the signal (only in some cases, null otherwise)
