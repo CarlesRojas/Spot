@@ -113,7 +113,7 @@ export default class Profile extends Component {
             right: {
                 numberOfActionsAlwaysVisible: 0,
                 // Items in reverse order (first one is in the right)
-                list: [{ event: "onLikeClicked", type: "like" }]
+                list: [{ event: "onSongLikeClicked", type: "like" }]
             }
         };
 

@@ -16,6 +16,7 @@ export default class SongList extends Component {
 
         // Special case for library song list
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.sub("onSongDeleted", this.handleLibraryLoaded);
         if (listenToOrderChange) window.PubSub.sub("onSongOrderChange", this.handleSongOrderChange);
     }
 
@@ -25,6 +26,7 @@ export default class SongList extends Component {
         this.setState({ listOrder: this.getListOrder(order) });
     };
 
+    // Handle a change in order in the list
     handleSongOrderChange = ({ order }) => {
         this.setState({ listOrder: this.getListOrder(order) });
     };
@@ -81,6 +83,14 @@ export default class SongList extends Component {
         this.setState({ scrollTop: event.target.scrollTop });
     };
 
+    // Handle a song being deleted
+    handleDeleteSong = id => {
+        var list = [...this.state.listOrder];
+        var index = list.indexOf(id);
+        if (index > -1) list.splice(index, 1);
+        this.setState({ listOrder: list });
+    };
+
     // Create the component from an element in the array
     createItem = (elem, skeleton) => {
         const { playbackState, actions } = this.props;
@@ -100,6 +110,7 @@ export default class SongList extends Component {
                 selected={id === playbackState["songID"]}
                 skeleton={skeleton}
                 actions={actions}
+                onDelete={() => this.handleDeleteSong(id)}
             />
         );
     };
@@ -143,6 +154,7 @@ export default class SongList extends Component {
     // Stop listening to events
     componentWillUnmount() {
         window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.unsub("onSongDeleted", this.handleLibraryLoaded);
         window.PubSub.unsub("onSongOrderChange", this.handleSongOrderChange);
     }
 }

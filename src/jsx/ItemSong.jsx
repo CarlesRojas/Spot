@@ -54,6 +54,11 @@ export default class ItemSong extends Component {
 
     // Handle the click on an action
     handleActionClick = (id, event) => {
+        const { onDelete } = this.props;
+
+        // Delete from the list if unliked
+        if (event === "onSongLikeClicked") onDelete();
+
         window.PubSub.emit(event, { id });
     };
 
@@ -384,7 +389,11 @@ export default class ItemSong extends Component {
 
         return (
             <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ left: left + "px", width: width + "px" }}>
-                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}>
+                <button
+                    className="itemSong_button"
+                    onClick={() => this.handleClick(id, skeleton)}
+                    style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}
+                >
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
                         {skeleton ? "-" : window.prettifyName(name)}
                     </p>
@@ -410,9 +419,12 @@ export default class ItemSong extends Component {
 
     // Called when the component unmounts
     componentWillUnmount() {
+        let { animationIntervalID } = this.state;
+
         this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
         this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
         this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
         window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
+        window.clearInterval(animationIntervalID);
     }
 }

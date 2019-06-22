@@ -30,6 +30,7 @@ export default class Artists extends Component {
         };
 
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.sub("onArtistDeleted", this.handleLibraryLoaded);
     }
 
     // Called when the library finishes loading
@@ -208,6 +209,7 @@ export default class Artists extends Component {
     // Stop listening to events
     componentWillUnmount() {
         window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
+        window.PubSub.unsub("onArtistDeleted", this.handleLibraryLoaded);
         this.buttonDOM.removeEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
         this.buttonDOM.removeEventListener("touchend", () => this.handleSortClick());
     }

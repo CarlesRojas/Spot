@@ -75,13 +75,13 @@ export default class App extends Component {
             // Popups
             popups: {
                 album: "",
-                albumSongs: [],
+                albumSongs: {},
                 albumName: "Unknown Album",
                 albumImage: "https://i.imgur.com/iajaWIN.png",
 
                 artist: "",
-                artistSongs: [],
-                artistAlbums: [],
+                artistSongs: {},
+                artistAlbums: {},
                 artistName: "Unknown Artist",
                 artistImage: "https://i.imgur.com/PgCafqK.png",
 
@@ -111,6 +111,7 @@ export default class App extends Component {
         window.PubSub.sub("onAddToSelected", this.handleAddToSelected);
         window.PubSub.sub("onSortBySelected", this.handleSortBySelected);
         window.PubSub.sub("onClosePopup", this.handleClosePopup);
+        window.PubSub.sub("onSongLikeClicked", this.handleSongLikeClicked);
     }
 
     //##############################################
@@ -261,7 +262,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
@@ -300,7 +301,10 @@ export default class App extends Component {
 
                         if (response.is_playing) {
                             if (!window.info.progressIntervalID) {
-                                window.info.progressIntervalID = window.setInterval(this.updateSongProgress.bind(this), window.info.updateProgressInterval);
+                                window.info.progressIntervalID = window.setInterval(
+                                    this.updateSongProgress.bind(this),
+                                    window.info.updateProgressInterval
+                                );
                             }
                         } else {
                             if (window.info.progressIntervalID) {
@@ -664,6 +668,75 @@ export default class App extends Component {
         this.setState({ popups: newPopups });
     };
 
+    // Removes deleted songs and albums from the popups
+    updatePopups = () => {
+        var newPopups = { ...this.state.popups };
+
+        // Delete the songs from the album that are not in the library anymore
+        var songsInAlbum = Object.keys(newPopups.albumSongs);
+        for (var i = 0; i < Object.keys(newPopups.albumSongs).length; ++i)
+            if (!(songsInAlbum[i] in window.info.library.songs)) delete newPopups.albumSongs[songsInAlbum[i]];
+
+        // Delete the songs from the artist that are not in the library anymore
+        var songsInArtist = Object.keys(newPopups.artistSongs);
+        for (var i = 0; i < Object.keys(newPopups.artistSongs).length; ++i)
+            if (!(songsInArtist[i] in window.info.library.songs)) delete newPopups.artistSongs[songsInArtist[i]];
+
+        // Delete the albums from the artist that are not in the library anymore
+        var albumsInArtist = Object.keys(newPopups.artistAlbums);
+        for (var i = 0; i < Object.keys(newPopups.artistAlbums).length; ++i)
+            if (!(albumsInArtist[i] in window.info.library.albums)) delete newPopups.artistAlbums[albumsInArtist[i]];
+
+        // Close the album popup if there are no more songs in it
+        if (Object.keys(newPopups.albumSongs).length <= 0) newPopups.album = "";
+
+        // Close the artist popup if there are no more songs in it
+        if (Object.keys(newPopups.artistSongs).length <= 0) newPopups.artist = "";
+
+        this.setState({ popups: newPopups });
+    };
+
+    // Called when the user liked / unlikes a song
+    handleSongLikeClicked = ({ id }) => {
+        // Remove song from library
+        if (true || id in window.info.library.songs) {
+            var albumID = window.info.library.songs[id].albumID;
+            var artistID = window.info.library.songs[id].artistID;
+            delete window.info.library.songs[id];
+
+            // Delete album or just the song inside it
+            if (albumID in window.info.library.albums && id in window.info.library.albums[albumID].songs) {
+                if (Object.keys(window.info.library.albums[albumID].songs).length <= 1) {
+                    delete window.info.library.albums[albumID];
+                    window.PubSub.emit("onAlbumDeleted");
+
+                    // Delete artist or remove the album from inside it
+                    if (artistID in window.info.library.artists && albumID in window.info.library.artists[artistID].albums) {
+                        if (Object.keys(window.info.library.artists[artistID].albums).length <= 1) {
+                            delete window.info.library.artists[artistID];
+                            window.PubSub.emit("onArtistDeleted");
+                        } else delete window.info.library.artists[artistID].albums[albumID];
+                    }
+                } else delete window.info.library.albums[albumID].songs[id];
+            }
+
+            // Delete artist or just the song inside it
+            if (artistID in window.info.library.artists && id in window.info.library.artists[artistID].songs) {
+                if (Object.keys(window.info.library.artists[artistID].songs).length <= 1) {
+                    delete window.info.library.artists[artistID];
+                    window.PubSub.emit("onArtistDeleted");
+                } else delete window.info.library.artists[artistID].songs[id];
+            }
+
+            this.updatePopups();
+            window.PubSub.emit("onSongDeleted");
+        }
+
+        // Add to library CARLES
+        else {
+        }
+    };
+
     //##############################################
     //       REACT CICLE METHODS
     //##############################################
@@ -682,7 +755,15 @@ export default class App extends Component {
             const artistName = artistID in window.info.library.artists ? window.info.library.artists[artistID].name : "";
 
             background = image;
-            cover = <Cover playing={playing} song={this.prettifyName(name)} albumCover={image} artist={this.prettifyName(artistName)} percentage={percentage} />;
+            cover = (
+                <Cover
+                    playing={playing}
+                    song={this.prettifyName(name)}
+                    albumCover={image}
+                    artist={this.prettifyName(artistName)}
+                    percentage={percentage}
+                />
+            );
         }
 
         // In mobile
@@ -791,6 +872,7 @@ export default class App extends Component {
         window.PubSub.unsub("onAddToSelected", this.handleAddToSelected);
         window.PubSub.unsub("onSortBySelected", this.handleSortBySelected);
         window.PubSub.unsub("onClosePopup", this.handleClosePopup);
+        window.PubSub.unsub("onSongLikeClicked", this.handleSongLikeClicked);
     }
 
     //##############################################

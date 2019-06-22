@@ -56,9 +56,6 @@ export default class Popup extends Component {
                 <div className="popup_mainArea">
                     <p className="popup_title">{name}</p>
                     <div className="popup_itemList">{itemElems}</div>
-                    <button className="popup_back" onClick={() => this.handleBackClick()}>
-                        Back
-                    </button>
                 </div>
                 <div className="popup_closeArea" ref={elem => (this.wrapperDOM = elem)} />
             </div>
