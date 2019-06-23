@@ -73,10 +73,12 @@ export default class Library extends Component {
     };
 
     // Handle a change in the cover position
-    handleVerticalSwipe = ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop }) => {
+    handleVerticalSwipe = ({ normalTop, miniatureTop, currentTop }) => {
         // Function to map a number to another range
         function mapNumber(number, inputMin, inputMax, outputMin, outputMax) {
-            return ((number - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin) + outputMin;
+            return (
+                ((number - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin) + outputMin
+            );
         }
 
         // Hide if the library is not open
@@ -91,7 +93,11 @@ export default class Library extends Component {
 
         // Fade the library in or out
         else {
-            this.setState({ libraryOpen: true, libraryHeight: currentTop, libraryOpacity: mapNumber(currentTop, normalTop, miniatureTop, 0, 1) });
+            this.setState({
+                libraryOpen: true,
+                libraryHeight: currentTop,
+                libraryOpacity: mapNumber(currentTop, normalTop, miniatureTop, 0, 1)
+            });
         }
     };
 
@@ -118,37 +124,74 @@ export default class Library extends Component {
         // Extract the color from the currently playing image
         if (playbackState.image) {
             let v = new Vibrant(playbackState.image);
-            v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)));
+            v.getPalette((err, palette) =>
+                !err ? (this.info.imageColor = palette.Vibrant.getRgb()) : console.log(err)
+            );
         }
-        var imageGradient = "linear-gradient(to bottom, rgba(" + this.info.imageColor[0] + ", " + this.info.imageColor[1] + ", " + this.info.imageColor[2] + ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
+        var imageGradient =
+            "linear-gradient(to bottom, rgba(" +
+            this.info.imageColor[0] +
+            ", " +
+            this.info.imageColor[1] +
+            ", " +
+            this.info.imageColor[2] +
+            ", 0.3) 0%, rgba(0, 0, 0, 0) 5rem)";
 
         return (
-            <div className="library_wrapper" style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}>
+            <div
+                className="library_wrapper"
+                style={{ height: libraryHeight, opacity: libraryOpacity, display: display }}
+            >
                 <div className="library_sectionsWrapper" style={{ left: left }}>
                     <div className="library_sectionWrapper">
-                        <Songs playbackState={playbackState} imageGradient={imageGradient} isOpen={currSectionName === "song"} />
+                        <Songs
+                            playbackState={playbackState}
+                            imageGradient={imageGradient}
+                            isOpen={currSectionName === "song"}
+                        />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Albums playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "album"} />
+                        <Albums
+                            playbackState={playbackState}
+                            imageGradient={imageGradient}
+                            isOpen={currSectionName === "album"}
+                        />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Artists playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "artist"} />
+                        <Artists
+                            playbackState={playbackState}
+                            imageGradient={imageGradient}
+                            isOpen={currSectionName === "artist"}
+                        />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Playlists playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "playlist"} />
+                        <Playlists
+                            playbackState={playbackState}
+                            imageGradient={imageGradient}
+                            isOpen={currSectionName === "playlist"}
+                        />
                     </div>
 
                     <div className="library_sectionWrapper">
-                        <Search playbackState={playbackState} height={libraryHeight} imageGradient={imageGradient} isOpen={currSectionName === "search"} />
+                        <Search
+                            playbackState={playbackState}
+                            imageGradient={imageGradient}
+                            isOpen={currSectionName === "search"}
+                        />
                     </div>
                 </div>
 
                 <div className="library_navBar">
                     {this.state.sections.map(section => (
-                        <NavItem key={section.name} name={section.name} icon={section.icon} selected={section.name === this.state.currSectionName} />
+                        <NavItem
+                            key={section.name}
+                            name={section.name}
+                            icon={section.icon}
+                            selected={section.name === this.state.currSectionName}
+                        />
                     ))}
                 </div>
             </div>
@@ -167,7 +210,10 @@ class NavItem extends Component {
     render() {
         const { name, icon, selected } = this.props;
         return (
-            <button className={"navItem_button" + (selected ? " navItem_buttonSelected" : "")} onClick={() => window.PubSub.emit("onSectionChange", { name: name })}>
+            <button
+                className={"navItem_button" + (selected ? " navItem_buttonSelected" : "")}
+                onClick={() => window.PubSub.emit("onSectionChange", { name: name })}
+            >
                 <img className="navItem_icon" src={icon} alt="" />
             </button>
         );

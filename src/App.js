@@ -263,7 +263,7 @@ export default class App extends Component {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
-        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: false }).then(
+        window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
             response => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();

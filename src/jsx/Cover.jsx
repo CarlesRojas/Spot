@@ -59,7 +59,15 @@ export default class Cover extends Component {
     // Snaps to the pos: "normal", "currentSongs", "miniature"
     snapToPosition() {
         let { height, top, speed, beingTouched, animationIntervalID } = this.state;
-        const { position, acceleration, normalHeight, smallHeight, normalTop, miniatureTop, currentSongsTop } = this.info;
+        const {
+            position,
+            acceleration,
+            normalHeight,
+            smallHeight,
+            normalTop,
+            miniatureTop,
+            currentSongsTop
+        } = this.info;
 
         // Emit info about the current position
         function emitInfo(height, top, info) {
@@ -92,7 +100,13 @@ export default class Cover extends Component {
                     if (top >= normalTop) {
                         window.clearInterval(animationIntervalID);
                         emitInfo(normalHeight, normalTop, this.info);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                        this.setState({
+                            height: normalHeight,
+                            top: normalTop,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalTopOffset: 0
+                        });
                     }
 
                     // Kepp animating
@@ -113,7 +127,13 @@ export default class Cover extends Component {
                         // End animation
                         window.clearInterval(animationIntervalID);
                         emitInfo(normalHeight, normalTop, this.info);
-                        this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                        this.setState({
+                            height: normalHeight,
+                            top: normalTop,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalTopOffset: 0
+                        });
                     }
 
                     // Kepp animating
@@ -127,7 +147,13 @@ export default class Cover extends Component {
                 else {
                     window.clearInterval(animationIntervalID);
                     emitInfo(normalHeight, normalTop, this.info);
-                    this.setState({ height: normalHeight, top: normalTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                    this.setState({
+                        height: normalHeight,
+                        top: normalTop,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalTopOffset: 0
+                    });
                 }
                 break;
             case "currentSongs":
@@ -149,7 +175,13 @@ export default class Cover extends Component {
                     if (top === currentSongsTop && height === smallHeight) {
                         window.clearInterval(animationIntervalID);
                         emitInfo(smallHeight, currentSongsTop, this.info);
-                        this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                        this.setState({
+                            height: smallHeight,
+                            top: currentSongsTop,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalTopOffset: 0
+                        });
                     }
 
                     // Kepp animating
@@ -163,7 +195,13 @@ export default class Cover extends Component {
                 else {
                     window.clearInterval(animationIntervalID);
                     emitInfo(smallHeight, currentSongsTop, this.info);
-                    this.setState({ height: smallHeight, top: currentSongsTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                    this.setState({
+                        height: smallHeight,
+                        top: currentSongsTop,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalTopOffset: 0
+                    });
                 }
                 break;
             case "miniature":
@@ -178,7 +216,13 @@ export default class Cover extends Component {
                     if (top >= miniatureTop) {
                         window.clearInterval(animationIntervalID);
                         emitInfo(smallHeight, miniatureTop, this.info);
-                        this.setState({ height: smallHeight, top: miniatureTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                        this.setState({
+                            height: smallHeight,
+                            top: miniatureTop,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalTopOffset: 0
+                        });
                     }
 
                     // Kepp animating
@@ -192,7 +236,13 @@ export default class Cover extends Component {
                 else {
                     window.clearInterval(animationIntervalID);
                     emitInfo(smallHeight, miniatureTop, this.info);
-                    this.setState({ height: smallHeight, top: miniatureTop, speed: 0, animationIntervalID: null, originalTopOffset: 0 });
+                    this.setState({
+                        height: smallHeight,
+                        top: miniatureTop,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalTopOffset: 0
+                    });
                 }
                 break;
         }
@@ -200,7 +250,7 @@ export default class Cover extends Component {
 
     // Called when the touch starts
     handleStart(event, clientX, clientY) {
-        //event.preventDefault();
+        event.preventDefault();
         const { top, animationIntervalID } = this.state;
 
         if (animationIntervalID !== null) window.clearInterval(animationIntervalID);
@@ -217,8 +267,21 @@ export default class Cover extends Component {
 
     // Called when the touch moves
     handleMove(event, clientX, clientY) {
-        const { beingTouched, timeOfLastDragEvent, prevTouchY, touchStartY, originalTopOffset } = this.state;
-        const { position, normalHeight, smallHeight, normalTop, miniatureTop, currentSongsTop } = this.info;
+        const {
+            beingTouched,
+            timeOfLastDragEvent,
+            prevTouchY,
+            touchStartY,
+            originalTopOffset
+        } = this.state;
+        const {
+            position,
+            normalHeight,
+            smallHeight,
+            normalTop,
+            miniatureTop,
+            currentSongsTop
+        } = this.info;
 
         if (beingTouched) {
             const touchY = clientY;
@@ -231,7 +294,10 @@ export default class Cover extends Component {
             switch (position) {
                 case "normal":
                     if (deltaY < currentSongsTop) {
-                        height = Math.max(normalHeight - Math.abs(deltaY - currentSongsTop), smallHeight);
+                        height = Math.max(
+                            normalHeight - Math.abs(deltaY - currentSongsTop),
+                            smallHeight
+                        );
                         deltaY = currentSongsTop;
                     } else if (deltaY > miniatureTop) {
                         height = smallHeight;
@@ -267,7 +333,10 @@ export default class Cover extends Component {
                         height = smallHeight;
                         deltaY = miniatureTop;
                     } else {
-                        height = Math.min(smallHeight + Math.abs(deltaY - miniatureTop), normalHeight);
+                        height = Math.min(
+                            smallHeight + Math.abs(deltaY - miniatureTop),
+                            normalHeight
+                        );
                     }
                     break;
             }
@@ -293,7 +362,7 @@ export default class Cover extends Component {
     }
 
     // Called when the touch ends
-    handleEnd() {
+    handleEnd(event) {
         const { speed, height, top } = this.state;
         const { position, normalTop, miniatureTop, thresholdSpeed } = this.info;
 
@@ -304,7 +373,8 @@ export default class Cover extends Component {
                 else if (speed < -thresholdSpeed) newPos = "currentSongs";
                 else {
                     if (top <= 0) newPos = "currentSongs";
-                    else if (top > normalTop && top - normalTop > (miniatureTop - normalTop) / 2) newPos = "miniature";
+                    else if (top > normalTop && top - normalTop > (miniatureTop - normalTop) / 2)
+                        newPos = "miniature";
                     else newPos = "normal";
                 }
                 break;
@@ -367,11 +437,14 @@ export default class Cover extends Component {
         var clipPath = "polygon(0% 0%, " + percentage + "% 0%, " + percentage + "% 100%, 0% 100%)";
 
         // Gradient color according to luminance
-        var imageTimeGradient = "linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%)";
+        var imageTimeGradient =
+            "linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%)";
         if (albumCover) {
             let v = new Vibrant(albumCover);
             // Options: "DarkMuted", "DarkVibrant", "LightMuted", "LightVibrant", "Muted", "Vibrant"
-            v.getPalette((err, palette) => (!err ? (this.info.imageColor = palette.DarkVibrant.getRgb()) : console.log(err)));
+            v.getPalette((err, palette) =>
+                !err ? (this.info.imageColor = palette.DarkVibrant.getRgb()) : console.log(err)
+            );
 
             const { imageColor } = this.info;
             imageTimeGradient =
@@ -391,29 +464,75 @@ export default class Cover extends Component {
         }
 
         return (
-            <div className="cover_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ height: height + "px", top: top + "px" }}>
+            <div
+                className="cover_wrapper"
+                ref={elem => (this.wrapperDOM = elem)}
+                style={{ height: height + "px", top: top + "px" }}
+            >
                 <svg className="cover_clip">
                     <defs>
                         <clipPath id="cover_clipPath">
-                            <circle id="cover_clip_circle_tl" cx={radius + "px"} cy={radius + "px"} r={radius + "px"} />
-                            <circle id="cover_clip_circle_tr" cx={"calc(" + width + "px - " + radius + ")"} cy={radius + "px"} r={radius + "px"} />
-                            <circle id="cover_clip_circle_bl" cx={radius + "px"} cy={"calc(" + coverHeight + "px - " + radius + ")"} r={radius + "px"} />
+                            <circle
+                                id="cover_clip_circle_tl"
+                                cx={radius + "px"}
+                                cy={radius + "px"}
+                                r={radius + "px"}
+                            />
+                            <circle
+                                id="cover_clip_circle_tr"
+                                cx={"calc(" + width + "px - " + radius + ")"}
+                                cy={radius + "px"}
+                                r={radius + "px"}
+                            />
+                            <circle
+                                id="cover_clip_circle_bl"
+                                cx={radius + "px"}
+                                cy={"calc(" + coverHeight + "px - " + radius + ")"}
+                                r={radius + "px"}
+                            />
                             <circle
                                 id="cover_clip_circle_br"
                                 cx={"calc(" + width + "px - " + radius + ")"}
                                 cy={"calc(" + coverHeight + "px - " + radius + ")"}
                                 r={radius + "px"}
                             />
-                            <rect id="cover_clip_rect_h" x="0" y={radius + "px"} width={width + "px"} height={"calc(" + coverHeight + "px - " + radius * 2 + "px)"} />
-                            <rect id="cover_clip_rect_v" x={radius + "px"} y="0" width={"calc(" + width + "px - " + radius * 2 + "px)"} height={coverHeight + "px"} />
+                            <rect
+                                id="cover_clip_rect_h"
+                                x="0"
+                                y={radius + "px"}
+                                width={width + "px"}
+                                height={"calc(" + coverHeight + "px - " + radius * 2 + "px)"}
+                            />
+                            <rect
+                                id="cover_clip_rect_v"
+                                x={radius + "px"}
+                                y="0"
+                                width={"calc(" + width + "px - " + radius * 2 + "px)"}
+                                height={coverHeight + "px"}
+                            />
                         </clipPath>
                     </defs>
                 </svg>
 
-                <div className="cover_art" style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}>
-                    <img className="cover_image" src={albumCover} onClick={() => this.handleCoverClick()} alt="" style={{ top: imageTop + "px", filter: imageFilter }} />
-                    <div id="cover_titleGradient" style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }} />
-                    <div id="cover_timeGradient" style={{ clipPath: clipPath, backgroundImage: imageTimeGradient }} />
+                <div
+                    className="cover_art"
+                    style={{ height: coverHeight + "px", margin: margin / 2 + "px" }}
+                >
+                    <img
+                        className="cover_image"
+                        src={albumCover}
+                        onClick={() => this.handleCoverClick()}
+                        alt=""
+                        style={{ top: imageTop + "px", filter: imageFilter }}
+                    />
+                    <div
+                        id="cover_titleGradient"
+                        style={{ height: normalHeight - margin + "px", bottom: margin / 2 + "px" }}
+                    />
+                    <div
+                        id="cover_timeGradient"
+                        style={{ clipPath: clipPath, backgroundImage: imageTimeGradient }}
+                    />
                     <div className="cover_infoWrapper" style={{ height: smallHeight + "px" }}>
                         <p className="cover_song">{song}</p>
                         <p className="cover_artist">{artist}</p>
@@ -425,15 +544,55 @@ export default class Cover extends Component {
 
     // Called when the component mounts
     componentDidMount() {
-        this.wrapperDOM.addEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
-        this.wrapperDOM.addEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
-        this.wrapperDOM.addEventListener("touchend", () => this.handleEnd());
+        this.wrapperDOM.addEventListener(
+            "touchstart",
+            event =>
+                this.handleStart(
+                    event,
+                    event.targetTouches[0].clientX,
+                    event.targetTouches[0].clientY
+                ),
+            { passive: false }
+        );
+        this.wrapperDOM.addEventListener(
+            "touchmove",
+            event =>
+                this.handleMove(
+                    event,
+                    event.targetTouches[0].clientX,
+                    event.targetTouches[0].clientY
+                ),
+            { passive: false }
+        );
+        this.wrapperDOM.addEventListener("touchend", event => this.handleEnd(event), {
+            passive: false
+        });
     }
 
     // Called when the component unmounts
     componentWillUnmount() {
-        this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
-        this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
-        this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
+        this.wrapperDOM.removeEventListener(
+            "touchstart",
+            event =>
+                this.handleStart(
+                    event,
+                    event.targetTouches[0].clientX,
+                    event.targetTouches[0].clientY
+                ),
+            { passive: false }
+        );
+        this.wrapperDOM.removeEventListener(
+            "touchmove",
+            event =>
+                this.handleMove(
+                    event,
+                    event.targetTouches[0].clientX,
+                    event.targetTouches[0].clientY
+                ),
+            { passive: false }
+        );
+        this.wrapperDOM.removeEventListener("touchend", event => this.handleEnd(event), {
+            passive: false
+        });
     }
 }

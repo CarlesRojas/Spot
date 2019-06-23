@@ -8,14 +8,11 @@ export default class Albums extends Component {
     constructor(props) {
         super(props);
 
-        const { height } = props;
-
         this.info = {
             longPressTimeout: null
         };
 
         this.state = {
-            availableHeight: height,
             scrollTop: 0,
             rowHeight: window.innerWidth / 1.75,
 
@@ -66,7 +63,10 @@ export default class Albums extends Component {
                 }
             ];
 
-            window.PubSub.emit("onSortBySelected", { items, callback: this.handleSortChange.bind(this) });
+            window.PubSub.emit("onSortBySelected", {
+                items,
+                callback: this.handleSortChange.bind(this)
+            });
         }
     };
 
@@ -159,14 +159,14 @@ export default class Albums extends Component {
     // Renders the component
     render() {
         const { imageGradient } = this.props;
-        const { availableHeight, scrollTop, rowHeight, listOrder, sortRotation } = this.state;
+        const { scrollTop, rowHeight, listOrder, sortRotation } = this.state;
         const list = listOrder;
         const numRows = list.length > 0 ? Math.ceil(list.length / 2) : 20;
         const margin = (window.innerWidth / 100) * 5;
         const sortTransform = "rotate( " + sortRotation + "deg)";
 
         const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) * 2 - 10);
-        const endIndex = Math.min(startIndex + Math.ceil(availableHeight / rowHeight) * 2 + 20, numRows * 2);
+        const endIndex = Math.min(startIndex + 30, numRows * 2);
         const totalHeight = rowHeight * numRows;
         const paddingTop = (startIndex * rowHeight) / 2;
 
@@ -178,7 +178,9 @@ export default class Albums extends Component {
         while (index < endIndex) {
             if (index < list.length) {
                 var { albumID, name, image } = window.info.library.albums[list[index]];
-                renderedItems.push(this.createItem({ id: albumID, name: name, image: image }, false));
+                renderedItems.push(
+                    this.createItem({ id: albumID, name: name, image: image }, false)
+                );
             } else if (list.length <= 0) {
                 renderedItems.push(this.createItem({ id: index, name: "", image: "" }, true));
             }
@@ -186,10 +188,22 @@ export default class Albums extends Component {
         }
 
         return (
-            <div className="albums_wrapper" style={{ padding: "0 0 " + margin / 2 + "px 0", height: "calc(100% - " + margin / 2 + "px)", backgroundImage: imageGradient }}>
+            <div
+                className="albums_wrapper"
+                style={{
+                    padding: "0 0 " + margin / 2 + "px 0",
+                    height: "calc(100% - " + margin / 2 + "px)",
+                    backgroundImage: imageGradient
+                }}
+            >
                 <p className="albums_title">Liked Albums</p>
                 <div className="albums_sortButton" ref={elem => (this.buttonDOM = elem)}>
-                    <img className="albums_icon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
+                    <img
+                        className="albums_icon"
+                        src={SortIcon}
+                        alt=""
+                        style={{ transform: sortTransform }}
+                    />
                 </div>
                 <div className="albums_scroll" onScroll={this.handleScroll}>
                     <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
@@ -202,7 +216,10 @@ export default class Albums extends Component {
 
     // Called when the component mounts
     componentDidMount() {
-        this.buttonDOM.addEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
+        this.buttonDOM.addEventListener(
+            "touchstart",
+            () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500))
+        );
         this.buttonDOM.addEventListener("touchend", () => this.handleSortClick());
     }
 
@@ -210,7 +227,10 @@ export default class Albums extends Component {
     componentWillUnmount() {
         window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
         window.PubSub.unsub("onAlbumDeleted", this.handleLibraryLoaded);
-        this.buttonDOM.removeEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
+        this.buttonDOM.removeEventListener(
+            "touchstart",
+            () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500))
+        );
         this.buttonDOM.removeEventListener("touchend", () => this.handleSortClick());
     }
 }
