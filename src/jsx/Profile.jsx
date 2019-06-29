@@ -61,6 +61,18 @@ export default class Profile extends Component {
     handleActionClick = event => {
         const { type, id } = this.state;
 
+        // Open the add to popup
+        if (event === "onAddToClicked") {
+            if (type === "album" && window.info.library.albums && id in window.info.library.albums) {
+                var songIDs = Object.keys(window.info.library.albums[id].songs);
+            } else if (window.info.library.artists && id in window.info.library.artists) {
+                songIDs = Object.keys(window.info.library.artists[id].songs);
+            } else return;
+
+            window.PubSub.emit(event, { ids: songIDs });
+            return;
+        }
+
         window.PubSub.emit(event, { id, type });
     };
 
@@ -118,7 +130,7 @@ export default class Profile extends Component {
             left: {
                 numberOfActionsAlwaysVisible: 0,
                 // Items in normal order (first one is in the left)
-                list: [{ event: "onAddToSelected", type: "add" }]
+                list: [{ event: "onAddToClicked", type: "add" }]
             },
             right: {
                 numberOfActionsAlwaysVisible: 0,
@@ -159,7 +171,7 @@ export default class Profile extends Component {
 
                     <button
                         className="profile_actionButton profile_action_add"
-                        onClick={() => this.handleActionClick("onAddToSelected")}
+                        onClick={() => this.handleActionClick("onAddToClicked")}
                         style={{ top: "calc(" + imageHeight / 2 + "px - 1.5rem)" }}
                     >
                         <img className="profile_icon" src={AddIcon} alt="" />

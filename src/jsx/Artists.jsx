@@ -63,7 +63,7 @@ export default class Artists extends Component {
                 }
             ];
 
-            window.PubSub.emit("onSortBySelected", {
+            window.PubSub.emit("onSortByClicked", {
                 items,
                 callback: this.handleSortChange.bind(this)
             });
@@ -178,9 +178,7 @@ export default class Artists extends Component {
         while (index < endIndex) {
             if (index < list.length) {
                 var { artistID, name, image } = window.info.library.artists[list[index]];
-                renderedItems.push(
-                    this.createItem({ id: artistID, name: name, image: image }, false)
-                );
+                renderedItems.push(this.createItem({ id: artistID, name: name, image: image }, false));
             } else if (list.length <= 0) {
                 renderedItems.push(this.createItem({ id: index, name: "", image: "" }, true));
             }
@@ -198,12 +196,7 @@ export default class Artists extends Component {
             >
                 <p className="artists_title">Liked Artists</p>
                 <div className="artists_sortButton" ref={elem => (this.buttonDOM = elem)}>
-                    <img
-                        className="artists_icon"
-                        src={SortIcon}
-                        alt=""
-                        style={{ transform: sortTransform }}
-                    />
+                    <img className="artists_icon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
                 </div>
                 <div className="artists_scroll" onScroll={this.handleScroll}>
                     <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
@@ -216,10 +209,7 @@ export default class Artists extends Component {
 
     // Called when the component mounts
     componentDidMount() {
-        this.buttonDOM.addEventListener(
-            "touchstart",
-            () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500))
-        );
+        this.buttonDOM.addEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
         this.buttonDOM.addEventListener("touchend", () => this.handleSortClick());
     }
 
@@ -227,10 +217,7 @@ export default class Artists extends Component {
     componentWillUnmount() {
         window.PubSub.unsub("onLibraryLoaded", this.handleLibraryLoaded);
         window.PubSub.unsub("onArtistDeleted", this.handleLibraryLoaded);
-        this.buttonDOM.removeEventListener(
-            "touchstart",
-            () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500))
-        );
+        this.buttonDOM.removeEventListener("touchstart", () => (this.info.longPressTimeout = setTimeout(() => this.handleSortLongPress(), 500)));
         this.buttonDOM.removeEventListener("touchend", () => this.handleSortClick());
     }
 }

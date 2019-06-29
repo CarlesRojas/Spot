@@ -56,6 +56,12 @@ export default class ItemSong extends Component {
     handleActionClick = (id, event) => {
         const { onDelete } = this.props;
 
+        // Open the add to popup
+        if (event === "onAddToClicked") {
+            window.PubSub.emit(event, { ids: [id] });
+            return;
+        }
+
         // Delete from the list if unliked
         if (event === "onSongLikeClicked") onDelete();
 
@@ -103,7 +109,12 @@ export default class ItemSong extends Component {
                     // End animation
                     if (left <= normalLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: normalLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({
+                            left: normalLeft,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalLeftOffset: 0
+                        });
                     }
 
                     // Keep animating
@@ -120,7 +131,12 @@ export default class ItemSong extends Component {
                     // End animation
                     if (left >= normalLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: normalLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({
+                            left: normalLeft,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalLeftOffset: 0
+                        });
                     }
 
                     // Keep animating
@@ -132,7 +148,12 @@ export default class ItemSong extends Component {
                 // Interrupt animation
                 else {
                     window.clearInterval(animationIntervalID);
-                    this.setState({ left: normalLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                    this.setState({
+                        left: normalLeft,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalLeftOffset: 0
+                    });
                 }
                 break;
             case "right":
@@ -143,7 +164,12 @@ export default class ItemSong extends Component {
 
                     if (left >= rightLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: rightLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({
+                            left: rightLeft,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalLeftOffset: 0
+                        });
                     }
 
                     // Keep animating
@@ -155,7 +181,12 @@ export default class ItemSong extends Component {
                 // Interrupt animation
                 else {
                     window.clearInterval(animationIntervalID);
-                    this.setState({ left: rightLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                    this.setState({
+                        left: rightLeft,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalLeftOffset: 0
+                    });
                 }
                 break;
             case "left":
@@ -168,7 +199,12 @@ export default class ItemSong extends Component {
                     // End animation
                     if (left <= leftLeft) {
                         window.clearInterval(animationIntervalID);
-                        this.setState({ left: leftLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                        this.setState({
+                            left: leftLeft,
+                            speed: 0,
+                            animationIntervalID: null,
+                            originalLeftOffset: 0
+                        });
                     }
 
                     // Keep animating
@@ -180,7 +216,12 @@ export default class ItemSong extends Component {
                 // Interrupt animation
                 else {
                     window.clearInterval(animationIntervalID);
-                    this.setState({ left: leftLeft, speed: 0, animationIntervalID: null, originalLeftOffset: 0 });
+                    this.setState({
+                        left: leftLeft,
+                        speed: 0,
+                        animationIntervalID: null,
+                        originalLeftOffset: 0
+                    });
                 }
                 break;
         }
@@ -206,7 +247,16 @@ export default class ItemSong extends Component {
 
     // Called when the touch moves
     handleMove(event, clientX, clientY) {
-        const { beingTouched, firstMove, correctScrollDirection, timeOfLastDragEvent, prevTouchX, touchStartX, touchStartY, originalLeftOffset } = this.state;
+        const {
+            beingTouched,
+            firstMove,
+            correctScrollDirection,
+            timeOfLastDragEvent,
+            prevTouchX,
+            touchStartX,
+            touchStartY,
+            originalLeftOffset
+        } = this.state;
         const { position, normalLeft, leftLeft, rightLeft } = this.info;
 
         var deltaXMovement = clientX - touchStartX;
@@ -357,9 +407,13 @@ export default class ItemSong extends Component {
                 icon = LikedIcon;
                 importantID = id;
             }
-
             return (
-                <button key={index} className="itemSong_actionButton" onClick={() => this.handleActionClick(importantID, event)} style={{ left: index * 3 + "rem" }}>
+                <button
+                    key={index}
+                    className="itemSong_actionButton"
+                    onClick={() => this.handleActionClick(importantID, event)}
+                    style={{ left: index * 3 + "rem" }}
+                >
                     <img className="itemSong_icon" src={icon} alt="" />
                 </button>
             );
@@ -381,7 +435,12 @@ export default class ItemSong extends Component {
             }
 
             return (
-                <button key={index} className="itemSong_actionButton" onClick={() => this.handleActionClick(importantID, event)} style={{ right: index * 3 + "rem" }}>
+                <button
+                    key={index}
+                    className="itemSong_actionButton"
+                    onClick={() => this.handleActionClick(importantID, event)}
+                    style={{ right: index * 3 + "rem" }}
+                >
                     <img className="itemSong_icon" src={icon} alt="" />
                 </button>
             );
@@ -412,8 +471,14 @@ export default class ItemSong extends Component {
 
     // Called when the component mounts
     componentDidMount() {
-        this.wrapperDOM.addEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
-        this.wrapperDOM.addEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.addEventListener("touchstart", event =>
+            this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)
+        );
+        this.wrapperDOM.addEventListener(
+            "touchmove",
+            event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY),
+            { passive: false }
+        );
         this.wrapperDOM.addEventListener("touchend", () => this.handleEnd());
     }
 
@@ -421,8 +486,14 @@ export default class ItemSong extends Component {
     componentWillUnmount() {
         let { animationIntervalID } = this.state;
 
-        this.wrapperDOM.removeEventListener("touchstart", event => this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY));
-        this.wrapperDOM.removeEventListener("touchmove", event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY), { passive: false });
+        this.wrapperDOM.removeEventListener("touchstart", event =>
+            this.handleStart(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY)
+        );
+        this.wrapperDOM.removeEventListener(
+            "touchmove",
+            event => this.handleMove(event, event.targetTouches[0].clientX, event.targetTouches[0].clientY),
+            { passive: false }
+        );
         this.wrapperDOM.removeEventListener("touchend", () => this.handleEnd());
         window.PubSub.unsub("onCloseSongActions", this.handleCloseSongActions);
         window.clearInterval(animationIntervalID);

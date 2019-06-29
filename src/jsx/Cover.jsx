@@ -250,7 +250,6 @@ export default class Cover extends Component {
 
     // Called when the touch starts
     handleStart(event, clientX, clientY) {
-        event.preventDefault();
         const { top, animationIntervalID } = this.state;
 
         if (animationIntervalID !== null) window.clearInterval(animationIntervalID);

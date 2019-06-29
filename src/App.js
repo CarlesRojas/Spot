@@ -91,7 +91,8 @@ export default class App extends Component {
 
                 addTo: false,
                 addToCallback: null,
-                addToItems: []
+                addToItems: [],
+                addToIds: []
             }
         };
 
@@ -108,8 +109,8 @@ export default class App extends Component {
         window.PubSub.sub("onSongSelected", this.handleSongSelected);
         window.PubSub.sub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.sub("onArtistSelected", this.handleArtistSelected);
-        window.PubSub.sub("onAddToSelected", this.handleAddToSelected);
-        window.PubSub.sub("onSortBySelected", this.handleSortBySelected);
+        window.PubSub.sub("onAddToClicked", this.handleAddToClicked);
+        window.PubSub.sub("onSortByClicked", this.handleSortByClicked);
         window.PubSub.sub("onClosePopup", this.handleClosePopup);
         window.PubSub.sub("onSongLikeClicked", this.handleSongLikeClicked);
         window.PubSub.sub("onProfileLikeClicked", this.handleProfileLikeClicked);
@@ -529,6 +530,25 @@ export default class App extends Component {
         );
     };
 
+    // Removes the ids from Spotify, using its API
+    removeSongsFromSpotify = ids => {
+        var chunk = 5;
+        for (var i = 0; i < ids.length; i += chunk) {
+            var current = ids.slice(i, i + chunk);
+            window.spotifyAPI.removeFromMySavedTracks(current).then(
+                response => {},
+                err => {
+                    if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                    else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                    else console.error(err);
+                }
+            );
+        }
+    };
+
+    // Adds the songs in ids to the playlist named 'name'
+    addToPlaylist = (name, ids) => {};
+
     // Remove extra info from a song, album or artist name
     prettifyName = name => {
         const separators = [" - ", "(", ":", ",", " /"];
@@ -620,7 +640,7 @@ export default class App extends Component {
     };
 
     // Called when the user selects the sort option
-    handleSortBySelected = ({ items, callback }) => {
+    handleSortByClicked = ({ items, callback }) => {
         var newPopups = { ...this.state.popups };
 
         newPopups.sortBy = true;
@@ -631,14 +651,41 @@ export default class App extends Component {
     };
 
     // Called when the user selects the add to option
-    handleAddToSelected = ({ items, callback }) => {
+    handleAddToClicked = ({ ids }) => {
         var newPopups = { ...this.state.popups };
 
-        newPopups.addTo = true;
-        newPopups.addToCallback = callback;
-        newPopups.addToItems = items;
+        var items = [
+            {
+                name: "Queue",
+                callbackName: "Spot Queue",
+                selected: true
+            },
+            {
+                name: "Current",
+                callbackName: "Current",
+                selected: false
+            },
+            {
+                name: "Pop",
+                callbackName: "Pop",
+                selected: false
+            }
+        ];
 
+        newPopups.addTo = true;
+        newPopups.addToCallback = this.handlePopupPlaylistClicked.bind(this);
+        newPopups.addToItems = items;
+        newPopups.addToIds = ids;
+
+        console.log(ids);
         this.setState({ popups: newPopups });
+    };
+
+    // Callback function for when a playlist is selected in the Add To popup
+    handlePopupPlaylistClicked = name => {
+        const { addToIds } = this.state.popups;
+
+        this.addToPlaylist(name, addToIds);
     };
 
     // Called when the user clicks the back button in a popup. Type: "album", "artist"
@@ -657,12 +704,15 @@ export default class App extends Component {
             case "sortBy":
                 newPopups.sortBy = false;
                 newPopups.sortByCallback = null;
+                newPopups.sortByItems = [];
                 break;
 
             case "addTo":
             default:
                 newPopups.addTo = false;
                 newPopups.addToCallback = null;
+                newPopups.addToItems = [];
+                newPopups.addToIds = null;
                 break;
         }
 
@@ -699,8 +749,44 @@ export default class App extends Component {
 
     // Called when the user likes / unlikes a song
     handleSongLikeClicked = ({ id }) => {
-        console.log("Deleting song: ", id);
+        // Remove song from library
+        if (id in window.info.library.songs) {
+            this.removeSongFromLibrary(id);
+            this.removeSongsFromSpotify([id]);
+        }
 
+        // Add to library CARLES
+        else {
+        }
+    };
+
+    // Called when the user likes / unlikes an album/artist
+    handleProfileLikeClicked = ({ id, type }) => {
+        // Delete the album from the library
+        if (type === "album") {
+            if (id in window.info.library.albums) {
+                const albumSongs = Object.keys(window.info.library.albums[id].songs);
+                for (var i = 0; i < albumSongs.length; ++i) {
+                    this.removeSongFromLibrary(albumSongs[i]);
+                }
+                this.removeSongsFromSpotify(albumSongs);
+            }
+        }
+
+        // Delete the artist from the library
+        else {
+            if (id in window.info.library.artists) {
+                const artistSongs = Object.keys(window.info.library.artists[id].songs);
+                for (i = 0; i < artistSongs.length; ++i) {
+                    this.removeSongFromLibrary(artistSongs[i]);
+                }
+                this.removeSongsFromSpotify(artistSongs);
+            }
+        }
+    };
+
+    // Removes the id from the local library
+    removeSongFromLibrary = id => {
         // Remove song from library
         if (id in window.info.library.songs) {
             var albumID = window.info.library.songs[id].albumID;
@@ -733,29 +819,6 @@ export default class App extends Component {
 
             this.updatePopups();
             window.PubSub.emit("onSongDeleted");
-        }
-
-        // Add to library CARLES
-        else {
-        }
-    };
-
-    // Called when the user likes / unlikes an album/artist
-    handleProfileLikeClicked = ({ id, type }) => {
-        // Delete the album from the library
-        if (type === "album") {
-            if (id in window.info.library.albums) {
-                const albumSongs = Object.keys(window.info.library.albums[id].songs);
-                for (var i = 0; i < albumSongs.length; ++i) this.handleSongLikeClicked({ id: albumSongs[i] });
-            }
-        }
-
-        // Delete the artist from the library
-        else {
-            if (id in window.info.library.artists) {
-                const artistSongs = Object.keys(window.info.library.artists[id].songs);
-                for (i = 0; i < artistSongs.length; ++i) this.handleSongLikeClicked({ id: artistSongs[i] });
-            }
         }
     };
 
@@ -835,13 +898,13 @@ export default class App extends Component {
                         </SlideTransition>
 
                         <SlideTransition isOpen={popups.sortBy} duration={150} vertical={true} moveTopToBottom={popups.sortBy}>
-                            <div className="app_popupWrapper" style={{ zIndex: 500 }}>
+                            <div className="app_popupWrapper">
                                 <Popup type={"sortBy"} items={popups.sortByItems} callback={popups.sortByCallback} />
                             </div>
                         </SlideTransition>
 
                         <SlideTransition isOpen={popups.addTo} duration={150} vertical={true} moveTopToBottom={popups.addTo}>
-                            <div className="app_popupWrapper" style={{ zIndex: 500 }}>
+                            <div className="app_popupWrapper">
                                 <Popup type={"addTo"} items={popups.addToItems} callback={popups.addToCallback} />
                             </div>
                         </SlideTransition>
@@ -891,8 +954,8 @@ export default class App extends Component {
         window.PubSub.unsub("onSongSelected", this.handleSongSelected);
         window.PubSub.unsub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.unsub("onArtistSelected", this.handleArtistSelected);
-        window.PubSub.unsub("onAddToSelected", this.handleAddToSelected);
-        window.PubSub.unsub("onSortBySelected", this.handleSortBySelected);
+        window.PubSub.unsub("onAddToClicked", this.handleAddToClicked);
+        window.PubSub.unsub("onSortByClicked", this.handleSortByClicked);
         window.PubSub.unsub("onClosePopup", this.handleClosePopup);
         window.PubSub.unsub("onSongLikeClicked", this.handleSongLikeClicked);
         window.PubSub.unsub("onProfileLikeClicked", this.handleProfileLikeClicked);

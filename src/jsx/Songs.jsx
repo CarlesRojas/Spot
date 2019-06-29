@@ -40,7 +40,7 @@ export default class Songs extends Component {
                 }
             ];
 
-            window.PubSub.emit("onSortBySelected", { items, callback: this.handleSortChange.bind(this) });
+            window.PubSub.emit("onSortByClicked", { items, callback: this.handleSortChange.bind(this) });
         }
     };
 
@@ -84,7 +84,7 @@ export default class Songs extends Component {
                 list: [
                     { event: "onAlbumSelected", type: "album" },
                     { event: "onArtistSelected", type: "artist" },
-                    { event: "onAddToSelected", type: "add" }
+                    { event: "onAddToClicked", type: "add" }
                 ]
             },
             right: {
