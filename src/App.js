@@ -421,7 +421,7 @@ export default class App extends Component {
 
                     // Get artists images
                     var artists = Object.keys(window.info.library.artists);
-                    this.getArtistsImages(artists, 0, 50);
+                    this.getArtistsImages(artists, 0);
                 }
             },
             err => {
@@ -430,8 +430,6 @@ export default class App extends Component {
                 else console.error(err);
             }
         );
-
-        // Get and Save album and artist info
     };
 
     // Parse song info (To keep only what will be used)
@@ -502,12 +500,13 @@ export default class App extends Component {
     };
 
     // Gets the images for the artists in the list
-    getArtistsImages = (artists, offset, limit) => {
+    getArtistsImages = (artists, offset) => {
+        var limit = 50;
         var curr = artists.slice(offset, offset + limit);
 
         // Return in there is no more artists to get
         if (curr.length <= 0) {
-            window.PubSub.emit("onLibraryLoaded");
+            this.getUserPlaylists(0);
             return;
         }
 
@@ -520,7 +519,80 @@ export default class App extends Component {
                         window.info.library.artists[artistID]["image"] = url;
                     }
                 }
-                this.getArtistsImages(artists, offset + limit, limit);
+                this.getArtistsImages(artists, offset + limit);
+            },
+            err => {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
+            }
+        );
+    };
+
+    // Gets the user playlists
+    getUserPlaylists = offset => {
+        var limit = 50;
+
+        window.spotifyAPI.getUserPlaylists({ offset: offset, limit: limit }).then(
+            response => {
+                const { items, next } = response;
+
+                for (let i = 0; i < items.length; i++) this.parseAndSavePlaylists(items[i], i);
+
+                if (next) this.getUserPlaylists((offset += limit));
+                else {
+                    this.forceUpdate();
+
+                    // Get the songs in each playlist
+                    var playlists = Object.keys(window.info.library.playlists);
+
+                    for (var i = 0; i < playlists.length; ++i) this.getPlaylistSongs(playlists[i], 0, 100);
+
+                    // Loading library complete
+                    window.PubSub.emit("onLibraryLoaded");
+                }
+            },
+            err => {
+                if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                else console.error(err);
+            }
+        );
+    };
+
+    // Parse and save playlists to the library
+    parseAndSavePlaylists = (playlist, order) => {
+        var playlistID = playlist.id;
+        var dateAdded = order;
+
+        // Add playlist
+        if (!(playlistID in window.info.library.playlists)) {
+            var playlistInfo = {};
+            playlistInfo["playlistID"] = playlistID;
+            playlistInfo["dateAdded"] = dateAdded;
+            playlistInfo["name"] = playlist.name;
+            playlistInfo["image"] = playlist.images.length ? playlist.images[0].url : "https://i.imgur.com/06SzS3d.png";
+            playlistInfo["songs"] = {};
+            window.info.library.playlists[playlistID] = playlistInfo;
+        }
+    };
+
+    // Get the songs in each playlist
+    getPlaylistSongs = (playlist, offset) => {
+        var limit = 100;
+
+        window.spotifyAPI.getPlaylistTracks(playlist, { fields: "items(track(id))", offset: offset, limit: limit }).then(
+            response => {
+                const { items, next } = response;
+
+                for (var i = 0; i < items.length; ++i) {
+                    var songID = items[i].track.id;
+                    if (songID in window.info.library.songs && playlist in window.info.library.playlists) {
+                        window.info.library.playlists[playlist].songs[songID] = null;
+                    }
+                }
+
+                if (next) this.getPlaylistSongs((offset += limit));
             },
             err => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
