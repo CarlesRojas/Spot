@@ -22,15 +22,17 @@ export default class Search extends Component {
         var actions = {
             left: {
                 numberOfActionsAlwaysVisible: 0,
-
                 // Items in normal order (first one is in the left)
-                list: []
+                list: [
+                    { event: "onAlbumSelected", type: "album" },
+                    { event: "onArtistSelected", type: "artist" },
+                    { event: "onAddToClicked", type: "add" }
+                ]
             },
             right: {
-                numberOfActionsAlwaysVisible: 0,
-
+                numberOfActionsAlwaysVisible: 1,
                 // Items in reverse order (first one is in the right)
-                list: []
+                list: [{ event: "onSongLikeClicked", type: "like" }, { event: "onSortClicked", type: "sort" }]
             }
         };
 

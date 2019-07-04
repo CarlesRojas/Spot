@@ -1,10 +1,30 @@
 import React, { Component } from "react";
+import { sortableHandle } from "react-sortable-hoc";
 import "../css/ItemSong.css";
 
 import AlbumIcon from "../resources/albumSmall.svg";
 import ArtistIcon from "../resources/artistSmall.svg";
 import LikedIcon from "../resources/liked.svg";
 import AddIcon from "../resources/add.svg";
+import SortIcon from "../resources/hamburger.svg";
+
+const DragHandle = sortableHandle(({ index, left, value }) => {
+    console.log(index);
+    console.log(left);
+    console.log(value);
+    var style = left ? { left: value } : { right: value };
+
+    return (
+        <button key={index} className="itemSong_actionButton" style={style}>
+            <img className="itemSong_icon" src={SortIcon} alt="" />
+        </button>
+        /*
+        <div className="itemSong_handle">
+            <img className="itemSong_icon" src={AlbumIcon} alt="" />
+        </div>
+        */
+    );
+});
 
 export default class ItemSong extends Component {
     constructor(props) {
@@ -14,7 +34,7 @@ export default class ItemSong extends Component {
 
         var hiddenLeftIcons = actions.left.list.length - actions.left.numberOfActionsAlwaysVisible;
         var hiddenRightIcons = actions.right.list.length - actions.right.numberOfActionsAlwaysVisible;
-        var containerWidth = window.innerWidth - 7 - 1.5 * 16;
+        var containerWidth = window.innerWidth - 7; // 7 pixels is the width of the scrollbar
 
         this.info = {
             position: "normal", // "normal", "left", "right"
@@ -22,14 +42,14 @@ export default class ItemSong extends Component {
             acceleration: 0.1,
 
             // Dimensions and static positions
-            width: containerWidth + (hiddenLeftIcons + hiddenRightIcons) * 3 * 16,
+            width: containerWidth + (hiddenLeftIcons + hiddenRightIcons) * 3 * 16, // 3 rems
             nameWidth: containerWidth - (actions.left.numberOfActionsAlwaysVisible + actions.right.numberOfActionsAlwaysVisible) * 3 * 16,
             nameLeftOffset: actions.left.list.length * 3 * 16,
 
             // Left positions
-            leftLeft: 0 * 16,
-            normalLeft: hiddenLeftIcons * -3 * 16, // 3rems each action
-            rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16
+            leftLeft: 0 * 16 - 0.75 * 16, // 0.75 * 16 is the size of the margin of the list
+            normalLeft: hiddenLeftIcons * -3 * 16 - 0.75 * 16,
+            rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16 - 0.75 * 16
         };
 
         this.state = {
@@ -388,12 +408,15 @@ export default class ItemSong extends Component {
 
     // Renders the component
     render() {
-        const { id, height, name, album, artist, selected, skeleton, albumID, artistID, applyWidth, actions } = this.props;
+        const { id, height, name, album, artist, selected, skeleton, albumID, artistID, actions } = this.props;
         const { width, nameWidth, nameLeftOffset } = this.info;
         const { left } = this.state;
 
         // Compute left buttons
         var leftButtons = actions.left.list.map(({ event, type }, index) => {
+            // Special case for the draggable sort icon
+            if (type === "sort") return <DragHandle key={index} index={index} left={true} value={index * 3 + "rem"} />;
+
             if (type === "album") {
                 var icon = AlbumIcon;
                 var importantID = albumID;
@@ -420,6 +443,9 @@ export default class ItemSong extends Component {
         });
 
         var rightButtons = actions.right.list.map(({ event, type }, index) => {
+            // Special case for the draggable sort icon
+            if (type === "sort") return <DragHandle index={index} left={false} value={index * 3 + "rem"} />;
+
             if (type === "album") {
                 var icon = AlbumIcon;
                 var importantID = albumID;
@@ -446,15 +472,13 @@ export default class ItemSong extends Component {
             );
         });
 
-        // Styles
-        var wrapperStyle = applyWidth ? { left: left + "px", width: width + "px" } : { left: left + "px" };
-        var buttonStyle = applyWidth
-            ? { height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }
-            : { height: height + "px", left: nameLeftOffset + "px" };
-
         return (
-            <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={wrapperStyle}>
-                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={buttonStyle}>
+            <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ left: left + "px", width: width + "px" }}>
+                <button
+                    className="itemSong_button"
+                    onClick={() => this.handleClick(id, skeleton)}
+                    style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}
+                >
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
                         {skeleton ? "-" : window.prettifyName(name)}
                     </p>

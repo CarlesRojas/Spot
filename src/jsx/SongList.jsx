@@ -110,7 +110,6 @@ export default class SongList extends Component {
                 selected={id === playbackState["songID"]}
                 skeleton={skeleton}
                 actions={actions}
-                applyWidth={true}
                 onDelete={() => this.handleDeleteSong(id)}
             />
         );
