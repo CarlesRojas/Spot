@@ -7,17 +7,18 @@ import ArtistIcon from "../resources/artistSmall.svg";
 import LikedIcon from "../resources/liked.svg";
 import AddIcon from "../resources/add.svg";
 import SortIcon from "../resources/hamburger.svg";
+import RemoveIcon from "../resources/remove.svg";
 
 const DragHandle = sortableHandle(({ index, left, value }) => {
     console.log(index);
     console.log(left);
     console.log(value);
-    var style = left ? { left: value } : { right: value };
+    var style = left ? { width: "2rem", height: "calc(100% - 1rem)", left: value } : { width: "2rem", height: "calc(100% - 1rem)", right: value };
 
     return (
-        <button key={index} className="itemSong_actionButton" style={style}>
+        <div key={index} className="itemSong_actionButton" style={style}>
             <img className="itemSong_icon" src={SortIcon} alt="" />
-        </button>
+        </div>
         /*
         <div className="itemSong_handle">
             <img className="itemSong_icon" src={AlbumIcon} alt="" />
@@ -43,13 +44,13 @@ export default class ItemSong extends Component {
 
             // Dimensions and static positions
             width: containerWidth + (hiddenLeftIcons + hiddenRightIcons) * 3 * 16, // 3 rems
-            nameWidth: containerWidth - (actions.left.numberOfActionsAlwaysVisible + actions.right.numberOfActionsAlwaysVisible) * 3 * 16,
+            nameWidth: containerWidth - (actions.left.numberOfActionsAlwaysVisible + actions.right.numberOfActionsAlwaysVisible) * 3 * 16 - 1.5 * 16, // 1.5 is the margin of the list
             nameLeftOffset: actions.left.list.length * 3 * 16,
 
             // Left positions
-            leftLeft: 0 * 16 - 0.75 * 16, // 0.75 * 16 is the size of the margin of the list
-            normalLeft: hiddenLeftIcons * -3 * 16 - 0.75 * 16,
-            rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16 - 0.75 * 16
+            leftLeft: 0 * 16, // 0.75 * 16 is the size of the margin of the list
+            normalLeft: hiddenLeftIcons * -3 * 16,
+            rightLeft: (hiddenLeftIcons + hiddenRightIcons) * -3 * 16
         };
 
         this.state = {
@@ -415,7 +416,7 @@ export default class ItemSong extends Component {
         // Compute left buttons
         var leftButtons = actions.left.list.map(({ event, type }, index) => {
             // Special case for the draggable sort icon
-            if (type === "sort") return <DragHandle key={index} index={index} left={true} value={index * 3 + "rem"} />;
+            if (type === "sort") return <DragHandle key={index} index={index} left={true} value={index * 3 * 16 - 0.75 * 16 + "px"} />; // 3 * 16 are 3 rems, 0.75 * 16 is the margin
 
             if (type === "album") {
                 var icon = AlbumIcon;
@@ -426,6 +427,9 @@ export default class ItemSong extends Component {
             } else if (type === "add") {
                 icon = AddIcon;
                 importantID = id;
+            } else if (type === "remove") {
+                icon = RemoveIcon;
+                importantID = id;
             } else if (type === "like") {
                 icon = LikedIcon;
                 importantID = id;
@@ -435,7 +439,7 @@ export default class ItemSong extends Component {
                     key={index}
                     className="itemSong_actionButton"
                     onClick={() => this.handleActionClick(importantID, event)}
-                    style={{ left: index * 3 + "rem" }}
+                    style={{ left: index * 3 * 16 - 0.75 * 16 + "px" }}
                 >
                     <img className="itemSong_icon" src={icon} alt="" />
                 </button>
@@ -444,7 +448,7 @@ export default class ItemSong extends Component {
 
         var rightButtons = actions.right.list.map(({ event, type }, index) => {
             // Special case for the draggable sort icon
-            if (type === "sort") return <DragHandle index={index} left={false} value={index * 3 + "rem"} />;
+            if (type === "sort") return <DragHandle index={index} left={false} value={index * 3 * 16 + 0.75 * 16 + "px"} />;
 
             if (type === "album") {
                 var icon = AlbumIcon;
@@ -454,6 +458,9 @@ export default class ItemSong extends Component {
                 importantID = artistID;
             } else if (type === "add") {
                 icon = AddIcon;
+                importantID = id;
+            } else if (type === "remove") {
+                icon = RemoveIcon;
                 importantID = id;
             } else if (type === "like") {
                 icon = LikedIcon;
@@ -465,7 +472,7 @@ export default class ItemSong extends Component {
                     key={index}
                     className="itemSong_actionButton"
                     onClick={() => this.handleActionClick(importantID, event)}
-                    style={{ right: index * 3 + "rem" }}
+                    style={{ right: index * 3 * 16 + 0.75 * 16 + "px" }}
                 >
                     <img className="itemSong_icon" src={icon} alt="" />
                 </button>

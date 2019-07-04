@@ -32,7 +32,7 @@ export default class Search extends Component {
             right: {
                 numberOfActionsAlwaysVisible: 1,
                 // Items in reverse order (first one is in the right)
-                list: [{ event: "onSongLikeClicked", type: "like" }, { event: "onSortClicked", type: "sort" }]
+                list: [{ event: "onSongLikeClicked", type: "like" }, { event: "onRemoveClicked", type: "remove" }, { event: "", type: "sort" }]
             }
         };
 

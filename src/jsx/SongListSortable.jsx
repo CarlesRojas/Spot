@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import ItemSong from "./ItemSong";
-import { sortableContainer, sortableElement, sortableHandle } from "react-sortable-hoc";
+import { sortableContainer, sortableElement } from "react-sortable-hoc";
 import arrayMove from "array-move";
 import "../css/SongListSortable.css";
 
-const SortableItem = sortableElement(({ value }) => value);
+const SortableItem = sortableElement(({ value }) => <li className="songListSortable_element">{value}</li>);
 
 const SortableContainer = sortableContainer(({ children }) => {
     return <ul className="songListSortable_list">{children}</ul>;
@@ -17,7 +17,6 @@ export default class SongListSortable extends Component {
         const { order, listenToOrderChange } = props;
 
         this.state = {
-            scrollTop: 0,
             rowHeight: window.innerHeight / 11,
             listOrder: this.getListOrder(order)
         };
@@ -42,7 +41,6 @@ export default class SongListSortable extends Component {
     // Returns a list of song IDs in the order specified: ["album", "name", "nameReversed", "dateAdded", "dateReversed"]
     getListOrder = order => {
         const { songList } = this.props;
-        console.log(songList);
 
         function orderFunction(a, b, order) {
             if (order === "name") {
@@ -89,7 +87,6 @@ export default class SongListSortable extends Component {
     // Handle when the list is scrolled
     handleScroll = event => {
         window.PubSub.emit("onCloseSongActions");
-        this.setState({ scrollTop: event.target.scrollTop });
     };
 
     // Handle a song being deleted
@@ -134,21 +131,15 @@ export default class SongListSortable extends Component {
     // Renders the component
     render() {
         const { songList } = this.props;
-        const { scrollTop, rowHeight, listOrder } = this.state;
+        const { listOrder } = this.state;
         const list = listOrder;
-        const numRows = list.length > 0 ? list.length : 20;
-
-        const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - 20);
-        const endIndex = Math.min(startIndex + 30, numRows);
-        const totalHeight = rowHeight * numRows;
-        const paddingTop = startIndex * rowHeight;
 
         // List to be rendered
         const renderedItems = [];
-        let index = startIndex;
+        let index = 0;
 
         // Add all items that will be shown
-        while (index < endIndex) {
+        while (index < list.length) {
             if (index < list.length) {
                 var { songID, name, albumID, artistID, albumName, artistName } = songList[list[index]];
                 renderedItems.push(this.createItem({ id: songID, name, album: albumName, artist: artistName, albumID, artistID }, false));
@@ -160,8 +151,8 @@ export default class SongListSortable extends Component {
 
         return (
             <div className="songListSortable_scroll" onScroll={this.handleScroll}>
-                <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
-                    <SortableContainer onSortEnd={this.handleSortEnd} lockAxis="y" useDragHandle>
+                <div>
+                    <SortableContainer onSortEnd={this.handleSortEnd} lockAxis="y" lockToContainerEdges={true} lockOffset={"30%"} useDragHandle>
                         {renderedItems.map((value, index) => (
                             <SortableItem key={"item" + index} index={index} value={value} />
                         ))}
