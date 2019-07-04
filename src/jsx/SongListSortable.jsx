@@ -1,8 +1,27 @@
 import React, { Component } from "react";
 import ItemSong from "./ItemSong";
-import "../css/SongList.css";
+import AlbumIcon from "../resources/albumSmall.svg";
+import { sortableContainer, sortableElement, sortableHandle, arrayMove } from "react-sortable-hoc";
+import "../css/SongListSortable.css";
 
-export default class SongList extends Component {
+const DragHandle = sortableHandle(() => (
+    <div className="songListSortable_handle">
+        <img className="songListSortable_icon" src={AlbumIcon} alt="" />
+    </div>
+));
+
+const SortableItem = sortableElement(({ value }) => (
+    <li className="songListSortable_itemWrapper">
+        <DragHandle />
+        {value}
+    </li>
+));
+
+const SortableContainer = sortableContainer(({ children }) => {
+    return <ul>{children}</ul>;
+});
+
+export default class SongListSortable extends Component {
     constructor(props) {
         super(props);
 
@@ -34,6 +53,7 @@ export default class SongList extends Component {
     // Returns a list of song IDs in the order specified: ["album", "name", "nameReversed", "dateAdded", "dateReversed"]
     getListOrder = order => {
         const { songList } = this.props;
+        console.log(songList);
 
         function orderFunction(a, b, order) {
             if (order === "name") {
@@ -91,6 +111,13 @@ export default class SongList extends Component {
         this.setState({ listOrder: list });
     };
 
+    // Handles a song being sorted
+    handleSortEnd = ({ oldIndex, newIndex }) => {
+        this.setState(({ listOrder }) => ({
+            items: arrayMove(listOrder, oldIndex, newIndex)
+        }));
+    };
+
     // Create the component from an element in the array
     createItem = (elem, skeleton) => {
         const { playbackState, actions } = this.props;
@@ -110,7 +137,7 @@ export default class SongList extends Component {
                 selected={id === playbackState["songID"]}
                 skeleton={skeleton}
                 actions={actions}
-                applyWidth={true}
+                applyWidth={false}
                 onDelete={() => this.handleDeleteSong(id)}
             />
         );
@@ -144,13 +171,22 @@ export default class SongList extends Component {
         }
 
         return (
-            <div className="songList_scroll" onScroll={this.handleScroll}>
+            <div className="songListSortable_scroll" onScroll={this.handleScroll}>
                 <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
-                    <ol className="songList_list">{renderedItems}</ol>
+                    <SortableContainer onSortEnd={this.handleSortEnd} useDragHandle>
+                        {renderedItems.map((value, index) => (
+                            <SortableItem key={"item" + index} index={index} value={value} />
+                        ))}
+                    </SortableContainer>
                 </div>
             </div>
         );
     }
+    /*
+                <div style={{ height: totalHeight - paddingTop, paddingTop: paddingTop }}>
+                    <ul className="songListSortable_list">{renderedItems}</ul>
+                </div>
+                */
 
     // Stop listening to events
     componentWillUnmount() {

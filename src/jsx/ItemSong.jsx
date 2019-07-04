@@ -388,7 +388,7 @@ export default class ItemSong extends Component {
 
     // Renders the component
     render() {
-        const { id, height, name, album, artist, selected, skeleton, albumID, artistID, actions } = this.props;
+        const { id, height, name, album, artist, selected, skeleton, albumID, artistID, applyWidth, actions } = this.props;
         const { width, nameWidth, nameLeftOffset } = this.info;
         const { left } = this.state;
 
@@ -446,13 +446,15 @@ export default class ItemSong extends Component {
             );
         });
 
+        // Styles
+        var wrapperStyle = applyWidth ? { left: left + "px", width: width + "px" } : { left: left + "px" };
+        var buttonStyle = applyWidth
+            ? { height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }
+            : { height: height + "px", left: nameLeftOffset + "px" };
+
         return (
-            <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={{ left: left + "px", width: width + "px" }}>
-                <button
-                    className="itemSong_button"
-                    onClick={() => this.handleClick(id, skeleton)}
-                    style={{ height: height + "px", width: nameWidth, left: nameLeftOffset + "px" }}
-                >
+            <div className="itemSong_wrapper" ref={elem => (this.wrapperDOM = elem)} style={wrapperStyle}>
+                <button className="itemSong_button" onClick={() => this.handleClick(id, skeleton)} style={buttonStyle}>
                     <p className={"itemSong_name " + (skeleton ? "itemSong_skeletonName" : "") + (selected ? " itemSong_selectedName" : "")}>
                         {skeleton ? "-" : window.prettifyName(name)}
                     </p>
