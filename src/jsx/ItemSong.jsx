@@ -10,20 +10,12 @@ import SortIcon from "../resources/hamburger.svg";
 import RemoveIcon from "../resources/remove.svg";
 
 const DragHandle = sortableHandle(({ index, left, value }) => {
-    console.log(index);
-    console.log(left);
-    console.log(value);
     var style = left ? { width: "2rem", height: "calc(100% - 1rem)", left: value } : { width: "2rem", height: "calc(100% - 1rem)", right: value };
 
     return (
         <div key={index} className="itemSong_actionButton" style={style}>
             <img className="itemSong_icon" src={SortIcon} alt="" />
         </div>
-        /*
-        <div className="itemSong_handle">
-            <img className="itemSong_icon" src={AlbumIcon} alt="" />
-        </div>
-        */
     );
 });
 
@@ -448,7 +440,7 @@ export default class ItemSong extends Component {
 
         var rightButtons = actions.right.list.map(({ event, type }, index) => {
             // Special case for the draggable sort icon
-            if (type === "sort") return <DragHandle index={index} left={false} value={index * 3 * 16 + 0.75 * 16 + "px"} />;
+            if (type === "sort") return <DragHandle key={index} index={index} left={false} value={index * 3 * 16 + 0.75 * 16 + "px"} />;
 
             if (type === "album") {
                 var icon = AlbumIcon;

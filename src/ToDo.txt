@@ -1,0 +1,42 @@
+Songs:
+    Implement Shuffle
+    Implement Click on a Song (Play all liked songs)
+
+Albums:
+    Implement Shuffle from inside an Albums
+    Implement Click on a Song (Play all songs in that album)
+
+
+Artist:
+    Implement Shuffle from inside an Artist
+    Implement Click on a Song (Play all songs in that artist)
+
+Playlist:
+    Implement Create a Playlist
+    Implement Sort playlists
+    Implement Sort songs inside a playlist (API call)
+    Implement Delete playlist
+    Implement Rename playlist
+    Hide Spot Queue & Create if it does not exist
+    Implement remove song from playlist
+    Update playlist when a song is removed from it
+    Change heart icon when the song is unliked in a playlist
+    Implement Click on a Song (Play all songs in that playlist)
+
+Search:
+    Search songs, albums or artists
+    listen to songs that are not in the library
+
+Popups:
+    Unlike confirmation popup 
+    Remove from playlist confirmation popup
+
+Cover:
+    Next / Prev song
+
+Currently Playing:
+    Lyrics
+    Icons Shuffle and repeat
+
+Queue:
+    Sortable queue list

@@ -4,7 +4,7 @@ import { sortableContainer, sortableElement } from "react-sortable-hoc";
 import arrayMove from "array-move";
 import "../css/SongListSortable.css";
 
-const SortableItem = sortableElement(({ value }) => <li className="songListSortable_element">{value}</li>);
+const SortableItem = sortableElement(({ value }) => <li className="songListSortable_item">{value}</li>);
 
 const SortableContainer = sortableContainer(({ children }) => {
     return <ul className="songListSortable_list">{children}</ul>;
@@ -152,7 +152,15 @@ export default class SongListSortable extends Component {
         return (
             <div className="songListSortable_scroll" onScroll={this.handleScroll}>
                 <div>
-                    <SortableContainer onSortEnd={this.handleSortEnd} lockAxis="y" lockToContainerEdges={true} lockOffset={"30%"} useDragHandle>
+                    <SortableContainer
+                        onSortEnd={this.handleSortEnd}
+                        lockAxis="y"
+                        lockToContainerEdges={true}
+                        lockOffset={"30%"}
+                        pressDelay={200}
+                        helperClass={"songListSortable_ghost"}
+                        useDragHandle
+                    >
                         {renderedItems.map((value, index) => (
                             <SortableItem key={"item" + index} index={index} value={value} />
                         ))}

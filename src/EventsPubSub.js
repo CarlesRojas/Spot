@@ -32,13 +32,16 @@ export default class EventsPubSub {
     onVerticalSwipe:            Called the user swipes verticaly on the album picture       ({ normalHeight, smallHeigth, normalTop, miniatureTop, currentSongsTop, currentHeight, currentTop })
     
     onSongOrderChange:          Called when the order in the main songs list changes        ({order})
-    onSongSelected:             Called when a song is clicked                               ({id})
-    onAlbumSelected:            Called when an album is clicked                             ({id})
-    onArtistSelected:           Called when an artist is clicked                            ({id})
-    onAddToClicked:             Called when the Add To action is selected                   ({ids})
-    onSortByClicked:            Called when the Sort By action is selected                  ({items, callback})
-    onSongLikeClicked:          Called when the like button is called in a song             ({id})
-    onProfileLikeClicked:       Called when the like button is called in an album/artist    ({id})
+    
+    onSongSelected:             Called when a song is selected                              ({id})
+    onAlbumSelected:            Called when an album is selected                            ({id})
+    onArtistSelected:           Called when an artist is selected                           ({id})
+    onPlaylistSelected:         Called when a playlist is selected                          ({id})
+
+    onAddToClicked:             Called when the Add To action is clicked                    ({ids})
+    onSortByClicked:            Called when the Sort By action is clicked                   ({items, callback})
+    onSongLikeClicked:          Called when the like button is clicked in a song            ({id})
+    onProfileLikeClicked:       Called when the like button is clicked in an album/artist   ({id})
     onRemoveClicked:            Called when the remove button is clicked in a playlist      ({id})
 
     onClosePopup:               Called when the back button in a popup is clicked           ({type})

@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import Vibrant from "node-vibrant";
 import SongList from "./SongList";
-import "../css/Profile.css";
+import SongListSortable from "./SongListSortable";
 import HorizontalList from "./HorizontalList";
+import "../css/Profile.css";
 
 import LikedIcon from "../resources/liked.svg";
 import AddIcon from "../resources/add.svg";
@@ -21,9 +22,14 @@ export default class Profile extends Component {
                 break;
 
             case "album":
-            default:
                 borderRadius = "0.5rem";
                 background = image === "https://i.imgur.com/iajaWIN.png" ? null : image;
+                break;
+
+            case "playlist":
+            default:
+                borderRadius = "0.5rem";
+                background = image === "https://i.imgur.com/06SzS3d.png" ? null : image;
                 break;
         }
 
@@ -86,58 +92,108 @@ export default class Profile extends Component {
     render() {
         const { playbackState, songList, albumList } = this.props;
         const { type, id, borderRadius, image, background, name, albumsHeight, albumsWidth, albumsPadding, imageColor } = this.state;
-        const { albumID, artistID } = playbackState;
+        const { albumID, artistID, playlistID } = playbackState;
 
-        // Set information
-        switch (type) {
-            case "artist":
-                var selected = artistID === id;
-                var zIndex = 10;
+        // Playlist Info
+        if (type === "playlist") {
+            var selected = playlistID === id;
+            var zIndex = 10;
+            var albums = null;
 
-                var albumObjects = Object.values(albumList).map(albumInfo => {
-                    return {
-                        id: albumInfo.albumID,
-                        height: albumsHeight,
-                        width: albumsWidth,
-                        padding: albumsPadding,
-                        name: albumInfo.name,
-                        image: albumInfo.image,
-                        selected: albumInfo.albumID === albumID
-                    };
-                });
+            var actions = {
+                left: {
+                    numberOfActionsAlwaysVisible: 0,
+                    // Items in normal order (first one is in the left)
+                    list: [
+                        { event: "onAlbumSelected", type: "album" },
+                        { event: "onArtistSelected", type: "artist" },
+                        { event: "onAddToClicked", type: "add" }
+                    ]
+                },
+                right: {
+                    numberOfActionsAlwaysVisible: 1,
+                    // Items in reverse order (first one is in the right)
+                    list: [{ event: "onSongLikeClicked", type: "like" }, { event: "onRemoveClicked", type: "remove" }, { event: "", type: "sort" }]
+                }
+            };
 
-                if (albumObjects.length) {
-                    var albums = (
-                        <div className="profile_albums" style={{ height: albumsHeight, zIndex: zIndex }}>
-                            <HorizontalList elements={albumObjects} />
-                        </div>
-                    );
-                } else albums = null;
-
-                break;
-
-            case "album":
-            default:
-                selected = albumID === id;
-                zIndex = 20;
-                albums = null;
-
-                break;
+            var songListOject = (
+                <SongListSortable
+                    songList={songList}
+                    playbackState={playbackState}
+                    actions={actions}
+                    order={"dateAdded"}
+                    listenToOrderChange={false}
+                />
+            );
         }
 
-        // Prepare song actions
-        var actions = {
-            left: {
-                numberOfActionsAlwaysVisible: 0,
-                // Items in normal order (first one is in the left)
-                list: [{ event: "onAddToClicked", type: "add" }]
-            },
-            right: {
-                numberOfActionsAlwaysVisible: 0,
-                // Items in reverse order (first one is in the right)
-                list: [{ event: "onSongLikeClicked", type: "like" }]
-            }
-        };
+        // Artist Info
+        else if (type === "artist") {
+            selected = artistID === id;
+            zIndex = 20;
+
+            var albumObjects = Object.values(albumList).map(albumInfo => {
+                return {
+                    id: albumInfo.albumID,
+                    height: albumsHeight,
+                    width: albumsWidth,
+                    padding: albumsPadding,
+                    name: albumInfo.name,
+                    image: albumInfo.image,
+                    selected: albumInfo.albumID === albumID
+                };
+            });
+
+            if (albumObjects.length) {
+                albums = (
+                    <div className="profile_albums" style={{ height: albumsHeight, zIndex: zIndex }}>
+                        <HorizontalList elements={albumObjects} />
+                    </div>
+                );
+            } else albums = null;
+
+            actions = {
+                left: {
+                    numberOfActionsAlwaysVisible: 0,
+                    // Items in normal order (first one is in the left)
+                    list: [{ event: "onAddToClicked", type: "add" }]
+                },
+                right: {
+                    numberOfActionsAlwaysVisible: 0,
+                    // Items in reverse order (first one is in the right)
+                    list: [{ event: "onSongLikeClicked", type: "like" }]
+                }
+            };
+
+            songListOject = (
+                <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" listenToOrderChange={false} />
+            );
+        }
+
+        // Album Info
+        else {
+            selected = albumID === id;
+            zIndex = 30;
+            albums = null;
+
+            actions = {
+                left: {
+                    numberOfActionsAlwaysVisible: 0,
+                    // Items in normal order (first one is in the left)
+                    list: [{ event: "onAddToClicked", type: "add" }]
+                },
+                right: {
+                    numberOfActionsAlwaysVisible: 0,
+                    // Items in reverse order (first one is in the right)
+                    list: [{ event: "onSongLikeClicked", type: "like" }]
+                }
+            };
+
+            songListOject = (
+                <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" listenToOrderChange={false} />
+            );
+        }
 
         // Image gradient for the top of the window
         var imageGradient =
@@ -178,7 +234,7 @@ export default class Profile extends Component {
                     </button>
                 </div>
                 <div className="profile_songs" style={{ zIndex: zIndex }}>
-                    <SongList songList={songList} playbackState={playbackState} actions={actions} order="album" listenToOrderChange={false} />
+                    {songListOject}
                 </div>
                 {albums}
                 <div className="profile_controls" style={{ zIndex: zIndex }}>

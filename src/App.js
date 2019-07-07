@@ -74,6 +74,11 @@ export default class App extends Component {
 
             // Popups
             popups: {
+                playlist: "",
+                playlistSongs: {},
+                playlistName: "Unknown Playlist",
+                playlistImage: "https://i.imgur.com/iajaWIN.png",
+
                 album: "",
                 albumSongs: {},
                 albumName: "Unknown Album",
@@ -106,9 +111,12 @@ export default class App extends Component {
         window.addEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.sub("onWindowResize", this.handleWindowResize);
         window.PubSub.sub("onPausePlay", this.handlePausePlay);
+
         window.PubSub.sub("onSongSelected", this.handleSongSelected);
         window.PubSub.sub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.sub("onArtistSelected", this.handleArtistSelected);
+        window.PubSub.sub("onPlaylistSelected", this.handlePlaylistSelected);
+
         window.PubSub.sub("onAddToClicked", this.handleAddToClicked);
         window.PubSub.sub("onSortByClicked", this.handleSortByClicked);
         window.PubSub.sub("onClosePopup", this.handleClosePopup);
@@ -619,7 +627,22 @@ export default class App extends Component {
     };
 
     // Adds the songs in ids to the playlist named 'name'
-    addToPlaylist = (name, ids) => {};
+    addToPlaylist = (playlistID, ids) => {
+        ids = ids.map(id => "spotify:track:" + id);
+        var callLimit = 20;
+
+        for (var i = 0; i < ids.length; i += callLimit) {
+            var currIDs = ids.slice(i, callLimit);
+            window.spotifyAPI.addTracksToPlaylist(playlistID, currIDs, {}).then(
+                response => {},
+                err => {
+                    if (err.status === 401) window.location.assign("http://localhost:8888/login");
+                    else if (err.status === 404) this.transferPlayer(window.info.deviceID);
+                    else console.error(err);
+                }
+            );
+        }
+    };
 
     // Remove extra info from a song, album or artist name
     prettifyName = name => {
@@ -711,6 +734,34 @@ export default class App extends Component {
         this.setState({ popups: newPopups });
     };
 
+    // Called when the user selects a playlist from the library
+    handlePlaylistSelected = ({ id }) => {
+        var newPopups = { ...this.state.popups };
+
+        if (id in window.info.library.playlists) {
+            newPopups.playlist = id;
+            newPopups.playlistName = window.info.library.playlists[id].name;
+            newPopups.playlistImage = window.info.library.playlists[id].image;
+
+            newPopups.playlistSongs = {};
+            Object.keys(window.info.library.playlists[id].songs)
+                .filter(songID => songID in window.info.library.songs)
+                .map(songID => {
+                    return (newPopups.playlistSongs[songID] = window.info.library.songs[songID]);
+                });
+
+            newPopups.playlistAlbums = [];
+        } else {
+            newPopups.playlist = id;
+            newPopups.playlistName = "Unknown Playlist";
+            newPopups.playlistImage = "https://i.imgur.com/06SzS3d.png";
+            newPopups.playlistSongs = [];
+            newPopups.playlistAlbums = [];
+        }
+
+        this.setState({ popups: newPopups });
+    };
+
     // Called when the user selects the sort option
     handleSortByClicked = ({ items, callback }) => {
         var newPopups = { ...this.state.popups };
@@ -726,45 +777,37 @@ export default class App extends Component {
     handleAddToClicked = ({ ids }) => {
         var newPopups = { ...this.state.popups };
 
-        var items = [
-            {
-                name: "Queue",
-                callbackName: "Spot Queue",
-                selected: true
-            },
-            {
-                name: "Current",
-                callbackName: "Current",
+        var items = Object.values(window.info.library.playlists).map(playlist => {
+            return {
+                name: playlist.name,
+                callbackName: playlist.playlistID,
                 selected: false
-            },
-            {
-                name: "Pop",
-                callbackName: "Pop",
-                selected: false
-            }
-        ];
+            };
+        });
 
         newPopups.addTo = true;
         newPopups.addToCallback = this.handlePopupPlaylistClicked.bind(this);
         newPopups.addToItems = items;
         newPopups.addToIds = ids;
 
-        console.log(ids);
         this.setState({ popups: newPopups });
     };
 
     // Callback function for when a playlist is selected in the Add To popup
     handlePopupPlaylistClicked = name => {
         const { addToIds } = this.state.popups;
-
         this.addToPlaylist(name, addToIds);
     };
 
-    // Called when the user clicks the back button in a popup. Type: "album", "artist"
+    // Called when the user clicks the back button in a popup. Type: "album", "artist", "playlist", sortBy or addTo
     handleClosePopup = ({ type }) => {
         var newPopups = { ...this.state.popups };
 
         switch (type) {
+            case "playlist":
+                newPopups.playlist = "";
+                break;
+
             case "album":
                 newPopups.album = "";
                 break;
@@ -941,6 +984,20 @@ export default class App extends Component {
                             {cover}
                         </div>
 
+                        <SlideTransition isOpen={popups.playlist !== ""} duration={150} vertical={true} moveTopToBottom={popups.playlist !== ""}>
+                            <div className="app_popupWrapper">
+                                <Profile
+                                    type={"playlist"}
+                                    id={popups.playlist}
+                                    playbackState={playbackState}
+                                    name={popups.playlistName}
+                                    image={popups.playlistImage}
+                                    songList={popups.playlistSongs}
+                                    albumList={[]}
+                                />
+                            </div>
+                        </SlideTransition>
+
                         <SlideTransition isOpen={popups.artist !== ""} duration={150} vertical={true} moveTopToBottom={popups.artist !== ""}>
                             <div className="app_popupWrapper">
                                 <Profile
@@ -1023,9 +1080,12 @@ export default class App extends Component {
         window.removeEventListener("resize", () => window.PubSub.emit("onWindowResize"));
         window.PubSub.unsub("onWindowResize", this.handleWindowResize);
         window.PubSub.unsub("onPausePlay", this.handlePausePlay);
+
         window.PubSub.unsub("onSongSelected", this.handleSongSelected);
         window.PubSub.unsub("onAlbumSelected", this.handleAlbumSelected);
         window.PubSub.unsub("onArtistSelected", this.handleArtistSelected);
+        window.PubSub.unsub("onPlaylistSelected", this.handlePlaylistSelected);
+
         window.PubSub.unsub("onAddToClicked", this.handleAddToClicked);
         window.PubSub.unsub("onSortByClicked", this.handleSortByClicked);
         window.PubSub.unsub("onClosePopup", this.handleClosePopup);

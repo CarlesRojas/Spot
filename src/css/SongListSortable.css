@@ -13,9 +13,13 @@
     list-style-type: none;
 }
 
+.songListSortable_ghost {
+    z-index: 100;
+}
+
 /*      HANDLE        */
 
-.songListSortable_element {
+.songListSortable_item {
     position: relative;
     width: 100%;
     list-style-type: none;
