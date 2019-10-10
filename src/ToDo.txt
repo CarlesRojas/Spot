@@ -1,11 +1,11 @@
 Songs:
     Implement Shuffle
     Implement Click on a Song (Play all liked songs)
+    Force names to have the first letter capitalized & not the rest.
 
 Albums:
     Implement Shuffle from inside an Albums
     Implement Click on a Song (Play all songs in that album)
-
 
 Artist:
     Implement Shuffle from inside an Artist
