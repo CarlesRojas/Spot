@@ -51,9 +51,9 @@ export default class Profile extends Component {
             name,
             imageColor: [150, 150, 150],
 
-            albumsHeight: (window.innerWidth - 1.5 * 16) / 3 + 7,
+            albumsHeight: (window.innerWidth - 1.5 * 16) / 3 + 7, // 7 is the size of the scrollbar
             albumsWidth: (window.innerWidth - 1.5 * 16) / 3,
-            albumsPadding: 0.5 * 16
+            albumsPadding: 0.5 * 16,
         };
     }
 
@@ -64,7 +64,7 @@ export default class Profile extends Component {
     };
 
     // Handle the click on an action
-    handleActionClick = event => {
+    handleActionClick = (event) => {
         const { type, id } = this.state;
 
         // Open the add to popup
@@ -107,14 +107,18 @@ export default class Profile extends Component {
                     list: [
                         { event: "onAlbumSelected", type: "album" },
                         { event: "onArtistSelected", type: "artist" },
-                        { event: "onAddToClicked", type: "add" }
-                    ]
+                        { event: "onAddToClicked", type: "add" },
+                    ],
                 },
                 right: {
                     numberOfActionsAlwaysVisible: 1,
                     // Items in reverse order (first one is in the right)
-                    list: [{ event: "onSongLikeClicked", type: "like" }, { event: "onRemoveClicked", type: "remove" }, { event: "", type: "sort" }]
-                }
+                    list: [
+                        { event: "onSongLikeClicked", type: "like" },
+                        { event: "onRemoveClicked", type: "remove" },
+                        { event: "", type: "sort" },
+                    ],
+                },
             };
 
             var songListOject = (
@@ -133,7 +137,7 @@ export default class Profile extends Component {
             selected = artistID === id;
             zIndex = 20;
 
-            var albumObjects = Object.values(albumList).map(albumInfo => {
+            var albumObjects = Object.values(albumList).map((albumInfo) => {
                 return {
                     id: albumInfo.albumID,
                     height: albumsHeight,
@@ -141,7 +145,7 @@ export default class Profile extends Component {
                     padding: albumsPadding,
                     name: albumInfo.name,
                     image: albumInfo.image,
-                    selected: albumInfo.albumID === albumID
+                    selected: albumInfo.albumID === albumID,
                 };
             });
 
@@ -157,13 +161,13 @@ export default class Profile extends Component {
                 left: {
                     numberOfActionsAlwaysVisible: 0,
                     // Items in normal order (first one is in the left)
-                    list: [{ event: "onAddToClicked", type: "add" }]
+                    list: [{ event: "onAddToClicked", type: "add" }],
                 },
                 right: {
                     numberOfActionsAlwaysVisible: 0,
                     // Items in reverse order (first one is in the right)
-                    list: [{ event: "onSongLikeClicked", type: "like" }]
-                }
+                    list: [{ event: "onSongLikeClicked", type: "like" }],
+                },
             };
 
             songListOject = (
@@ -181,13 +185,13 @@ export default class Profile extends Component {
                 left: {
                     numberOfActionsAlwaysVisible: 0,
                     // Items in normal order (first one is in the left)
-                    list: [{ event: "onAddToClicked", type: "add" }]
+                    list: [{ event: "onAddToClicked", type: "add" }],
                 },
                 right: {
                     numberOfActionsAlwaysVisible: 0,
                     // Items in reverse order (first one is in the right)
-                    list: [{ event: "onSongLikeClicked", type: "like" }]
-                }
+                    list: [{ event: "onSongLikeClicked", type: "like" }],
+                },
             };
 
             songListOject = (

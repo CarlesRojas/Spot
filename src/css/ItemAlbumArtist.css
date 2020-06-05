@@ -15,8 +15,6 @@
     align-items: center;
 }
 
-/*      MAIN INFO        */
-
 .itemAlbumArtist_cover {
     pointer-events: none;
     user-select: none;

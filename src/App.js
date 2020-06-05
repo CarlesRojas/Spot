@@ -40,8 +40,8 @@ export default class App extends Component {
                 songs: {},
                 albums: {},
                 artists: {},
-                playlists: {}
-            }
+                playlists: {},
+            },
         };
 
         // Obtain token info from cookies
@@ -66,7 +66,7 @@ export default class App extends Component {
                 artistID: null,
                 playlistID: null,
                 exists: false,
-                image: null
+                image: null,
             },
             duration: 0,
             progress: 0,
@@ -97,8 +97,8 @@ export default class App extends Component {
                 addTo: false,
                 addToCallback: null,
                 addToItems: [],
-                addToIds: []
-            }
+                addToIds: [],
+            },
         };
 
         // Create spotify Player
@@ -133,7 +133,7 @@ export default class App extends Component {
         this.setState({
             width: window.innerWidth,
             height: window.innerHeight,
-            isPortrait: window.innerWidth <= window.innerHeight
+            isPortrait: window.innerWidth <= window.innerHeight,
         });
     };
 
@@ -185,7 +185,7 @@ export default class App extends Component {
 
     // Handles the load of the Spotify Web Playback Script-
     handleSpotifyPlaybackScriptLoad = () => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (window.Spotify) {
                 resolve();
             } else {
@@ -199,17 +199,17 @@ export default class App extends Component {
         fetch("http://localhost:8888/refresh_token", {
             method: "POST",
             body: JSON.stringify({ refresh_token: window.info.refreshToken }),
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
         })
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 window.info.accessToken = data.access_token;
                 window.info.tokenExpireDateTime = new Date(Date.now() + 25 * 60 * 1000);
                 this.setCookie("spot_accessToken", window.info.accessToken, 5);
                 this.setCookie("spot_tokenExpireDateTime", window.info.tokenExpireDateTime, 5);
                 window.spotifyAPI.setAccessToken(window.info.accessToken);
             })
-            .catch(error => console.log(error));
+            .catch((error) => console.log(error));
 
         window.refreshTokenInterval = window.setInterval(() => {
             if (Date.now() > window.info.tokenExpireDateTime) {
@@ -228,9 +228,9 @@ export default class App extends Component {
         window.onSpotifyWebPlaybackSDKReady = () => {
             window.info.player = new window.Spotify.Player({
                 name: "Spot",
-                getOAuthToken: callback => {
+                getOAuthToken: (callback) => {
                     callback(window.info.accessToken);
-                }
+                },
             });
 
             // Error handling
@@ -248,7 +248,7 @@ export default class App extends Component {
             });
 
             // Playback status updates
-            window.info.player.addListener("player_state_changed", state => {
+            window.info.player.addListener("player_state_changed", (state) => {
                 this.handlePlaybackChange();
             });
 
@@ -268,16 +268,16 @@ export default class App extends Component {
     };
 
     // Transfer the spotify player to Spot in this device
-    transferPlayer = deviceID => {
+    transferPlayer = (deviceID) => {
         window.info.deviceID = deviceID;
 
         // Start playing on Spot
         window.spotifyAPI.transferMyPlayback([window.info.deviceID], { play: true }).then(
-            response => {
+            (response) => {
                 console.log("Now Playing on Spot");
                 this.handlePlaybackChange();
             },
-            err => {
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -289,7 +289,7 @@ export default class App extends Component {
     handlePlaybackChange = () => {
         window.setTimeout(() => {
             window.spotifyAPI.getMyCurrentPlaybackState().then(
-                response => {
+                (response) => {
                     if (response) {
                         const { playbackState } = this.state;
                         const artistID = response.item.artists.length ? response.item.artists[0] : null;
@@ -327,11 +327,11 @@ export default class App extends Component {
                             playbackState: newPlaybackState,
                             duration: response.item.duration_ms,
                             progress: response.progress_ms,
-                            percentage: (response.progress_ms / response.item.duration_ms) * 100
+                            percentage: (response.progress_ms / response.item.duration_ms) * 100,
                         });
                     }
                 },
-                err => {
+                (err) => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -356,7 +356,7 @@ export default class App extends Component {
                         playbackState: newPlaybackState,
                         duration: 0,
                         progress: 0,
-                        percentage: 0
+                        percentage: 0,
                     });
                 }
             );
@@ -384,10 +384,10 @@ export default class App extends Component {
             this.setState({ playbackState: newPlaybackState });
 
             window.spotifyAPI.pause().then(
-                response => {
+                (response) => {
                     this.handlePlaybackChange();
                 },
-                err => {
+                (err) => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -401,10 +401,10 @@ export default class App extends Component {
             this.setState({ playbackState: newPlaybackState });
 
             window.spotifyAPI.play().then(
-                response => {
+                (response) => {
                     this.handlePlaybackChange();
                 },
-                err => {
+                (err) => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -414,11 +414,11 @@ export default class App extends Component {
     };
 
     // Get the user's library
-    getUserLibrary = offset => {
+    getUserLibrary = (offset) => {
         var limit = 50;
 
         window.spotifyAPI.getMySavedTracks({ offset: offset, limit: limit }).then(
-            response => {
+            (response) => {
                 const { items, next } = response;
 
                 for (let i = 0; i < items.length; i++) this.parseAndSaveSavedTracks(items[i]);
@@ -432,7 +432,7 @@ export default class App extends Component {
                     this.getArtistsImages(artists, 0);
                 }
             },
-            err => {
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -441,7 +441,7 @@ export default class App extends Component {
     };
 
     // Parse song info (To keep only what will be used)
-    parseAndSaveSavedTracks = song => {
+    parseAndSaveSavedTracks = (song) => {
         var dateAdded = new Date(song.added_at);
         song = song.track;
         var songID = song.id;
@@ -519,7 +519,7 @@ export default class App extends Component {
         }
 
         window.spotifyAPI.getArtists(curr).then(
-            response => {
+            (response) => {
                 for (let i = 0; i < response.artists.length; i++) {
                     var artistID = response.artists[i].id;
                     if (artistID in window.info.library.artists) {
@@ -529,7 +529,7 @@ export default class App extends Component {
                 }
                 this.getArtistsImages(artists, offset + limit);
             },
-            err => {
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -538,11 +538,11 @@ export default class App extends Component {
     };
 
     // Gets the user playlists
-    getUserPlaylists = offset => {
+    getUserPlaylists = (offset) => {
         var limit = 50;
 
         window.spotifyAPI.getUserPlaylists({ offset: offset, limit: limit }).then(
-            response => {
+            (response) => {
                 const { items, next } = response;
 
                 for (let i = 0; i < items.length; i++) this.parseAndSavePlaylists(items[i], i);
@@ -560,7 +560,7 @@ export default class App extends Component {
                     window.PubSub.emit("onLibraryLoaded");
                 }
             },
-            err => {
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -590,10 +590,11 @@ export default class App extends Component {
         var limit = 100;
 
         window.spotifyAPI.getPlaylistTracks(playlist, { fields: "items(track(id))", offset: offset, limit: limit }).then(
-            response => {
+            (response) => {
                 const { items, next } = response;
 
                 for (var i = 0; i < items.length; ++i) {
+                    if (!items[i].track) continue;
                     var songID = items[i].track.id;
                     if (songID in window.info.library.songs && playlist in window.info.library.playlists) {
                         window.info.library.playlists[playlist].songs[songID] = null;
@@ -602,7 +603,7 @@ export default class App extends Component {
 
                 if (next) this.getPlaylistSongs((offset += limit));
             },
-            err => {
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -611,13 +612,13 @@ export default class App extends Component {
     };
 
     // Removes the ids from Spotify, using its API
-    removeSongsFromSpotify = ids => {
+    removeSongsFromSpotify = (ids) => {
         var chunk = 5;
         for (var i = 0; i < ids.length; i += chunk) {
             var current = ids.slice(i, i + chunk);
             window.spotifyAPI.removeFromMySavedTracks(current).then(
-                response => {},
-                err => {
+                (response) => {},
+                (err) => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -628,14 +629,14 @@ export default class App extends Component {
 
     // Adds the songs in ids to the playlist named 'name'
     addToPlaylist = (playlistID, ids) => {
-        ids = ids.map(id => "spotify:track:" + id);
+        ids = ids.map((id) => "spotify:track:" + id);
         var callLimit = 20;
 
         for (var i = 0; i < ids.length; i += callLimit) {
             var currIDs = ids.slice(i, callLimit);
             window.spotifyAPI.addTracksToPlaylist(playlistID, currIDs, {}).then(
-                response => {},
-                err => {
+                (response) => {},
+                (err) => {
                     if (err.status === 401) window.location.assign("http://localhost:8888/login");
                     else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                     else console.error(err);
@@ -645,7 +646,7 @@ export default class App extends Component {
     };
 
     // Remove extra info from a song, album or artist name
-    prettifyName = name => {
+    prettifyName = (name) => {
         const separators = [" - ", "(", ":", ",", " /"];
 
         var index = Number.MAX_SAFE_INTEGER;
@@ -665,8 +666,8 @@ export default class App extends Component {
     // Called when a song is selected
     handleSongSelected = ({ id }) => {
         window.spotifyAPI.play({ uris: ["spotify:track:" + id] }).then(
-            response => {},
-            err => {
+            (response) => {},
+            (err) => {
                 if (err.status === 401) window.location.assign("http://localhost:8888/login");
                 else if (err.status === 404) this.transferPlayer(window.info.deviceID);
                 else console.error(err);
@@ -685,8 +686,8 @@ export default class App extends Component {
 
             newPopups.albumSongs = {};
             Object.keys(window.info.library.albums[id].songs)
-                .filter(songID => songID in window.info.library.songs)
-                .map(songID => {
+                .filter((songID) => songID in window.info.library.songs)
+                .map((songID) => {
                     return (newPopups.albumSongs[songID] = window.info.library.songs[songID]);
                 });
         } else {
@@ -711,15 +712,15 @@ export default class App extends Component {
 
             newPopups.artistSongs = {};
             Object.keys(window.info.library.artists[id].songs)
-                .filter(songID => songID in window.info.library.songs)
-                .map(songID => {
+                .filter((songID) => songID in window.info.library.songs)
+                .map((songID) => {
                     return (newPopups.artistSongs[songID] = window.info.library.songs[songID]);
                 });
 
             newPopups.artistAlbums = {};
             Object.keys(window.info.library.artists[id].albums)
-                .filter(albumID => albumID in window.info.library.albums)
-                .map(albumID => {
+                .filter((albumID) => albumID in window.info.library.albums)
+                .map((albumID) => {
                     return (newPopups.artistAlbums[albumID] = window.info.library.albums[albumID]);
                 });
         } else {
@@ -745,8 +746,8 @@ export default class App extends Component {
 
             newPopups.playlistSongs = {};
             Object.keys(window.info.library.playlists[id].songs)
-                .filter(songID => songID in window.info.library.songs)
-                .map(songID => {
+                .filter((songID) => songID in window.info.library.songs)
+                .map((songID) => {
                     return (newPopups.playlistSongs[songID] = window.info.library.songs[songID]);
                 });
 
@@ -777,11 +778,11 @@ export default class App extends Component {
     handleAddToClicked = ({ ids }) => {
         var newPopups = { ...this.state.popups };
 
-        var items = Object.values(window.info.library.playlists).map(playlist => {
+        var items = Object.values(window.info.library.playlists).map((playlist) => {
             return {
                 name: playlist.name,
                 callbackName: playlist.playlistID,
-                selected: false
+                selected: false,
             };
         });
 
@@ -794,7 +795,7 @@ export default class App extends Component {
     };
 
     // Callback function for when a playlist is selected in the Add To popup
-    handlePopupPlaylistClicked = name => {
+    handlePopupPlaylistClicked = (name) => {
         const { addToIds } = this.state.popups;
         this.addToPlaylist(name, addToIds);
     };
@@ -901,7 +902,7 @@ export default class App extends Component {
     };
 
     // Removes the id from the local library
-    removeSongFromLibrary = id => {
+    removeSongFromLibrary = (id) => {
         // Remove song from library
         if (id in window.info.library.songs) {
             var albumID = window.info.library.songs[id].albumID;
@@ -1106,7 +1107,7 @@ export default class App extends Component {
     };
 
     // Get a cookie
-    getCookie = name => {
+    getCookie = (name) => {
         var formatedName = name + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
         var splitedCookies = decodedCookie.split(";");

@@ -9,7 +9,7 @@ export default class Albums extends Component {
         super(props);
 
         this.info = {
-            longPressTimeout: null
+            longPressTimeout: null,
         };
 
         this.state = {
@@ -23,7 +23,7 @@ export default class Albums extends Component {
             // Order
             sortRotation: 0,
             order: "dateAdded",
-            listOrder: this.getListOrder("dateAdded")
+            listOrder: this.getListOrder("dateAdded"),
         };
 
         window.PubSub.sub("onLibraryLoaded", this.handleLibraryLoaded);
@@ -37,7 +37,7 @@ export default class Albums extends Component {
     };
 
     // Handle when the list is scrolled
-    handleScroll = event => {
+    handleScroll = (event) => {
         this.setState({ scrollTop: event.target.scrollTop });
     };
 
@@ -51,21 +51,13 @@ export default class Albums extends Component {
             this.info.longPressTimeout = null;
 
             var items = [
-                {
-                    name: "Name",
-                    callbackName: "name",
-                    selected: order === "name" || order === "nameReversed"
-                },
-                {
-                    name: "Date Added",
-                    callbackName: "dateAdded",
-                    selected: order === "dateAdded" || order === "dateAddedReversed"
-                }
+                { name: "Name", callbackName: "name", selected: order === "name" || order === "nameReversed" },
+                { name: "Date Added", callbackName: "dateAdded", selected: order === "dateAdded" || order === "dateAddedReversed" },
             ];
 
             window.PubSub.emit("onSortByClicked", {
                 items,
-                callback: this.handleSortChange.bind(this)
+                callback: this.handleSortChange.bind(this),
             });
         }
     };
@@ -84,17 +76,17 @@ export default class Albums extends Component {
         this.setState({
             sortRotation: sortRotation === 0 ? 180 : 0,
             order: newOrder,
-            listOrder: this.getListOrder(newOrder)
+            listOrder: this.getListOrder(newOrder),
         });
     };
 
     // Called when a different sort order is selected from the popup
-    handleSortChange = order => {
+    handleSortChange = (order) => {
         this.setState({ sortRotation: 0, order, listOrder: this.getListOrder(order) });
     };
 
     // Returns a list of song IDs in the order specified: ["name", "dateAdded"]
-    getListOrder = order => {
+    getListOrder = (order) => {
         function orderFunction(a, b, order) {
             if (order === "name") {
                 var orderA = a["name"];
@@ -131,7 +123,7 @@ export default class Albums extends Component {
 
         return Object.values(window.info.library.albums)
             .sort((a, b) => orderFunction(a, b, order))
-            .map(x => x["albumID"]);
+            .map((x) => x["albumID"]);
     };
 
     // Create the component from an element in the array
@@ -191,11 +183,11 @@ export default class Albums extends Component {
                 style={{
                     padding: "0 0 " + margin / 2 + "px 0",
                     height: "calc(100% - " + margin / 2 + "px)",
-                    backgroundImage: imageGradient
+                    backgroundImage: imageGradient,
                 }}
             >
                 <p className="albums_title">Liked Albums</p>
-                <div className="albums_sortButton" ref={elem => (this.buttonDOM = elem)}>
+                <div className="albums_sortButton" ref={(elem) => (this.buttonDOM = elem)}>
                     <img className="albums_icon" src={SortIcon} alt="" style={{ transform: sortTransform }} />
                 </div>
                 <div className="albums_scroll" onScroll={this.handleScroll}>
